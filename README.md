@@ -1,1 +1,1 @@
-# LoLBetBet
+# LoLBetBot
