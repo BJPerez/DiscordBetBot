@@ -1,5 +1,5 @@
 	# Minimum CMake version required, we'll just use the latest version.
-	cmake_minimum_required(VERSION 3.22)
+	cmake_minimum_required(VERSION 3.19)
 	# Project name, version and description
 	project(LoLBetBot VERSION 1.0 DESCRIPTION "A simple discord bot to handle friendly bets.")
 	 
@@ -7,8 +7,32 @@
 	 
 	# Create an executable
 	add_executable(${PROJECT_NAME}
-	    src/main.cpp
-	)
+	    "src/main.cpp"
+		"src/AddBetCommand.cpp"
+		"src/AddBetCommand.h"
+		"src/AddMatchCommand.cpp"
+		"src/AddMatchCommand.h"
+		"src/AddResultCommand.cpp"
+		"src/AddResultCommand.h"
+		"src/Bet.cpp"
+		"src/Bet.h"
+		"src/BettorResults.cpp"
+		"src/BettorResults.h"
+		"src/ICommand.cpp"
+		"src/ICommand.h"
+		"src/ICommandReceiver.cpp"
+		"src/ICommandReceiver.h"
+		"src/LoLBetBot.cpp"
+		"src/LoLBetBot.h"
+		"src/Match.h"
+		"src/MatchScore.h"
+		"src/ShowBetsCommand.cpp"
+		"src/ShowBetsCommand.h"
+		"src/ShowBettorsResultsCommand.cpp"
+		"src/ShowBettorsResultsCommand.h"
+		"src/ShowMatchesCommand.cpp"
+		"src/ShowMatchesCommand.h"
+		)
 	 
 	# Find our pre-installed DPP package (using FindDPP.cmake).
 	find_package(DPP REQUIRED)
