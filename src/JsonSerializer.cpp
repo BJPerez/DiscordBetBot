@@ -4,7 +4,7 @@
 
 #include "Bet.h"
 #include "BettorResults.h"
-#include "LoLBetBot.h"
+#include "BotData.h"
 #include "Match.h"
 
 namespace
@@ -116,23 +116,23 @@ dpp::json JsonSerializer::ToJson(const BettorResults& bettorResults)
 	return json;
 }
 
-dpp::json JsonSerializer::ToJson(const LoLBetBot& bot)
+dpp::json JsonSerializer::ToJson(const BotData& data)
 {
 	dpp::json json;
-	json["Matches"] = ToJsonArray(bot.GetIncomingMatches());
-	json["Bets"] = ToJsonArray(bot.GetBets());
-	json["BettorsResults"] = ToJsonArray(bot.GetBettorsResults());
+	json["Matches"] = ToJsonArray(data.GetIncomingMatches());
+	json["Bets"] = ToJsonArray(data.GetBets());
+	json["BettorsResults"] = ToJsonArray(data.GetBettorsResults());
 
 	return json;
 }
 
-void JsonSerializer::Serialize(const LoLBetBot& bot, std::ofstream& file) const
+void JsonSerializer::Serialize(const BotData& data, std::ofstream& file) const
 {
-	const dpp::json botAsJson = ToJson(bot);
+	const dpp::json botAsJson = ToJson(data);
 	file << botAsJson;
 }
 
-void JsonSerializer::UnSerialize(std::ifstream& file, LoLBetBot& data) const
+void JsonSerializer::UnSerialize(std::ifstream& file, BotData& data) const
 {
 	dpp::json dataAsJson;
 	file >> dataAsJson;
@@ -168,18 +168,18 @@ void JsonSerializer::FromJson(const dpp::json& json, BettorResults& outResults)
 	outResults.SetCorrectBetsByBoSize(correctBetsByBoSize);
 }
 
-void JsonSerializer::FromJson(const dpp::json& json, LoLBetBot& outBotData)
+void JsonSerializer::FromJson(const dpp::json& json, BotData& outData)
 {
 	std::vector<Match> incomingMatches;
 	FromJsonArray(json["Matches"], incomingMatches);
-	outBotData.SetIncomingMatches(incomingMatches);
+	outData.SetIncomingMatches(incomingMatches);
 
 	std::vector<Bet> bets;
 	FromJsonArray(json["Bets"], bets);
-	outBotData.SetBets(bets);
+	outData.SetBets(bets);
 
 	std::vector<BettorResults> results;
 	FromJsonArray(json["BettorsResults"], results);
-	outBotData.SetBettorResults(results);
+	outData.SetBettorResults(results);
 }
 

@@ -3,8 +3,8 @@
 #include "AddBetCommand.h"
 #include "AddMatchCommand.h"
 #include "AddResultCommand.h"
+#include "BotData.h"
 #include "JsonSerializer.h"
-#include "LoLBetBot.h"
 #include "SaveManager.h"
 #include "ShowBetsCommand.h"
 #include "ShowBettorsResultsCommand.h"
@@ -22,8 +22,8 @@ int main(const int argc, char* argv[])
 
 	/* Create bot cluster */
 	dpp::cluster bot(argv[1]);
-	LoLBetBot lolBot;
-	SaveManager saveManager(argv[2], lolBot);
+	BotData botData;
+	SaveManager saveManager(argv[2], botData);
 	saveManager.Load();
 
 	/* Output simple log messages to stdout */
@@ -62,7 +62,7 @@ int main(const int argc, char* argv[])
 
 	/* Handle slash command with the most recent addition to D++ features, coroutines! */
 	bot.on_slashcommand(
-		[&lolBot, &saveManager](const dpp::slashcommand_t& event)
+		[&botData, &saveManager](const dpp::slashcommand_t& event)
 		{
 			if (event.command.get_command_name() == "add_match")
 			{
@@ -70,7 +70,7 @@ int main(const int argc, char* argv[])
 				auto teamBName = std::get<std::string>(event.get_parameter("team_b"));
 				const unsigned int boSize = static_cast<unsigned int>(std::get<int64_t>(event.get_parameter("bo_size")));
 
-				const AddMatchCommand command{ std::move(teamAName), std::move(teamBName), boSize, lolBot };
+				const AddMatchCommand command{ std::move(teamAName), std::move(teamBName), boSize, botData };
 				std::string answer;
 				command.Execute(answer);
 				event.reply(answer);
@@ -83,7 +83,7 @@ int main(const int argc, char* argv[])
 				const unsigned int teamBScore = static_cast<unsigned int>(std::get<int64_t>(event.get_parameter("score_b")));
 				std::string userName = event.command.get_issuing_user().global_name;
 
-				const AddBetCommand command{ matchId, teamAScore, teamBScore, std::move(userName), lolBot };
+				const AddBetCommand command{ matchId, teamAScore, teamBScore, std::move(userName), botData };
 				std::string answer;
 				command.Execute(answer);
 				event.reply(answer);
@@ -95,7 +95,7 @@ int main(const int argc, char* argv[])
 				const unsigned int teamAScore = static_cast<unsigned int>(std::get<int64_t>(event.get_parameter("score_a")));
 				const unsigned int teamBScore = static_cast<unsigned int>(std::get<int64_t>(event.get_parameter("score_b")));
 
-				const AddResultCommand command{ matchId, teamAScore, teamBScore, lolBot };
+				const AddResultCommand command{ matchId, teamAScore, teamBScore, botData };
 				std::string answer;
 				command.Execute(answer);
 				event.reply(answer);
@@ -103,21 +103,21 @@ int main(const int argc, char* argv[])
 			}
 			else if (event.command.get_command_name() == "show_matches")
 			{
-				const ShowMatchesCommand command{ lolBot };
+				const ShowMatchesCommand command{ botData };
 				std::string answer;
 				command.Execute(answer);
 				event.reply(answer);
 			}
 			else if (event.command.get_command_name() == "show_bets")
 			{
-				const ShowBetsCommand command{ lolBot };
+				const ShowBetsCommand command{ botData };
 				std::string answer;
 				command.Execute(answer);
 				event.reply(answer);
 			}
 			else if (event.command.get_command_name() == "show_results")
 			{
-				const ShowBettorsResultsCommand command{ lolBot };
+				const ShowBettorsResultsCommand command{ botData };
 				std::string answer;
 				command.Execute(answer);
 				event.reply(answer);

@@ -3,13 +3,13 @@
 #include <memory>
 #include <string>
 
-class LoLBetBot;
+class BotData;
 class ISerializer;
 
 class SaveManager
 {
 public:
-	explicit SaveManager(std::string filePath, LoLBetBot& bot);
+	explicit SaveManager(std::string filePath, BotData& data);
 
 	void Save() const;
 	void Load() const;
@@ -17,5 +17,5 @@ public:
 private:
 	std::unique_ptr<ISerializer> m_Serializer;
 	std::string m_SaveFilePath;
-	LoLBetBot& m_Data;
+	BotData& m_Data;
 };

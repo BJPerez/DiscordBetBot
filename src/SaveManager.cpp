@@ -4,7 +4,7 @@
 
 #include "JsonSerializer.h"
 
-SaveManager::SaveManager(std::string filePath, LoLBetBot& bot): m_SaveFilePath(std::move(filePath)), m_Data(bot)
+SaveManager::SaveManager(std::string filePath, BotData& data): m_SaveFilePath(std::move(filePath)), m_Data(data)
 {
 	m_Serializer = std::make_unique<JsonSerializer>();
 }

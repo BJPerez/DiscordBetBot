@@ -1,18 +1,18 @@
-#include "LoLBetBot.h"
+#include "BotData.h"
 
 #include <algorithm>
 
-void LoLBetBot::AddMatch(std::string teamAName, std::string teamBName, const unsigned int boSize)
+void BotData::AddMatch(std::string teamAName, std::string teamBName, const unsigned int boSize)
 {
 	m_IncomingMatches.emplace_back(std::move(teamAName), std::move(teamBName), boSize);
 }
 
-void LoLBetBot::AddBet(const unsigned int matchId, const MatchScore& matchResult, std::string bettorName)
+void BotData::AddBet(const unsigned int matchId, const MatchScore& matchResult, std::string bettorName)
 {
 	m_Bets.emplace_back(matchId, matchResult, std::move(bettorName));
 }
 
-std::vector<std::reference_wrapper<const Bet>> LoLBetBot::GetBetsLinkedToMatch(const unsigned int matchId) const
+std::vector<std::reference_wrapper<const Bet>> BotData::GetBetsLinkedToMatch(const unsigned int matchId) const
 {
 	std::vector<std::reference_wrapper<const Bet>>  betsLinkedToMatch;
 	std::ranges::for_each(m_Bets,
@@ -28,7 +28,7 @@ std::vector<std::reference_wrapper<const Bet>> LoLBetBot::GetBetsLinkedToMatch(c
 	return betsLinkedToMatch;
 }
 
-void LoLBetBot::EraseBetsLinkedToMatch(const unsigned int matchId)
+void BotData::EraseBetsLinkedToMatch(const unsigned int matchId)
 {
 	std::erase_if(m_Bets,
 		[matchId](const Bet& bet)
@@ -38,7 +38,7 @@ void LoLBetBot::EraseBetsLinkedToMatch(const unsigned int matchId)
 	);
 }
 
-BettorResults& LoLBetBot::GetOrCreateBettorResults(std::string bettorName)
+BettorResults& BotData::GetOrCreateBettorResults(std::string bettorName)
 {
 	const auto valueFound = std::ranges::find_if(m_BettorResults,
 		[&bettorName](const BettorResults& results)
@@ -54,7 +54,7 @@ BettorResults& LoLBetBot::GetOrCreateBettorResults(std::string bettorName)
 	return *valueFound;
 }
 
-void LoLBetBot::AddResult(const unsigned int matchId, const MatchScore& matchResult)
+void BotData::AddResult(const unsigned int matchId, const MatchScore& matchResult)
 {
 	const std::optional<std::reference_wrapper<const Match>> matchOpt = GetMatch(matchId);
 	if (!matchOpt.has_value())
@@ -87,7 +87,7 @@ void LoLBetBot::AddResult(const unsigned int matchId, const MatchScore& matchRes
 	m_IncomingMatches.erase(std::ranges::find(m_IncomingMatches, match));
 }
 
-std::optional<std::reference_wrapper<const Match>> LoLBetBot::GetMatch(const unsigned int matchId) const
+std::optional<std::reference_wrapper<const Match>> BotData::GetMatch(const unsigned int matchId) const
 {
 	if (matchId == Match::INVALID_ID)
 	{
@@ -108,12 +108,12 @@ std::optional<std::reference_wrapper<const Match>> LoLBetBot::GetMatch(const uns
 	return std::optional<std::reference_wrapper<const Match>>(*matchIt);
 }
 
-std::optional<std::reference_wrapper<const Bet>> LoLBetBot::GetBet(const unsigned int matchId, const std::string& bettorName) const
+std::optional<std::reference_wrapper<const Bet>> BotData::GetBet(const unsigned int matchId, const std::string& bettorName) const
 {
-	return const_cast<LoLBetBot*>(this)->GetBet(matchId, bettorName);
+	return const_cast<BotData*>(this)->GetBet(matchId, bettorName);
 }
 
-std::optional<std::reference_wrapper<Bet>> LoLBetBot::GetBet(const unsigned int matchId, const std::string& bettorName) 
+std::optional<std::reference_wrapper<Bet>> BotData::GetBet(const unsigned int matchId, const std::string& bettorName) 
 {
 	if (matchId == Match::INVALID_ID || bettorName.empty())
 	{
@@ -134,7 +134,7 @@ std::optional<std::reference_wrapper<Bet>> LoLBetBot::GetBet(const unsigned int 
 	return std::reference_wrapper<Bet>(*betIt);
 }
 
-void LoLBetBot::ModifyBet(const unsigned int matchId, const MatchScore& matchResult, const std::string& bettorName)
+void BotData::ModifyBet(const unsigned int matchId, const MatchScore& matchResult, const std::string& bettorName)
 {
 	if (const std::optional<std::reference_wrapper<Bet>> bet = GetBet(matchId, bettorName))
 	{

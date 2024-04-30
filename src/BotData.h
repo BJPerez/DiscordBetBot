@@ -7,7 +7,7 @@
 #include "ICommandReceiver.h"
 #include "Match.h"
 
-class LoLBetBot final : public ICommandReceiver
+class BotData final : public ICommandReceiver
 {
 public:
 	void AddMatch(std::string teamAName, std::string teamBName, const unsigned int boSize) final;
