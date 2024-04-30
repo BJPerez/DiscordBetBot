@@ -432,3 +432,6 @@ FodyWeavers.xsd
 
 # Ignore the folder containing builds
 out/
+
+#Ignore specifics files
+CMakeSettings.json
