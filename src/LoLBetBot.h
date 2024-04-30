@@ -21,6 +21,10 @@ public:
 	[[nodiscard]] const std::vector<Match>& GetIncomingMatches() const final { return m_IncomingMatches; }
 	[[nodiscard]] const std::vector<BettorResults>& GetBettorsResults() const final { return m_BettorResults; }
 
+	void SetIncomingMatches(std::vector<Match> matches) { m_IncomingMatches = std::move(matches); }
+	void SetBets(std::vector<Bet> bets) { m_Bets = std::move(bets); }
+	void SetBettorResults(std::vector<BettorResults> results) { m_BettorResults = std::move(results); }
+
 private:
 	std::vector<Match> m_IncomingMatches;
 	std::vector<Bet> m_Bets;

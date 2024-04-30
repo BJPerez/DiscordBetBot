@@ -24,6 +24,7 @@
 		"src/ICommandReceiver.h"
 		"src/LoLBetBot.cpp"
 		"src/LoLBetBot.h"
+		"src/Match.cpp"
 		"src/Match.h"
 		"src/MatchScore.h"
 		"src/ShowBetsCommand.cpp"
@@ -32,6 +33,10 @@
 		"src/ShowBettorsResultsCommand.h"
 		"src/ShowMatchesCommand.cpp"
 		"src/ShowMatchesCommand.h"
+		"src/JsonSerializer.cpp"
+		"src/JsonSerializer.h"
+		"src/SaveManager.cpp"
+		"src/SaveManager.h"
 		)
 	 
 	# Find our pre-installed DPP package (using FindDPP.cmake).

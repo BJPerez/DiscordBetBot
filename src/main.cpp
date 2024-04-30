@@ -3,14 +3,19 @@
 #include "AddBetCommand.h"
 #include "AddMatchCommand.h"
 #include "AddResultCommand.h"
+#include "JsonSerializer.h"
 #include "LoLBetBot.h"
+#include "SaveManager.h"
 #include "ShowBetsCommand.h"
 #include "ShowBettorsResultsCommand.h"
 #include "ShowMatchesCommand.h"
 
 int main(const int argc, char* argv[])
 {
-	if (argc != 2)
+	// Index 0 --> exe
+	// Index 1 --> bot token
+	// Index 2 --> path to save file
+	if (argc != 3)
 	{
 		return EXIT_FAILURE;
 	}
@@ -18,6 +23,8 @@ int main(const int argc, char* argv[])
 	/* Create bot cluster */
 	dpp::cluster bot(argv[1]);
 	LoLBetBot lolBot;
+	SaveManager saveManager(argv[2], lolBot);
+	saveManager.Load();
 
 	/* Output simple log messages to stdout */
 	bot.on_log(dpp::utility::cout_logger());
@@ -55,7 +62,7 @@ int main(const int argc, char* argv[])
 
 	/* Handle slash command with the most recent addition to D++ features, coroutines! */
 	bot.on_slashcommand(
-		[&lolBot](const dpp::slashcommand_t& event)
+		[&lolBot, &saveManager](const dpp::slashcommand_t& event)
 		{
 			if (event.command.get_command_name() == "add_match")
 			{
@@ -67,6 +74,7 @@ int main(const int argc, char* argv[])
 				std::string answer;
 				command.Execute(answer);
 				event.reply(answer);
+				saveManager.Save();
 			}
 			else if (event.command.get_command_name() == "add_bet")
 			{
@@ -79,6 +87,7 @@ int main(const int argc, char* argv[])
 				std::string answer;
 				command.Execute(answer);
 				event.reply(answer);
+				saveManager.Save();
 			}
 			else if (event.command.get_command_name() == "add_result")
 			{
@@ -90,6 +99,7 @@ int main(const int argc, char* argv[])
 				std::string answer;
 				command.Execute(answer);
 				event.reply(answer);
+				saveManager.Save();
 			}
 			else if (event.command.get_command_name() == "show_matches")
 			{
