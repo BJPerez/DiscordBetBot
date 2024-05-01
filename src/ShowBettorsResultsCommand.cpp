@@ -36,9 +36,10 @@ void ShowBettorsResultsCommand::ExecuteInternal(std::string& outAnswerToUser) co
 			while (currentBoSize >= 1)
 			{
 				const unsigned int perfectBets = perfectBetsByBoSize.contains(currentBoSize) ? perfectBetsByBoSize.at(currentBoSize) : 0;
+				const unsigned int perfectBetsPoints = perfectBets * (currentBoSize + 1);
 				const unsigned int correctBets = correctBetsByBoSize.contains(currentBoSize) ? correctBetsByBoSize.at(currentBoSize) : 0;
 
-				outAnswerToUser += "BO" + std::to_string(currentBoSize) + ": " + std::to_string(perfectBets) + " PB (" + std::to_string(perfectBets * currentBoSize) + "pts)" +
+				outAnswerToUser += "BO" + std::to_string(currentBoSize) + ": " + std::to_string(perfectBets) + " PB (" + std::to_string(perfectBetsPoints) + "pts)" +
 					" and " + std::to_string(correctBets) + " CB (" + std::to_string(correctBets) + "pts)   |   ";
 				currentBoSize -= 2;
 			}

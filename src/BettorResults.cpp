@@ -33,14 +33,14 @@ unsigned int BettorResults::GetScore() const
 {
 	unsigned int result{ 0 };
 
-	for (const auto& nbPerfectBest : m_PerfectBetsByBoSize | std::views::values)
+	for (const auto& nbCorrectBets : m_CorrectBetsByBoSize | std::views::values)
 	{
-		result += nbPerfectBest;
+		result += nbCorrectBets; // 1 pt by correct better
 	}
 
-	for (const auto& [boSize, nbCorrectBets] : m_PerfectBetsByBoSize)
+	for (const auto& [boSize, nbPerfectBets] : m_PerfectBetsByBoSize)
 	{
-		result += nbCorrectBets * boSize;
+		result += nbPerfectBets * (boSize + 1); // 1 pt by perfect bet + 1 pt for each game possible in the BO (BO5 will gives 1 + 5 pts)
 	}
 
 	return result;

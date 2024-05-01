@@ -19,7 +19,8 @@ void ShowMatchesCommand::ExecuteInternal(std::string& outAnswerToUser) const
 	std::ranges::for_each(matches,
 		[&outAnswerToUser](const Match& match)
 		{
-			outAnswerToUser += "ID: " + std::to_string(match.GetId()) + " | Team A: " + match.GetTeamAName() + " | Team B: " + match.GetTeamBName() + "\n";
+			outAnswerToUser += "ID: " + std::to_string(match.GetId()) + " | Team A: " + match.GetTeamAName() + " | Team B: " + match.GetTeamBName() + 
+				" | BO" + std::to_string(match.GetBoSize()) + "\n";
 		}
 	);
 }
