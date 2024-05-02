@@ -37,6 +37,8 @@
 		"src/JsonSerializer.h"
 		"src/SaveManager.cpp"
 		"src/SaveManager.h"
+		"src/BetBot.cpp"
+		"src/BetBot.h"
 		)
 	 
 	# Find our pre-installed DPP package (using FindDPP.cmake).
