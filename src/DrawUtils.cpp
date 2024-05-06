@@ -1,5 +1,7 @@
 #include "DrawUtils.h"
 
+#include <algorithm>
+
 constexpr std::size_t SPACES_AROUND_WORD_IN_CELL = 2;
 
 void DrawUtils::DrawSeparativeLine(const std::vector<std::size_t>& columnSizes, std::string& outLine)
