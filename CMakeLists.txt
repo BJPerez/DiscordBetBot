@@ -1,5 +1,5 @@
 	# Minimum CMake version required, we'll just use the latest version.
-	cmake_minimum_required(VERSION 3.19)
+	cmake_minimum_required(VERSION 3.28)
 	# Project name, version and description
 	project(BetBot VERSION 1.0 DESCRIPTION "A simple discord bot to handle friendly bets.")
 	 
@@ -39,6 +39,8 @@
 		"src/SaveManager.h"
 		"src/BetBot.cpp"
 		"src/BetBot.h"
+		"src/DrawUtils.cpp"
+		"src/DrawUtils.h"
 		)
 	 
 	# Find our pre-installed DPP package (using FindDPP.cmake).

@@ -1,7 +1,10 @@
 #pragma once
 
+#include <vector>
+
 #include "ICommand.h"
 
+class Bet;
 class ICommandReceiver;
 
 class ShowBetsCommand final : public ICommand
@@ -14,5 +17,7 @@ private:
 
 	void ExecuteInternal(std::string& outAnswerToUser) const final;
 	[[nodiscard]] bool ValidateCommand(std::string& outUserErrMsg) const final;
+
+	void FillColumnsWithBetInfos(std::vector<std::vector<std::string>>& outColumnsContent) const;
 };
 

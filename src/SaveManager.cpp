@@ -2,6 +2,7 @@
 
 #include <fstream>
 
+#include "BotData.h"
 #include "JsonSerializer.h"
 
 SaveManager::SaveManager(std::string filePath, BotData& data): m_SaveFilePath(std::move(filePath)), m_Data(data)

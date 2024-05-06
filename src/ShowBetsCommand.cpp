@@ -3,22 +3,48 @@
 #include <algorithm>
 
 #include "Bet.h"
+#include "DrawUtils.h"
 #include "ICommandReceiver.h"
 #include "Match.h"
+
+constexpr unsigned int TABLE_COLUMN_COUNT = 5;
 
 void ShowBetsCommand::ExecuteInternal(std::string& outAnswerToUser) const
 {
 	outAnswerToUser.clear();
 
-	const std::vector<Bet>& bets = m_CommandReceiver.GetBets();
-	if (bets.empty())
+	if (const std::vector<Bet>& bets = m_CommandReceiver.GetBets(); 
+		bets.empty())
 	{
 		outAnswerToUser += "Not bet to display yet.";
 		return;
 	}
 
-	std::ranges::for_each(bets,
-		[this, &outAnswerToUser](const Bet& bet)
+	std::vector<std::vector<std::string>> columnsContents (TABLE_COLUMN_COUNT);
+	FillColumnsWithBetInfos(columnsContents);
+	DrawUtils::DrawTable(columnsContents, outAnswerToUser);
+}
+
+bool ShowBetsCommand::ValidateCommand(std::string&) const
+{
+	return true;
+}
+
+void ShowBetsCommand::FillColumnsWithBetInfos(std::vector<std::vector<std::string>>& outColumnsContent) const
+{
+	if (outColumnsContent.size() != TABLE_COLUMN_COUNT)
+	{
+		return;
+	}
+
+	outColumnsContent[0].emplace_back("Bettor");
+	outColumnsContent[1].emplace_back("Team A");
+	outColumnsContent[2].emplace_back("Score A");
+	outColumnsContent[3].emplace_back("Score B");
+	outColumnsContent[4].emplace_back("Team B");
+
+	std::ranges::for_each(m_CommandReceiver.GetBets(),
+		[this, &outColumnsContent](const Bet& bet)
 		{
 			const std::optional<std::reference_wrapper<const Match>> matchOpt = m_CommandReceiver.GetMatch(bet.GetMatchId());
 			if (!matchOpt.has_value())
@@ -27,14 +53,11 @@ void ShowBetsCommand::ExecuteInternal(std::string& outAnswerToUser) const
 			}
 			const Match& match = matchOpt.value().get();
 
-			const auto& [teamAScore, teamBScore] = bet.GetScore();
-			outAnswerToUser += bet.GetBettorName() + ": " + match.GetTeamAName() + " " + std::to_string(teamAScore) + " - " + std::to_string(teamBScore) +
-				" " + match.GetTeamBName() + "\n";
+			outColumnsContent[0].emplace_back(bet.GetBettorName());
+			outColumnsContent[1].emplace_back(match.GetTeamAName());
+			outColumnsContent[2].emplace_back(std::to_string(bet.GetScore().m_TeamAScore));
+			outColumnsContent[3].emplace_back(std::to_string(bet.GetScore().m_TeamBScore));
+			outColumnsContent[4].emplace_back(match.GetTeamBName());
 		}
 	);
-}
-
-bool ShowBetsCommand::ValidateCommand(std::string&) const
-{
-	return true;
 }
