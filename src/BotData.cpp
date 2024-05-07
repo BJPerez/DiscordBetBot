@@ -76,12 +76,7 @@ void BotData::AddResult(const unsigned int matchId, const MatchScore& matchResul
 		}
 	);
 
-	std::ranges::sort(m_BettorResults, 
-		[](const BettorResults& a, const BettorResults& b)
-		{
-			return a.GetScore() > b.GetScore();
-		}
-	);
+	SortResults();
 
 	EraseBetsLinkedToMatch(matchId);
 	m_IncomingMatches.erase(std::ranges::find(m_IncomingMatches, match));
@@ -140,4 +135,20 @@ void BotData::ModifyBet(const unsigned int matchId, const MatchScore& matchResul
 	{
 		bet.value().get().SetScore(matchResult);
 	}
+}
+
+void BotData::SetBettorResults(std::vector<BettorResults> results)
+{
+	m_BettorResults = std::move(results);
+	SortResults();
+}
+
+void BotData::SortResults()
+{
+	std::ranges::sort(m_BettorResults,
+		[](const BettorResults& a, const BettorResults& b)
+		{
+			return a.GetScore() > b.GetScore();
+		}
+	);
 }

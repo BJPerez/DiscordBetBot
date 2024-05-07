@@ -7,7 +7,10 @@
 #include "ICommandReceiver.h"
 #include "Match.h"
 
-constexpr unsigned int TABLE_COLUMN_COUNT = 5;
+namespace
+{
+	constexpr unsigned int TABLE_COLUMN_COUNT = 5;
+}
 
 void ShowBetsCommand::ExecuteInternal(std::string& outAnswerToUser) const
 {

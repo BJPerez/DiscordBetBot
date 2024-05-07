@@ -23,7 +23,7 @@ public:
 
 	void SetIncomingMatches(std::vector<Match> matches) { m_IncomingMatches = std::move(matches); }
 	void SetBets(std::vector<Bet> bets) { m_Bets = std::move(bets); }
-	void SetBettorResults(std::vector<BettorResults> results) { m_BettorResults = std::move(results); }
+	void SetBettorResults(std::vector<BettorResults> results);
 
 private:
 	std::vector<Match> m_IncomingMatches;
@@ -37,5 +37,6 @@ private:
 
 
 	void EraseBetsLinkedToMatch(const unsigned int matchId);
+	void SortResults();
 };
 
