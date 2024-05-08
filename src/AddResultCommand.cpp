@@ -4,10 +4,10 @@
 
 #include "ICommandReceiver.h"
 
-void AddResultCommand::ExecuteInternal(std::string& outAnswerToUser) const
+dpp::message AddResultCommand::ExecuteInternal(const dpp::slashcommand_t& event) const
 {
 	m_CommandReceiver.AddResult(m_MatchId, m_Score);
-	outAnswerToUser = "Result added and bettors' scores updated.";
+	return { event.command.channel_id, "Result added and bettors' scores updated." };
 }
 
 bool AddResultCommand::ValidateCommand(std::string& outUserErrMsg) const

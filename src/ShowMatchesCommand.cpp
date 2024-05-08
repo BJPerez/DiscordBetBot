@@ -5,24 +5,24 @@
 #include "ICommandReceiver.h"
 #include "Match.h"
 
-void ShowMatchesCommand::ExecuteInternal(std::string& outAnswerToUser) const
+dpp::message ShowMatchesCommand::ExecuteInternal(const dpp::slashcommand_t& event) const
 {
-	outAnswerToUser.clear();
-
 	const std::vector<Match>& matches = m_CommandReceiver.GetIncomingMatches();
 	if (matches.empty())
 	{
-		outAnswerToUser += "No match to display yet.";
-		return;
+		return { event.command.channel_id, "No match to display yet." };
 	}
 
+	std::string msgText;
 	std::ranges::for_each(matches,
-		[&outAnswerToUser](const Match& match)
+		[&msgText](const Match& match)
 		{
-			outAnswerToUser += "ID: " + std::to_string(match.GetId()) + " | Team A: " + match.GetTeamAName() + " | Team B: " + match.GetTeamBName() + 
+			msgText += "ID: " + std::to_string(match.GetId()) + " | Team A: " + match.GetTeamAName() + " | Team B: " + match.GetTeamBName() +
 				" | BO" + std::to_string(match.GetBoSize()) + "\n";
 		}
 	);
+
+	return { event.command.channel_id, msgText };
 }
 
 bool ShowMatchesCommand::ValidateCommand(std::string&) const

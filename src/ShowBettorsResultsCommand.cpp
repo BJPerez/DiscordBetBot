@@ -21,22 +21,22 @@ namespace
 	}
 }
 
-void ShowBettorsResultsCommand::ExecuteInternal(std::string& outAnswerToUser) const
+dpp::message ShowBettorsResultsCommand::ExecuteInternal(const dpp::slashcommand_t& event) const
 {
-	outAnswerToUser.clear();
-
 	if (const std::vector<BettorResults>& allResults = m_CommandReceiver.GetBettorsResults(); 
 		allResults.empty())
 	{
-		outAnswerToUser += "No result to display yet.";
-		return;
+		return { event.command.channel_id, "No result to display yet." };
 	}
 
 	std::vector<std::vector<std::string>> columnsContents(TABLE_COLUMN_COUNT);
 	FillColumnsWithResultsInfos(columnsContents);
-	DrawUtils::DrawTable(columnsContents, outAnswerToUser);
 
-	outAnswerToUser += "PB = Perfect Bet (winning team + exact score)    |     CB = Correct Bet (winning team only)";
+	std::string msgText;
+	DrawUtils::DrawTable(columnsContents, msgText);
+	msgText += "PB = Perfect Bet (winning team + exact score)    |     CB = Correct Bet (winning team only)";
+
+	return { event.command.channel_id, msgText };
 }
 
 bool ShowBettorsResultsCommand::ValidateCommand(std::string&) const

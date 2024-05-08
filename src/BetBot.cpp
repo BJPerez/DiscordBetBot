@@ -75,9 +75,7 @@ void BetBot::ExecuteAddMatch(const dpp::slashcommand_t& event)
 	const unsigned int boSize = static_cast<unsigned int>(std::get<int64_t>(event.get_parameter("bo_size")));
 
 	const AddMatchCommand command{ std::move(teamAName), std::move(teamBName), boSize, m_Data };
-	std::string answer;
-	command.Execute(answer);
-	event.reply(answer);
+	event.reply(command.Execute(event));
 	m_Saver.Save();
 }
 
@@ -89,9 +87,7 @@ void BetBot::ExecuteAddBet(const dpp::slashcommand_t& event)
 	std::string userName = event.command.get_issuing_user().global_name;
 
 	const AddBetCommand command{ matchId, teamAScore, teamBScore, std::move(userName), m_Data };
-	std::string answer;
-	command.Execute(answer);
-	event.reply(answer);
+	event.reply(command.Execute(event));
 	m_Saver.Save();
 }
 
@@ -102,34 +98,26 @@ void BetBot::ExecuteAddResult(const dpp::slashcommand_t& event)
 	const unsigned int teamBScore = static_cast<unsigned int>(std::get<int64_t>(event.get_parameter("score_b")));
 
 	const AddResultCommand command{ matchId, teamAScore, teamBScore, m_Data };
-	std::string answer;
-	command.Execute(answer);
-	event.reply(answer);
+	event.reply(command.Execute(event));
 	m_Saver.Save();
 }
 
 void BetBot::ExecuteShowMatches(const dpp::slashcommand_t& event)
 {
 	const ShowMatchesCommand command{ m_Data };
-	std::string answer;
-	command.Execute(answer);
-	event.reply(answer);
+	event.reply(command.Execute(event));
 }
 
 void BetBot::ExecuteShowBets(const dpp::slashcommand_t& event)
 {
 	const ShowBetsCommand command{ m_Data };
-	std::string answer;
-	command.Execute(answer);
-	event.reply(answer);
+	event.reply(command.Execute(event));
 }
 
 void BetBot::ExecuteShowResults(const dpp::slashcommand_t& event)
 {
 	const ShowBettorsResultsCommand command{ m_Data };
-	std::string answer;
-	command.Execute(answer);
-	event.reply(answer);
+	event.reply(command.Execute(event));
 }
 
 void BetBot::SetUpCallbacks()

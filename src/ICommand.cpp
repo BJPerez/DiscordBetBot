@@ -1,14 +1,13 @@
 #include "ICommand.h"
 
-bool ICommand::Execute(std::string& outAnswerToUser) const
+dpp::message ICommand::Execute(const dpp::slashcommand_t& event) const
 {
 	if (std::string errorMsg; 
 		!ValidateCommand(errorMsg))
 	{
-		outAnswerToUser = "Error: " + errorMsg;
-		return false;
+		errorMsg = "Error: " + errorMsg;
+		return { event.command.channel_id, errorMsg };
 	}
 
-	ExecuteInternal(outAnswerToUser);
-	return true;
+	return ExecuteInternal(event);
 }

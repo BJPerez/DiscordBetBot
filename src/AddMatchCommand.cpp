@@ -2,10 +2,10 @@
 
 #include "ICommandReceiver.h"
 
-void AddMatchCommand::ExecuteInternal(std::string& outAnswerToUser) const
+dpp::message AddMatchCommand::ExecuteInternal(const dpp::slashcommand_t& event) const
 {
 	m_CommandReceiver.AddMatch(m_TeamAName, m_TeamBName, m_BoSize);
-	outAnswerToUser = "Match added.";
+	return { event.command.channel_id, "Match added." };
 }
 
 bool AddMatchCommand::ValidateCommand(std::string& outUserErrMsg) const

@@ -20,7 +20,7 @@ private:
 	std::string m_BettorName;
 	ICommandReceiver& m_CommandReceiver;
 
-	void ExecuteInternal(std::string& outAnswerToUser) const final;
+	dpp::message ExecuteInternal(const dpp::slashcommand_t& event) const final;
 	[[nodiscard]] bool ValidateCommand(std::string& outUserErrMsg) const final;
 };
 
