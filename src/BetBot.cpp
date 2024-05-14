@@ -132,7 +132,7 @@ void BetBot::ExecuteShowResults(const dpp::slashcommand_t& event)
 
 void BetBot::ExecuteShowBetProposal(const dpp::select_click_t& event)
 {
-	const ShowBetProposalCommand command{ event.command.channel_id, std::stoul(event.values[0]), m_Data };
+	const ShowBetProposalCommand command{ event.command.channel_id, static_cast<unsigned int>(std::stoul(event.values[0])), m_Data };
 	event.reply(command.Execute());
 }
 
