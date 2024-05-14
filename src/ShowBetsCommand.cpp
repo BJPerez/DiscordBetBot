@@ -12,12 +12,12 @@ namespace
 	constexpr unsigned int TABLE_COLUMN_COUNT = 5;
 }
 
-dpp::message ShowBetsCommand::ExecuteInternal(const dpp::slashcommand_t& event) const
+dpp::message ShowBetsCommand::ExecuteInternal() const
 {
 	if (const std::vector<Bet>& bets = m_CommandReceiver.GetBets(); 
 		bets.empty())
 	{
-		return { event.command.channel_id, "Not bet to display yet." };
+		return { GetAnswerChannelId(), "Not bet to display yet." };
 	}
 
 	std::vector<std::vector<std::string>> columnsContents (TABLE_COLUMN_COUNT);
@@ -25,7 +25,7 @@ dpp::message ShowBetsCommand::ExecuteInternal(const dpp::slashcommand_t& event) 
 
 	std::string msgText;
 	DrawUtils::DrawTable(columnsContents, msgText);
-	return { event.command.channel_id, msgText };
+	return { GetAnswerChannelId(), msgText };
 }
 
 bool ShowBetsCommand::ValidateCommand(std::string&) const

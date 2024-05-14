@@ -5,15 +5,15 @@
 #include "Bet.h"
 #include "ICommandReceiver.h"
 
-dpp::message AddBetCommand::ExecuteInternal(const dpp::slashcommand_t& event) const 
+dpp::message AddBetCommand::ExecuteInternal() const 
 {
 	if (const std::optional<std::reference_wrapper<const Bet>> bet = m_CommandReceiver.GetBet(m_MatchId, m_BettorName))
 	{
 		m_CommandReceiver.ModifyBet(m_MatchId, m_Score, m_BettorName);
-		return {event.command.channel_id, "You already had a different bet for this match. The score has been modified."};
+		return {GetAnswerChannelId(), "You already had a different bet for this match. The score has been modified."};
 	}
 	m_CommandReceiver.AddBet(m_MatchId, m_Score, m_BettorName);
-	return { event.command.channel_id, "Bet added." };
+	return { GetAnswerChannelId(), "Bet added." };
 }
 
 bool AddBetCommand::ValidateCommand(std::string& outUserErrMsg) const

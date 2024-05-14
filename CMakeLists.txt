@@ -1,7 +1,7 @@
 	# Minimum CMake version required, we'll just use the latest version.
 	cmake_minimum_required(VERSION 3.28)
 	# Project name, version and description
-	project(BetBot VERSION 1.0 DESCRIPTION "A simple discord bot to handle friendly bets.")
+	project(BetBot VERSION 1.1 DESCRIPTION "A simple discord bot to handle friendly bets.")
 	 
 	list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 	 
@@ -18,8 +18,8 @@
 		"src/Bet.h"
 		"src/BettorResults.cpp"
 		"src/BettorResults.h"
-		"src/ICommand.cpp"
-		"src/ICommand.h"
+		"src/CommandBase.cpp"
+		"src/CommandBase.h"
 		"src/ICommandReceiver.cpp"
 		"src/ICommandReceiver.h"
 		"src/BotData.cpp"
@@ -41,6 +41,8 @@
 		"src/BetBot.h"
 		"src/DrawUtils.cpp"
 		"src/DrawUtils.h"
+		"src/ShowBetProposalCommand.cpp"
+		"src/ShowBetProposalCommand.h"
 		)
 	 
 	# Find our pre-installed DPP package (using FindDPP.cmake).

@@ -10,6 +10,8 @@ int main(const int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 
+	srand(time(nullptr));
+
 	BetBot bot(argv[1], argv[2]);
 	bot.Start();
 

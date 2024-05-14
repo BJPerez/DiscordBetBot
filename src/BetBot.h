@@ -29,9 +29,10 @@ private:
 	dpp::slashcommand CreateShowResultsCommand() const { return { "show_results", "Show the different bettors and their results.", m_Cluster.me.id }; }
 
 	void ExecuteAddMatch(const dpp::slashcommand_t& event);
-	void ExecuteAddBet(const dpp::slashcommand_t& event);
 	void ExecuteAddResult(const dpp::slashcommand_t& event);
 	void ExecuteShowMatches(const dpp::slashcommand_t& event);
 	void ExecuteShowBets(const dpp::slashcommand_t& event);
 	void ExecuteShowResults(const dpp::slashcommand_t& event);
+	void ExecuteShowBetProposal(const dpp::select_click_t& event);
+	void ExecuteAddBet(const dpp::select_click_t& event);
 };

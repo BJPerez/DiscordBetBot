@@ -115,18 +115,18 @@ std::optional<std::reference_wrapper<Bet>> BotData::GetBet(const unsigned int ma
 		return std::nullopt;
 	}
 
-	const auto betIt = std::ranges::find_if(m_Bets,
+	const auto filter =
 		[matchId, &bettorName](const Bet& bet)
 		{
 			return bet.GetMatchId() == matchId && bettorName == bet.GetBettorName();
-		}
-	);
+		};
 
-	if (betIt == m_Bets.end())
+	std::vector<std::reference_wrapper<Bet>> bets = GetBetsWithFilter(filter);
+	if (bets.empty())
 	{
 		return std::nullopt;
 	}
-	return std::reference_wrapper<Bet>(*betIt);
+	return bets[0]; // Should only have one value in the vector
 }
 
 void BotData::ModifyBet(const unsigned int matchId, const MatchScore& matchResult, const std::string& bettorName)
@@ -151,4 +151,49 @@ void BotData::SortResults()
 			return a.GetScore() > b.GetScore();
 		}
 	);
+}
+
+std::vector<std::reference_wrapper<const Bet>> BotData::GetBetsWithFilter(const BetFilter& filter) const
+{
+	std::vector<std::reference_wrapper<const Bet>> bets;
+
+	std::ranges::for_each(m_Bets,
+		[&bets, &filter](const Bet& bet)
+		{
+			if (filter(bet))
+			{
+				bets.emplace_back(bet);
+			}
+		}
+	);
+
+	return bets;
+}
+
+std::vector<std::reference_wrapper<Bet>> BotData::GetBetsWithFilter(const BetFilter& filter)
+{
+	std::vector<std::reference_wrapper<Bet>> bets;
+
+	std::ranges::for_each(m_Bets,
+		[&bets, &filter](Bet& bet)
+		{
+			if (filter(bet))
+			{
+				bets.emplace_back(bet);
+			}
+		}
+	);
+
+	return bets;
+}
+
+std::vector<std::reference_wrapper<const Bet>> BotData::GetBetsOnMatch(const unsigned int matchId) const
+{
+	const auto filter =
+		[matchId](const Bet& bet)
+		{
+			return bet.GetMatchId() == matchId;
+		};
+
+	return GetBetsWithFilter(filter);
 }

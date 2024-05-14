@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <vector>
 
 #include "Bet.h"
@@ -17,6 +18,7 @@ public:
 
 	[[nodiscard]] std::optional<std::reference_wrapper<const Match>> GetMatch(const unsigned int matchId) const final;
 	[[nodiscard]] std::optional<std::reference_wrapper<const Bet>> GetBet(const unsigned int matchId, const std::string& bettorName) const final;
+	[[nodiscard]] std::vector<std::reference_wrapper<const Bet>> GetBetsOnMatch(const unsigned int matchId) const final;
 	[[nodiscard]] const std::vector<Bet>& GetBets() const final { return m_Bets; }
 	[[nodiscard]] const std::vector<Match>& GetIncomingMatches() const final { return m_IncomingMatches; }
 	[[nodiscard]] const std::vector<BettorResults>& GetBettorsResults() const final { return m_BettorResults; }
@@ -38,5 +40,9 @@ private:
 
 	void EraseBetsLinkedToMatch(const unsigned int matchId);
 	void SortResults();
+
+	using BetFilter = std::function<bool(const Bet& bet)>;
+	[[nodiscard]] std::vector<std::reference_wrapper<const Bet>> GetBetsWithFilter(const BetFilter& filter) const;
+	[[nodiscard]] std::vector<std::reference_wrapper<Bet>> GetBetsWithFilter(const BetFilter& filter);
 };
 

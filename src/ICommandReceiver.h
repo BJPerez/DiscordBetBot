@@ -21,6 +21,7 @@ public:
 
 	[[nodiscard]] virtual std::optional<std::reference_wrapper<const Bet>> GetBet(const unsigned int matchId, const std::string& bettorName) const = 0;
 	[[nodiscard]] virtual std::optional<std::reference_wrapper<const Match>> GetMatch(const unsigned int matchId) const = 0;
+	[[nodiscard]] virtual std::vector<std::reference_wrapper<const Bet>> GetBetsOnMatch(const unsigned int matchId) const = 0;
 	[[nodiscard]] virtual const std::vector<Match>& GetIncomingMatches() const = 0;
 	[[nodiscard]] virtual const std::vector<Bet>& GetBets() const = 0;
 	[[nodiscard]] virtual const std::vector<BettorResults>& GetBettorsResults() const = 0;
