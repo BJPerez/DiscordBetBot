@@ -13,7 +13,9 @@ class ICommandReceiver;
 class ShowMatchesCommand final : public CommandBase
 {
 public:
-	static constexpr std::string_view SELECT_MENU_ID = "Choose-Team-To-Bet";
+	static constexpr std::string_view SELECT_MENU_ID = "Choose-What-To-Do";
+	static constexpr std::string_view BET_OPTION_VALUE = "Bet";
+	static constexpr std::string_view RESULT_OPTION_VALUE = "Result";
 
 	explicit ShowMatchesCommand(const dpp::snowflake channelId, ICommandReceiver& commandReceiver) : CommandBase(channelId), m_CommandReceiver(commandReceiver) {}
 

@@ -3,9 +3,30 @@
 #include "AddBetCommand.h"
 #include "AddMatchCommand.h"
 #include "AddResultCommand.h"
+#include "ChooseMatchToBetOnCommand.h"
+#include "ChooseMatchToSetResultCommand.h"
 #include "ShowBetProposalCommand.h"
 #include "ShowBettorsResultsCommand.h"
 #include "ShowMatchesCommand.h"
+#include "ShowResultProposalCommand.h"
+
+namespace
+{
+	void ExtractMatchInfosFromSelectorValue(std::string selectorValue, unsigned int& outMatchId, unsigned int& outTeamAScore, unsigned int& outTeamBScore)
+	{
+		// format of the value is "MatchId-AScore-BScore"
+
+		std::size_t delimiter = selectorValue.find('-');
+		outMatchId = std::stoul(selectorValue.substr(0, delimiter));
+		selectorValue = selectorValue.substr(delimiter + 1);
+
+		delimiter = selectorValue.find("-");
+		outTeamAScore = std::stoul(selectorValue.substr(0, delimiter));
+		selectorValue = selectorValue.substr(delimiter + 1);
+
+		outTeamBScore = std::stoul(selectorValue);
+	}
+}
 
 BetBot::BetBot(const std::string& betToken, std::string saveFilePath): m_Cluster(betToken), m_Data(), m_Saver(std::move(saveFilePath), m_Data)
 {
@@ -26,16 +47,6 @@ dpp::slashcommand BetBot::CreateAddMatchCommand() const
 	return command;
 }
 
-dpp::slashcommand BetBot::CreateAddResultCommand() const
-{
-	dpp::slashcommand command("add_result", "Add a result for a match and evaluate the scores of the bettors.", m_Cluster.me.id);
-	command.add_option(dpp::command_option(dpp::co_integer, "match_id", "The ID of the match on which you want to set a result. You can use /show_matches to see it.", true));
-	command.add_option(dpp::command_option(dpp::co_integer, "score_a", "The first team's score.", true));
-	command.add_option(dpp::command_option(dpp::co_integer, "score_b", "The second team's score.", true));
-
-	return command;
-}
-
 void BetBot::CreateCommands()
 {
 	m_Cluster.on_ready(
@@ -46,7 +57,6 @@ void BetBot::CreateCommands()
 			{
 				std::vector<dpp::slashcommand> commands;
 				commands.emplace_back(CreateAddMatchCommand());
-				commands.emplace_back(CreateAddResultCommand());
 				commands.emplace_back(CreateShowMatchesCommand());
 				commands.emplace_back(CreateShowResultsCommand());
 
@@ -69,18 +79,9 @@ void BetBot::ExecuteAddMatch(const dpp::slashcommand_t& event)
 
 void BetBot::ExecuteAddBet(const dpp::select_click_t& event)
 {
-	// format of the value is "MatchId-AScore-BScore"
-	std::string userChoice = event.values[0];
+	unsigned int matchId, teamAScore, teamBScore;
+	ExtractMatchInfosFromSelectorValue(event.values[0], matchId, teamAScore, teamBScore);
 
-	std::size_t delimiter = userChoice.find('-');
-	const unsigned int matchId = std::stoul(userChoice.substr(0, delimiter));
-	userChoice = userChoice.substr(delimiter + 1);
-
-	delimiter = userChoice.find("-");
-	const unsigned int teamAScore = std::stoul(userChoice.substr(0, delimiter));
-	userChoice = userChoice.substr(delimiter + 1);
-
-	const unsigned int teamBScore = std::stoul(userChoice);
 	std::string userName = event.command.get_issuing_user().global_name;
 
 	const AddBetCommand command{ event.command.channel_id, matchId, teamAScore, teamBScore, std::move(userName), m_Data };
@@ -88,11 +89,10 @@ void BetBot::ExecuteAddBet(const dpp::select_click_t& event)
 	m_Saver.Save();
 }
 
-void BetBot::ExecuteAddResult(const dpp::slashcommand_t& event)
+void BetBot::ExecuteAddResult(const dpp::select_click_t& event)
 {
-	const unsigned int matchId = static_cast<unsigned int>(std::get<int64_t>(event.get_parameter("match_id")));
-	const unsigned int teamAScore = static_cast<unsigned int>(std::get<int64_t>(event.get_parameter("score_a")));
-	const unsigned int teamBScore = static_cast<unsigned int>(std::get<int64_t>(event.get_parameter("score_b")));
+	unsigned int matchId, teamAScore, teamBScore;
+	ExtractMatchInfosFromSelectorValue(event.values[0], matchId, teamAScore, teamBScore);
 
 	const AddResultCommand command{ event.command.channel_id, matchId, teamAScore, teamBScore, m_Data };
 	event.reply(command.Execute());
@@ -117,19 +117,33 @@ void BetBot::ExecuteShowBetProposal(const dpp::select_click_t& event)
 	event.reply(command.Execute());
 }
 
-void BetBot::SetUpCallbacks()
+void BetBot::ExecuteChooseMatchToBetOn(const dpp::select_click_t& event)
+{
+	const ChooseMatchToBetOnCommand command{ event.command.channel_id, m_Data };
+	event.reply(command.Execute());
+}
+
+void BetBot::ExecuteChooseMatchToSetResult(const dpp::select_click_t& event)
+{
+	const ChooseMatchToSetResultCommand command{ event.command.channel_id, m_Data };
+	event.reply(command.Execute());
+}
+
+void BetBot::ExecuteShowResultProposal(const dpp::select_click_t& event)
+{
+	const ShowResultProposalCommand command{ event.command.channel_id, static_cast<unsigned int>(std::stoul(event.values[0])), m_Data };
+	event.reply(command.Execute());
+}
+
+void BetBot::SetUpCommandCallbacks()
 {
 	m_Cluster.on_slashcommand(
 		[this](const dpp::slashcommand_t& event)
 		{
-			if (const std::string commandName = event.command.get_command_name(); 
+			if (const std::string commandName = event.command.get_command_name();
 				commandName == "add_match")
 			{
 				ExecuteAddMatch(event);
-			}
-			else if (commandName == "add_result")
-			{
-				ExecuteAddResult(event);
 			}
 			else if (commandName == "show_matches")
 			{
@@ -141,12 +155,27 @@ void BetBot::SetUpCallbacks()
 			}
 		}
 	);
+}
 
+void BetBot::SetUpSelectCallbacks()
+{
 	m_Cluster.on_select_click(
 		[this](const dpp::select_click_t& event)
 		{
-			if (const std::string selectorId = event.custom_id; 
+			if (const std::string selectorId = event.custom_id;
 				selectorId == ShowMatchesCommand::SELECT_MENU_ID)
+			{
+				const std::string& optionValue = event.values[0];
+				if (optionValue == ShowMatchesCommand::BET_OPTION_VALUE)
+				{
+					ExecuteChooseMatchToBetOn(event);
+				}
+				else if (optionValue == ShowMatchesCommand::RESULT_OPTION_VALUE)
+				{
+					ExecuteChooseMatchToSetResult(event);
+				}
+			}
+			else if (selectorId == ChooseMatchToBetOnCommand::SELECT_MENU_ID)
 			{
 				ExecuteShowBetProposal(event);
 			}
@@ -154,8 +183,27 @@ void BetBot::SetUpCallbacks()
 			{
 				ExecuteAddBet(event);
 			}
+			else if (selectorId == ChooseMatchToSetResultCommand::SELECT_MENU_ID)
+			{
+				ExecuteShowResultProposal(event);
+			}
+			else if (selectorId == ShowResultProposalCommand::SELECT_MENU_ID)
+			{
+				ExecuteAddResult(event);
+			}
 		}
 	);
+}
+
+void BetBot::SetUpCallbacks()
+{
+	// Different flows:
+	// 1. ExecuteAddMatch
+	// 2. ExecuteShowResults
+	// 3. ExecuteShowMatches --> ExecuteChooseMatchToBetOn --> ExecuteShowBetProposal --> ExecuteAddBet
+	// 4. ExecuteShowMatches --> ExecuteChooseMatchToSetResult --> ExecuteShowResultProposal --> ExecuteAddResult
+	SetUpCommandCallbacks();
+	SetUpSelectCallbacks();
 }
 
 void BetBot::Start()

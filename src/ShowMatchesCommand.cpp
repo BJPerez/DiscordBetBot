@@ -28,17 +28,13 @@ namespace
 		return result;
 	}
 
-	dpp::component CreateSelectMenu(const std::vector<std::pair<std::string, unsigned int>>& options)
+	dpp::component CreateSelectMenu()
 	{
 		dpp::component selectMenu;
 		selectMenu.set_type(dpp::cot_selectmenu);
-		selectMenu.set_placeholder("Choose the match you want to bet on!");
-		std::ranges::for_each(options,
-			[&selectMenu](const std::pair<std::string, unsigned int>& option)
-			{
-				selectMenu.add_select_option(dpp::select_option(option.first, std::to_string(option.second)));
-			}
-		);
+		selectMenu.set_placeholder("What do you want to do?");
+		selectMenu.add_select_option(dpp::select_option("Place a bet on a match", std::string(ShowMatchesCommand::BET_OPTION_VALUE)));
+		selectMenu.add_select_option(dpp::select_option("Add a match result", std::string(ShowMatchesCommand::RESULT_OPTION_VALUE)));
 		selectMenu.set_id(std::string(ShowMatchesCommand::SELECT_MENU_ID));
 
 		return selectMenu;
@@ -68,15 +64,13 @@ dpp::message ShowMatchesCommand::ExecuteInternal() const
 	};
 
 	dpp::message msg{ GetAnswerChannelId(), "Here is the list of incoming matches:" };
-	std::vector<std::pair<std::string, unsigned int>> selectMenuOptions;
 	std::ranges::for_each(matches,
-		[&msg, &selectMenuOptions, &possibleEmbedColors, this](const Match& match)
+		[&msg, &possibleEmbedColors, this](const Match& match)
 		{
 			msg.add_embed(CreateMatchEmbed(match, possibleEmbedColors));
-			selectMenuOptions.emplace_back(match.GetTeamAName() + " - " + match.GetTeamBName(), match.GetId());
 		}
 	);
-	msg.add_component(dpp::component().add_component(CreateSelectMenu(selectMenuOptions)));
+	msg.add_component(dpp::component().add_component(CreateSelectMenu()));
 
 	return msg;
 }

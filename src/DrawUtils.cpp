@@ -2,6 +2,9 @@
 
 #include <algorithm>
 
+#include "Match.h"
+#include "MatchScore.h"
+
 constexpr std::size_t SPACES_AROUND_WORD_IN_CELL = 2;
 
 void DrawUtils::DrawSeparativeLine(const std::vector<std::size_t>& columnSizes, std::string& outLine)
@@ -70,4 +73,48 @@ std::vector<std::size_t> DrawUtils::GetColumnSizes(const std::vector<std::vector
 	}
 
 	return result;
+}
+
+dpp::component DrawUtils::CreateMatchSelector(const std::string& placeHolder, const std::string& selectorId, const std::vector<Match>& matches)
+{
+	dpp::component selectMenu;
+	selectMenu.set_type(dpp::cot_selectmenu);
+	selectMenu.set_placeholder(placeHolder);
+	std::ranges::for_each(matches,
+		[&selectMenu](const Match& match)
+		{
+			selectMenu.add_select_option(dpp::select_option(match.GetTeamAName() + " - " + match.GetTeamBName(), std::to_string(match.GetId())));
+		}
+	);
+	selectMenu.set_id(selectorId);
+
+	return selectMenu;
+}
+
+namespace
+{
+	dpp::select_option CreateSelectMenuOption(const unsigned int matchId, const MatchScore& score)
+	{
+		const std::string displayedOption = score.ToString();
+		const std::string optionValue = std::to_string(matchId) + "-" + std::to_string(score.m_TeamAScore) + "-" + std::to_string(score.m_TeamBScore); // score.ToString has space around the '-' that we don't want in the value
+		return { displayedOption, optionValue };
+	}
+}
+
+dpp::component DrawUtils::CreateMatchResultSelector(const std::string& placeHolder, const std::string& selectorId, const Match& match)
+{
+	dpp::component selectMenu;
+	selectMenu.set_type(dpp::cot_selectmenu);
+	selectMenu.set_placeholder(placeHolder);
+
+	const unsigned int winningTeamScore = match.GetNumberOfGamesToWin();
+	for (unsigned int loosingTeamScore = 0; loosingTeamScore < winningTeamScore; ++loosingTeamScore)
+	{
+		selectMenu.add_select_option(CreateSelectMenuOption(match.GetId(), {winningTeamScore, loosingTeamScore}));
+		selectMenu.add_select_option(CreateSelectMenuOption(match.GetId(), { loosingTeamScore, winningTeamScore }));
+	}
+
+	selectMenu.set_id(selectorId);
+
+	return selectMenu;
 }
