@@ -27,8 +27,6 @@
 		"src/Match.cpp"
 		"src/Match.h"
 		"src/MatchScore.h"
-		"src/ShowBetsCommand.cpp"
-		"src/ShowBetsCommand.h"
 		"src/ShowBettorsResultsCommand.cpp"
 		"src/ShowBettorsResultsCommand.h"
 		"src/ShowMatchesCommand.cpp"

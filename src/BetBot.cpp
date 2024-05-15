@@ -4,7 +4,6 @@
 #include "AddMatchCommand.h"
 #include "AddResultCommand.h"
 #include "ShowBetProposalCommand.h"
-#include "ShowBetsCommand.h"
 #include "ShowBettorsResultsCommand.h"
 #include "ShowMatchesCommand.h"
 
@@ -23,16 +22,6 @@ dpp::slashcommand BetBot::CreateAddMatchCommand() const
 	command.add_option(dpp::command_option(dpp::co_string, "team_a", "The name of the first team.", true));
 	command.add_option(dpp::command_option(dpp::co_string, "team_b", "The name of the second team.", true));
 	command.add_option(dpp::command_option(dpp::co_integer, "bo_size", "The maximal number of game of this match.", true));
-
-	return command;
-}
-
-dpp::slashcommand BetBot::CreateAddBetCommand() const
-{
-	dpp::slashcommand command("add_bet", "Add a bet for a match.", m_Cluster.me.id);
-	command.add_option(dpp::command_option(dpp::co_integer, "match_id", "The ID of the match on which you want to bet. You can use /ShowMatch to see it.", true));
-	command.add_option(dpp::command_option(dpp::co_integer, "score_a", "The first team's score.", true));
-	command.add_option(dpp::command_option(dpp::co_integer, "score_b", "The second team's score.", true));
 
 	return command;
 }
@@ -57,10 +46,8 @@ void BetBot::CreateCommands()
 			{
 				std::vector<dpp::slashcommand> commands;
 				commands.emplace_back(CreateAddMatchCommand());
-				commands.emplace_back(CreateAddBetCommand());
 				commands.emplace_back(CreateAddResultCommand());
 				commands.emplace_back(CreateShowMatchesCommand());
-				commands.emplace_back(CreateShowBetsCommand());
 				commands.emplace_back(CreateShowResultsCommand());
 
 				m_Cluster.global_bulk_command_create(commands);
@@ -118,12 +105,6 @@ void BetBot::ExecuteShowMatches(const dpp::slashcommand_t& event)
 	event.reply(command.Execute());
 }
 
-void BetBot::ExecuteShowBets(const dpp::slashcommand_t& event)
-{
-	const ShowBetsCommand command{ event.command.channel_id, m_Data };
-	event.reply(command.Execute());
-}
-
 void BetBot::ExecuteShowResults(const dpp::slashcommand_t& event)
 {
 	const ShowBettorsResultsCommand command{ event.command.channel_id, m_Data };
@@ -153,10 +134,6 @@ void BetBot::SetUpCallbacks()
 			else if (commandName == "show_matches")
 			{
 				ExecuteShowMatches(event);
-			}
-			else if (commandName == "show_bets")
-			{
-				ExecuteShowBets(event);
 			}
 			else if (commandName == "show_results")
 			{
