@@ -14,7 +14,7 @@ dpp::message ChooseMatchToSetResultCommand::ExecuteInternal() const
 	}
 
 	dpp::message msg{ GetAnswerChannelId(), "Select the match you want to add a result to:" };
-	msg.add_component(dpp::component().add_component(DrawUtils::CreateMatchSelector("Choose the match you want to set a result to", std::string(SELECT_MENU_ID), matches)));
+	msg.add_component(dpp::component().add_component(DrawUtils::CreateMatchSelector("Choose the match you want to add a result to", std::string(SELECT_MENU_ID), matches)));
 	return msg;
 }
 
