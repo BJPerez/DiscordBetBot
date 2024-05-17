@@ -25,6 +25,11 @@ void DrawUtils::DrawSeparativeLine(const std::vector<std::size_t>& columnSizes, 
 void DrawUtils::DrawTable(const std::vector<std::vector<std::string>>& columnsContent, std::string& outTable)
 {
 	const std::vector<std::size_t> columnsSizes = GetColumnSizes(columnsContent);
+	if (std::ranges::find(columnsSizes, 0) != columnsSizes.end())
+	{
+		return; // one of the column is empty, we can't draw the table
+	}
+
 	const std::size_t nbLines = columnsContent[0].size(); // All vector should have the same number of line
 	const std::size_t nbColumns = columnsContent.size();
 
@@ -63,6 +68,12 @@ std::vector<std::size_t> DrawUtils::GetColumnSizes(const std::vector<std::vector
 
 	for (const std::vector<std::string>& column : columnsContent)
 	{
+		if (column.empty())
+		{
+			result.emplace_back(0);
+			continue;
+		}
+
 		const std::string& longestWord = *std::ranges::max_element(column,
            [](const std::string& first, const std::string& second)
            {

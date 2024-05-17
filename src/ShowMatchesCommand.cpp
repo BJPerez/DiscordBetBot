@@ -80,18 +80,6 @@ bool ShowMatchesCommand::ValidateCommand(std::string&) const
 	return true;
 }
 
-void ShowMatchesCommand::FillColumnsWithBetsInfos(const Match& match, std::vector<std::vector<std::string>>& outColumnsContent) const
-{
-	const std::vector<std::reference_wrapper<const Bet>> bets = m_CommandReceiver.GetBetsOnMatch(match.GetId());
-	std::ranges::for_each(bets,
-		[&outColumnsContent](const Bet& bet)
-		{
-			outColumnsContent.at(0).emplace_back(bet.GetBettorName());
-			outColumnsContent.at(1).emplace_back(bet.GetScore().ToString());
-		}
-	);
-}
-
 dpp::embed ShowMatchesCommand::CreateMatchEmbed(const Match& match, std::vector<uint32_t>& possibleColors) const
 {
 	dpp::embed result;
@@ -100,10 +88,25 @@ dpp::embed ShowMatchesCommand::CreateMatchEmbed(const Match& match, std::vector<
 	result.set_description("ID: " + std::to_string(match.GetId()) + ", BO" + std::to_string(match.GetBoSize()));
 	result.set_color(PopRandomColor(possibleColors));
 
-	std::vector<std::vector<std::string>> columnsContent(TABLE_COLUMN_COUNT);
-	FillColumnsWithBetsInfos(match, columnsContent);
 	std::string fieldContent;
-	DrawUtils::DrawTable(columnsContent, fieldContent);
+	if (const std::vector<std::reference_wrapper<const Bet>> bets = m_CommandReceiver.GetBetsOnMatch(match.GetId()); 
+		bets.empty())
+	{
+		fieldContent = "No bet yet.";
+	}
+	else
+	{
+		std::vector<std::vector<std::string>> columnsContent(TABLE_COLUMN_COUNT);
+		std::ranges::for_each(bets,
+			[&columnsContent](const Bet& bet)
+			{
+				columnsContent.at(0).emplace_back(bet.GetBettorName());
+				columnsContent.at(1).emplace_back(bet.GetScore().ToString());
+			}
+		);
+		DrawUtils::DrawTable(columnsContent, fieldContent);
+	}
+
 	result.add_field("Bets:", fieldContent);
 
 	return result;

@@ -7,7 +7,6 @@
 #include "CommandBase.h"
 
 class Match;
-class Bet;
 class ICommandReceiver;
 
 class ShowMatchesCommand final : public CommandBase
@@ -25,7 +24,6 @@ private:
 	[[nodiscard]] dpp::message ExecuteInternal() const final;
 	[[nodiscard]] bool ValidateCommand(std::string& outUserErrMsg) const final;
 
-	void FillColumnsWithBetsInfos(const Match& match, std::vector<std::vector<std::string>>& outColumnsContent) const;
 	[[nodiscard]] dpp::embed CreateMatchEmbed(const Match& match, std::vector<uint32_t>& possibleColors) const;
 };
 
