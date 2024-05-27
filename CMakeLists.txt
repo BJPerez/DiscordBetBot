@@ -67,3 +67,10 @@
 	    CXX_STANDARD 20
 	    CXX_STANDARD_REQUIRED ON
 	)
+
+	add_custom_command(
+			TARGET ${PROJECT_NAME}  POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy
+					${CMAKE_SOURCE_DIR}/config.json
+					${CMAKE_CURRENT_BINARY_DIR}/config.json
+	)
