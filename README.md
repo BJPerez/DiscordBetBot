@@ -19,7 +19,8 @@ It should work on both Linux and Windows, but I'm only using the bot on a Linux 
 1. Clone the repository
 2. Create an output directory and run CMake in it
 3. Compile
-4. Run
+4. Update the config.json file. You must at least give a valid discord bot token.
+5. Run. If you run directly from your output directory, you have nothing else to do since CMake should copy the config.json file in your output directory. If you moved the executable somewhere (on a server for example), don't forget to also move the config.json file next to it. 
 
 ## Usage
 
