@@ -435,3 +435,4 @@ out/
 
 #Ignore specifics files
 CMakeSettings.json
+config.json
