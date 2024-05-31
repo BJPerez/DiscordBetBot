@@ -1,18 +1,44 @@
 #include "BetBot.h"
 
-int main(const int argc, char* argv[])
+#include <fstream>
+
+constexpr std::string_view CONFIG_PATH = "config.json";
+constexpr std::string_view BOT_TOKEN_KEY = "BotToken";
+constexpr std::string_view SAVE_FILE_KEY = "SaveFile";
+constexpr std::string_view SAVE_FILE_EXTENSION = ".json";
+
+int main()
 {
-	// Index 0 --> exe
-	// Index 1 --> bot token
-	// Index 2 --> path to save file
-	if (argc != 3)
+	std::ifstream configFile{ std::string(CONFIG_PATH) };
+	if (!configFile.good()) // does file exists ?
 	{
+		std::cout << "No config file." << std::endl;
+		return EXIT_FAILURE;
+	} 
+
+	dpp::json config;
+	configFile >> config;
+	if (!config.contains(BOT_TOKEN_KEY) || !config.contains(SAVE_FILE_KEY))
+	{
+		std::cout << "Invalid config file" << std::endl;
 		return EXIT_FAILURE;
 	}
 
-	srand(time(nullptr));
+	std::string saveFile = config[SAVE_FILE_KEY];
+	if (saveFile.empty())
+	{
+		std::cout << "No save file given in config file." << std::endl;
+		return EXIT_FAILURE;
+	}
 
-	BetBot bot(argv[1], argv[2]);
+	if (const std::string saveExtension = saveFile.substr(saveFile.find_last_of('.')); 
+		saveExtension != SAVE_FILE_EXTENSION)
+	{
+		std::cout << "Given save file has extension " << saveExtension << " but it must be a .json file." << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	BetBot bot(config[BOT_TOKEN_KEY], std::move(saveFile));
 	bot.Start();
 
 	return EXIT_SUCCESS;

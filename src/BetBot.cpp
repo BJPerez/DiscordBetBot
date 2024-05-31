@@ -35,6 +35,8 @@ BetBot::BetBot(const std::string& betToken, std::string saveFilePath): m_Cluster
 
 	CreateCommands();
 	SetUpCallbacks();
+
+	srand(time(nullptr)); // Init randomness
 }
 
 dpp::slashcommand BetBot::CreateAddMatchCommand() const
