@@ -38,8 +38,16 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	BetBot bot(config[BOT_TOKEN_KEY], std::move(saveFile));
-	bot.Start();
+	try
+	{
+		BetBot bot(config[BOT_TOKEN_KEY], std::move(saveFile));
+		bot.Start();
+	}
+	catch (const dpp::invalid_token_exception&)
+	{
+		std::cout << "The bot token given in the config file doesn't work." << std::endl;
+		return EXIT_FAILURE;
+	}
 
 	return EXIT_SUCCESS;
 }
