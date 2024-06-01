@@ -1,5 +1,5 @@
 	# Minimum CMake version required, we'll just use the latest version.
-	cmake_minimum_required(VERSION 3.28)
+	cmake_minimum_required(VERSION 3.25)
 	# Project name, version and description
 	project(BetBot VERSION 1.2 DESCRIPTION "A simple discord bot to handle friendly bets.")
 	 
