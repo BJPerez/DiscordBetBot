@@ -62,8 +62,13 @@ It allows you to see the global score of the different users.
 
 ![image](https://github.com/BJPerez/DiscordBetBot/assets/16210134/dc49d6c1-5b55-4b4a-9b79-af8e8cdd4741)
 
-A correct bet means that you had the correct winning team, it grants you 1 point.
-A perfect bet means that you had to correct winning team and the exact score, it grants you < 1 + the size of the BO> points
+A correct bet means that you had the correct winning team.
+A perfect bet means that you had to correct winning team and the exact score.
+The score is evaluate using this formula: 2 + ( (BOSize + 1) / 2 ) - (delta between the score you gave and the real score + 1). 
+To give some examples: 
+- For a BO5, bet was 3-1 and the final score is 3-0, you will have: 2 + ( (5+1) / 2 ) - ( 1 + 1 ) = 2 + 3 - 2 = 3 pts.
+- For a BO3, bet was 2-0 and final score is 2-0, you will have: 2 + ( (3+1) / 2 ) - (0 + 1) = 2 + 2 - 1 = 3pts;
+- For a BO5, bet was 3-2 and final score is 3-0, you will have: 2 + ( (5+1) / 2 ) - (2 + 1) = 2 + 3 - 3 = 2pts;
 
 
 
