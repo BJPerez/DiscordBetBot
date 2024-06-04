@@ -1,7 +1,7 @@
 	# Minimum CMake version required, we'll just use the latest version.
 	cmake_minimum_required(VERSION 3.25)
 	# Project name, version and description
-	project(BetBot VERSION 1.2 DESCRIPTION "A simple discord bot to handle friendly bets.")
+	project(BetBot VERSION 1.3 DESCRIPTION "A simple discord bot to handle friendly bets.")
 	 
 	list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 	 
@@ -14,7 +14,6 @@
 		"src/AddMatchCommand.h"
 		"src/AddResultCommand.cpp"
 		"src/AddResultCommand.h"
-		"src/Bet.cpp"
 		"src/Bet.h"
 		"src/BettorResults.cpp"
 		"src/BettorResults.h"
@@ -26,6 +25,7 @@
 		"src/BotData.h"
 		"src/Match.cpp"
 		"src/Match.h"
+		"src/MatchScore.cpp"
 		"src/MatchScore.h"
 		"src/ShowBettorsResultsCommand.cpp"
 		"src/ShowBettorsResultsCommand.h"
