@@ -2,9 +2,9 @@
 
 #include <dpp/json.h>
 
+#include "BettorResults.h"
 #include "ISerializer.h"
 
-class BettorResults;
 class Bet;
 class BotData;
 class Match;
@@ -19,9 +19,11 @@ public:
 	[[nodiscard]] static dpp::json ToJson(const Bet& bet);
 	[[nodiscard]] static dpp::json ToJson(const BettorResults& bettorResults);
 	[[nodiscard]] static dpp::json ToJson(const BotData& data);
+	[[nodiscard]] static dpp::json ToJson(const BettorResults::ResultsByBoSize& results);
 
 	static void FromJson(const dpp::json& json, Match& outMatch);
 	static void FromJson(const dpp::json& json, Bet& outBet);
 	static void FromJson(const dpp::json& json, BettorResults& outResults);
 	static void FromJson(const dpp::json& json, BotData& outData);
+	static void FromJson(const dpp::json& json, BettorResults::ResultsByBoSize& outResults);
 };

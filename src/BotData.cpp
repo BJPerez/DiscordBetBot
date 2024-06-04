@@ -68,15 +68,11 @@ void BotData::AddResult(const unsigned int matchId, const MatchScore& matchResul
 		[this, &matchResult, &match](const Bet& bet)
 		{
 			BettorResults& results = GetOrCreateBettorResults(bet.GetBettorName());
-			if (const Bet::Result betResult = bet.EvaluateBet(matchResult); 
-				betResult != Bet::Result::IncorrectBet)
-			{
-				results.AddResult(betResult == Bet::Result::PerfectBet, match.GetBoSize());
-			}
+			results.AddResult(match.GetBoSize(), matchResult, bet.GetScore());
 		}
 	);
 
-	SortResults();
+	std::ranges::sort(m_BettorResults, std::greater());
 
 	EraseBetsLinkedToMatch(matchId);
 	m_IncomingMatches.erase(std::ranges::find(m_IncomingMatches, match));
@@ -140,17 +136,7 @@ void BotData::ModifyBet(const unsigned int matchId, const MatchScore& matchResul
 void BotData::SetBettorResults(std::vector<BettorResults> results)
 {
 	m_BettorResults = std::move(results);
-	SortResults();
-}
-
-void BotData::SortResults()
-{
-	std::ranges::sort(m_BettorResults,
-		[](const BettorResults& a, const BettorResults& b)
-		{
-			return a.GetScore() > b.GetScore();
-		}
-	);
+	std::ranges::sort(m_BettorResults, std::greater());
 }
 
 std::vector<std::reference_wrapper<const Bet>> BotData::GetBetsWithFilter(const BetFilter& filter) const

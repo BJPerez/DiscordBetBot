@@ -39,7 +39,6 @@ private:
 
 
 	void EraseBetsLinkedToMatch(const unsigned int matchId);
-	void SortResults();
 
 	using BetFilter = std::function<bool(const Bet& bet)>;
 	[[nodiscard]] std::vector<std::reference_wrapper<const Bet>> GetBetsWithFilter(const BetFilter& filter) const;

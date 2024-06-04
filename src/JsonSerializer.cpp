@@ -3,7 +3,6 @@
 #include <fstream>
 
 #include "Bet.h"
-#include "BettorResults.h"
 #include "BotData.h"
 #include "Match.h"
 
@@ -30,25 +29,6 @@ namespace
 	}
 
 	template<typename Type>
-	concept IsStringable = requires(const Type& type)
-	{
-		std::to_string(type);
-	};
-
-	template<IsStringable KeyType, IsStringable ValueType>
-	dpp::json::array_t ToJsonArray(const std::map<KeyType, ValueType>& values)
-	{
-		dpp::json::array_t jsonArray;
-		for (const auto& [key, value] : values)
-		{
-			dpp::json json;
-			json[std::to_string(key)] = std::to_string(value);
-			jsonArray.push_back(json);
-		}
-		return jsonArray;
-	}
-
-	template<typename Type>
 	concept HasFromJson = requires(const dpp::json& json, Type& type)
 	{
 		JsonSerializer::FromJson(json, type);
@@ -63,22 +43,6 @@ namespace
 				ContainedType value;
 				JsonSerializer::FromJson(json, value);
 				outVector.push_back(std::move(value));
-			}
-		);
-	}
-
-	template<typename KeyType, typename ValueType>
-	void FromJsonArray(const dpp::json::array_t& jsonArray, std::map<KeyType, ValueType>& outMap)
-	{
-		std::ranges::for_each(jsonArray,
-			[&outMap](const dpp::json& json)
-			{
-				for (const auto& item : json.items()) // in our case we have only one item by json object
-				{
-					const std::string keyStr = item.key();
-					const std::string valueStr = item.value();
-					outMap[static_cast<unsigned int>(std::stoul(keyStr))] = static_cast<unsigned int>(std::stoul(valueStr));
-				}
 			}
 		);
 	}
@@ -110,8 +74,19 @@ dpp::json JsonSerializer::ToJson(const BettorResults& bettorResults)
 {
 	dpp::json json;
 	json["BettorName"] = bettorResults.GetBettorName();
-	json["PerfectBetsByBoSize"] = ToJsonArray(bettorResults.GetPerfectBetsByBoSize());
-	json["CorrectBetsByBoSize"] = ToJsonArray(bettorResults.GetCorrectBetsByBoSize());
+	json["Results"] = ToJsonArray(bettorResults.GetResults());
+
+	return json;
+}
+
+dpp::json JsonSerializer::ToJson(const BettorResults::ResultsByBoSize& results)
+{
+	dpp::json json;
+	json["BoSize"] = results.m_BoSize;
+	json["PerfectBets"] = results.m_PerfectBetsCount;
+	json["CorrectBets"] = results.m_CorrectBetsCount;
+	json["IncorrectBets"] = results.m_IncorrectBetsCount;
+	json["Score"] = results.m_Score;
 
 	return json;
 }
@@ -159,27 +134,32 @@ void JsonSerializer::FromJson(const dpp::json& json, BettorResults& outResults)
 {
 	outResults.SetBettorName(json["BettorName"]);
 
-	std::map<unsigned int, unsigned int> perfectBetsByBoSize;
-	FromJsonArray(json["PerfectBetsByBoSize"], perfectBetsByBoSize);
-	outResults.SetPerfectBetsByBoSize(perfectBetsByBoSize);
+	std::vector<BettorResults::ResultsByBoSize> results;
+	FromJsonArray(json["Results"], results);
+	outResults.SetResults(std::move(results));
+}
 
-	std::map<unsigned int, unsigned int> correctBetsByBoSize;
-	FromJsonArray(json["CorrectBetsByBoSize"], correctBetsByBoSize);
-	outResults.SetCorrectBetsByBoSize(correctBetsByBoSize);
+void JsonSerializer::FromJson(const dpp::json& json, BettorResults::ResultsByBoSize& outResults)
+{
+	outResults.m_BoSize = json["BoSize"];
+	outResults.m_PerfectBetsCount = json["PerfectBets"];
+	outResults.m_CorrectBetsCount = json["CorrectBets"];
+	outResults.m_IncorrectBetsCount = json["IncorrectBets"];
+	outResults.m_Score = json["Score"];
 }
 
 void JsonSerializer::FromJson(const dpp::json& json, BotData& outData)
 {
 	std::vector<Match> incomingMatches;
 	FromJsonArray(json["Matches"], incomingMatches);
-	outData.SetIncomingMatches(incomingMatches);
+	outData.SetIncomingMatches(std::move(incomingMatches));
 
 	std::vector<Bet> bets;
 	FromJsonArray(json["Bets"], bets);
-	outData.SetBets(bets);
+	outData.SetBets(std::move(bets));
 
 	std::vector<BettorResults> results;
 	FromJsonArray(json["BettorsResults"], results);
-	outData.SetBettorResults(results);
+	outData.SetBettorResults(std::move(results));
 }
 

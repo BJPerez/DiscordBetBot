@@ -1,29 +1,44 @@
 #pragma once
 
-#include <map>
 #include <string>
+#include <vector>
+
+struct MatchScore;
 
 class BettorResults
 {
 public:
+	struct ResultsByBoSize
+	{
+		unsigned int m_BoSize{ 1 };
+		unsigned int m_PerfectBetsCount{ 0 };
+		unsigned int m_CorrectBetsCount{ 0 };
+		unsigned int m_IncorrectBetsCount{ 0 };
+		unsigned int m_Score{ 0 };
+
+		[[nodiscard]] unsigned int GetTotalBetCount() const noexcept { return m_CorrectBetsCount + m_IncorrectBetsCount + m_PerfectBetsCount; }
+	};
+
 	BettorResults() = default; // should only be used by serialization
 	explicit BettorResults(std::string bettorName): m_BettorName(std::move(bettorName)){}
 
-	[[nodiscard]] const std::string& GetBettorName() const { return m_BettorName; }
-	[[nodiscard]] const std::map<unsigned int, unsigned int>& GetPerfectBetsByBoSize() const { return m_PerfectBetsByBoSize; }
-	[[nodiscard]] const std::map<unsigned int, unsigned int>& GetCorrectBetsByBoSize() const { return m_CorrectBetsByBoSize; }
-	[[nodiscard]] unsigned int GetMaxBoSize() const; 
-	[[nodiscard]] unsigned int GetScore() const;
+	std::strong_ordering operator<=>(const BettorResults& other) const noexcept;
 
-	void SetBettorName(std::string bettorName) { m_BettorName = std::move(bettorName); }
-	void SetPerfectBetsByBoSize(std::map<unsigned int, unsigned int> perfectBetsByBoSize) { m_PerfectBetsByBoSize = std::move(perfectBetsByBoSize); }
-	void SetCorrectBetsByBoSize(std::map<unsigned int, unsigned int> correctBetsByBoSize) { m_CorrectBetsByBoSize = std::move(correctBetsByBoSize); }
+	[[nodiscard]] const std::string& GetBettorName() const noexcept { return m_BettorName; }
+	[[nodiscard]] const std::vector<ResultsByBoSize>& GetResults() const noexcept { return m_Results; }
+	[[nodiscard]] unsigned int GetMaxBoSize() const noexcept; 
+	[[nodiscard]] unsigned int GetScore() const noexcept;
+	[[nodiscard]] unsigned int GetPerfectBetsCount() const noexcept;
 
-	void AddResult(const bool isPerfectBet, const unsigned int boSize);
+	void SetBettorName(std::string bettorName) noexcept { m_BettorName = std::move(bettorName); }
+	void SetResults(std::vector<ResultsByBoSize> results) noexcept { m_Results = std::move(results); }
+
+	void AddResult(const unsigned int boSize, const MatchScore& matchScore, const MatchScore& betScore );
 
 private:
 	std::string m_BettorName;
-	std::map<unsigned int, unsigned int> m_PerfectBetsByBoSize;
-	std::map<unsigned int, unsigned int> m_CorrectBetsByBoSize;
+	std::vector<ResultsByBoSize> m_Results;
+
+	[[nodiscard]] ResultsByBoSize& GetOrCreateBoSizeResults(const unsigned int boSize);
 };
 
