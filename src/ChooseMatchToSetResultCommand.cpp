@@ -7,14 +7,20 @@
 
 dpp::message ChooseMatchToSetResultCommand::ExecuteInternal() const
 {
-	const std::vector<Match>& matches = m_CommandReceiver.GetIncomingMatches();
-	if (matches.empty())
+	dpp::message msg{ GetAnswerChannelId(), "" };
+	msg.set_flags(dpp::m_ephemeral);
+
+	if (const std::vector<Match>& matches = m_CommandReceiver.GetIncomingMatches(); 
+		matches.empty())
 	{
-		return { GetAnswerChannelId(), "At the moment, there are no match to add a result to." };
+		msg.set_content("At the moment, there are no match to add a result to.");
+	}
+	else
+	{
+		msg.set_content("Select the match you want to add a result to:");
+		msg.add_component(dpp::component().add_component(DrawUtils::CreateMatchSelector("Choose the match you want to add a result to", std::string(SELECT_MENU_ID), matches)));
 	}
 
-	dpp::message msg{ GetAnswerChannelId(), "Select the match you want to add a result to:" };
-	msg.add_component(dpp::component().add_component(DrawUtils::CreateMatchSelector("Choose the match you want to add a result to", std::string(SELECT_MENU_ID), matches)));
 	return msg;
 }
 

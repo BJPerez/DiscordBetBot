@@ -7,7 +7,10 @@
 dpp::message AddResultCommand::ExecuteInternal() const
 {
 	m_CommandReceiver.AddResult(m_MatchId, m_Score);
-	return { GetAnswerChannelId(), "Result added and bettors' scores updated." };
+
+	dpp::message msg{ GetAnswerChannelId(), "Result added and bettors' scores updated." };
+	msg.set_flags(dpp::m_ephemeral);
+	return msg;
 }
 
 bool AddResultCommand::ValidateCommand(std::string& outUserErrMsg) const

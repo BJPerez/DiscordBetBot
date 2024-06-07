@@ -63,18 +63,25 @@ namespace
 
 dpp::message ShowBettorsResultsCommand::ExecuteInternal() const
 {
+	dpp::message msg{ GetAnswerChannelId(), "" };
+	msg.set_flags(dpp::m_ephemeral);
+
 	if (const std::vector<BettorResults>& allResults = m_CommandReceiver.GetBettorsResults(); 
 		allResults.empty())
 	{
-		return { GetAnswerChannelId(), "No result to display yet." };
+		msg.set_content("No result to display yet.");
+	}
+	else
+	{
+		std::string msgText;
+		const std::vector<std::vector<std::string>> columnsContents = GenerateColumnsWithResultsInfos();
+		DrawUtils::DrawTable(columnsContents, msgText);
+		msgText += "PB = Perfect Bet (winning team + exact score)    |     CB = Correct Bet (winning team only)";
+
+		msg.set_content(msgText);
 	}
 
-	std::string msgText;
-	const std::vector<std::vector<std::string>> columnsContents = GenerateColumnsWithResultsInfos();
-	DrawUtils::DrawTable(columnsContents, msgText);
-	msgText += "PB = Perfect Bet (winning team + exact score)    |     CB = Correct Bet (winning team only)";
-
-	return { GetAnswerChannelId(), msgText };
+	return msg;
 }
 
 bool ShowBettorsResultsCommand::ValidateCommand(std::string&) const
