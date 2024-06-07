@@ -5,7 +5,10 @@
 dpp::message AddMatchCommand::ExecuteInternal() const
 {
 	m_CommandReceiver.AddMatch(m_TeamAName, m_TeamBName, m_BoSize);
-	return { GetAnswerChannelId(), "Match added." };
+
+	dpp::message msg{ GetAnswerChannelId(), "Match added." };
+	msg.set_flags(dpp::m_ephemeral);
+	return msg;
 }
 
 bool AddMatchCommand::ValidateCommand(std::string& outUserErrMsg) const

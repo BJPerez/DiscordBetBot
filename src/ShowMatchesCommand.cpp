@@ -43,34 +43,40 @@ namespace
 
 dpp::message ShowMatchesCommand::ExecuteInternal() const
 {
-	const std::vector<Match>& matches = m_CommandReceiver.GetIncomingMatches();
-	if (matches.empty())
+	dpp::message msg{ GetAnswerChannelId(), "" };
+	msg.set_flags(dpp::m_ephemeral);
+
+	if (const std::vector<Match>& matches = m_CommandReceiver.GetIncomingMatches(); 
+		matches.empty())
 	{
-		return { GetAnswerChannelId(), "No match to display yet." };
+		msg.set_content("No match to display yet.");
 	}
-
-	std::vector<uint32_t> possibleEmbedColors =
+	else
 	{
-		dpp::colors::red,
-		dpp::colors::dark_orange,
-		dpp::colors::yellow,
-		dpp::colors::green,
-		dpp::colors::cyan,
-		dpp::colors::blue,
-		dpp::colors::brown,
-		dpp::colors::silver,
-		dpp::colors::sangria,
-		dpp::colors::jade
-	};
+		msg.set_content("Here is the list of incoming matches:");
 
-	dpp::message msg{ GetAnswerChannelId(), "Here is the list of incoming matches:" };
-	std::ranges::for_each(matches,
-		[&msg, &possibleEmbedColors, this](const Match& match)
+		std::vector<uint32_t> possibleEmbedColors =
 		{
-			msg.add_embed(CreateMatchEmbed(match, possibleEmbedColors));
-		}
-	);
-	msg.add_component(dpp::component().add_component(CreateSelectMenu()));
+			dpp::colors::red,
+			dpp::colors::dark_orange,
+			dpp::colors::yellow,
+			dpp::colors::green,
+			dpp::colors::cyan,
+			dpp::colors::blue,
+			dpp::colors::brown,
+			dpp::colors::silver,
+			dpp::colors::sangria,
+			dpp::colors::jade
+		};
+
+		std::ranges::for_each(matches,
+			[&msg, &possibleEmbedColors, this](const Match& match)
+			{
+				msg.add_embed(CreateMatchEmbed(match, possibleEmbedColors));
+			}
+		);
+		msg.add_component(dpp::component().add_component(CreateSelectMenu()));
+	}
 
 	return msg;
 }

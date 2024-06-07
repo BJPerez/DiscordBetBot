@@ -10,6 +10,7 @@ dpp::message ShowResultProposalCommand::ExecuteInternal() const
 
 	dpp::message msg{ GetAnswerChannelId(), "Give the result for " + match.GetTeamAName() + " - " + match.GetTeamBName() + ":"};
 	msg.add_component(dpp::component().add_component(DrawUtils::CreateMatchResultSelector(match.GetTeamAName() + " - " + match.GetTeamBName(), std::string(SELECT_MENU_ID), match)));
+	msg.set_flags(dpp::m_ephemeral);
 
 	return msg;
 }

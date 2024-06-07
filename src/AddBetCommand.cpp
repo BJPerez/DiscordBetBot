@@ -7,13 +7,28 @@
 
 dpp::message AddBetCommand::ExecuteInternal() const 
 {
+	dpp::message msg{ GetAnswerChannelId(), "" };
+	msg.set_flags(dpp::m_ephemeral);
+
 	if (const std::optional<std::reference_wrapper<const Bet>> bet = m_CommandReceiver.GetBet(m_MatchId, m_BettorName))
 	{
-		m_CommandReceiver.ModifyBet(m_MatchId, m_Score, m_BettorName);
-		return {GetAnswerChannelId(), "You already had a different bet for this match. The score has been modified."};
+		if (m_Score == bet->get().GetScore())
+		{
+			msg.set_content("You already have the exact same bet for this match.");
+		}
+		else
+		{
+			m_CommandReceiver.ModifyBet(m_MatchId, m_Score, m_BettorName);
+			msg.set_content("You already had a different bet for this match. Your bet has been modified.");
+		}
 	}
-	m_CommandReceiver.AddBet(m_MatchId, m_Score, m_BettorName);
-	return { GetAnswerChannelId(), "Bet added." };
+	else
+	{
+		m_CommandReceiver.AddBet(m_MatchId, m_Score, m_BettorName);
+		msg.set_content("Bet added.");
+	}
+
+	return msg; 
 }
 
 bool AddBetCommand::ValidateCommand(std::string& outUserErrMsg) const
