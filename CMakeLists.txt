@@ -47,6 +47,9 @@
 		"src/ChooseMatchToSetResultCommand.h"
 		"src/ShowResultProposalCommand.cpp"
 		"src/ShowResultProposalCommand.h"
+		"src/FileWatcher.cpp"
+		"src/FileWatcher.h"
+		"src/LockableDataAccessors.h"
 		)
 	 
 	# Find our pre-installed DPP package (using FindDPP.cmake).

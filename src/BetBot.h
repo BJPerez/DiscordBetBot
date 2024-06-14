@@ -2,8 +2,12 @@
 
 #include <dpp/dpp.h>
 
+#include <shared_mutex>
+
 #include "BotData.h"
+#include "ICommandReceiver.h"
 #include "JsonSerializer.h"
+#include "LockableDataAccessors.h"
 #include "SaveManager.h"
 
 class BetBot
@@ -12,10 +16,13 @@ public:
 	BetBot(const std::string& betToken, std::string saveFilePath);
 
 	void Start();
+	[[nodiscard]] DataReader<ICommandReceiver> GetDataReader() const { return { m_Data, m_DataMutex }; };
+	[[nodiscard]] DataWriter<ICommandReceiver> GetDataWriter() { return { m_Data, m_DataMutex }; };
 
 private:
 	dpp::cluster m_Cluster;
 	BotData m_Data;
+	mutable std::shared_mutex m_DataMutex;
 	SaveManager m_Saver;
 
 	void CreateCommands();
