@@ -1,21 +1,32 @@
 #include "AddResultCommand.h"
 
-#include <functional>
-
 #include "ICommandReceiver.h"
+#include "LockableDataAccessors.h"
 
-dpp::message AddResultCommand::ExecuteInternal() const
+dpp::message AddResultCommand::Execute() const
 {
-	m_CommandReceiver.AddResult(m_MatchId, m_Score);
-
-	dpp::message msg{ GetAnswerChannelId(), "Result added and bettors' scores updated." };
+	dpp::message msg{ GetAnswerChannelId(), "" };
 	msg.set_flags(dpp::m_ephemeral);
+
+	{
+		const DataWriter dataWriter = GetDataWriter();
+		if (std::string errorMsg;
+			!ValidateCommand(dataWriter, errorMsg))
+		{
+			msg.set_content("Error: " + errorMsg);
+		}
+		else
+		{
+			dataWriter->AddResult(m_MatchId, m_Score);
+			msg.set_content("Result added and bettors' scores updated.");
+		}
+	}
 	return msg;
 }
 
-bool AddResultCommand::ValidateCommand(std::string& outUserErrMsg) const
+bool AddResultCommand::ValidateCommand(const DataWriter<ICommandReceiver>& dataWriter, std::string& outUserErrMsg) const
 {
-	const std::optional<std::reference_wrapper<const Match>> matchOpt = m_CommandReceiver.GetMatch(m_MatchId);
+	const std::optional<std::reference_wrapper<const Match>> matchOpt = dataWriter->GetMatch(m_MatchId);
 	if (!matchOpt.has_value())
 	{
 		outUserErrMsg = "No match with the given ID " + std::to_string(m_MatchId);

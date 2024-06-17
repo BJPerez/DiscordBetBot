@@ -13,15 +13,15 @@ class ICommandReceiver;
 class AddResultCommand final : public CommandBase
 {
 public:
-	explicit AddResultCommand(const dpp::snowflake channelId, const unsigned int matchId, const unsigned int teamAScore, const unsigned int teamBScore, ICommandReceiver& commandReceiver) :
-		CommandBase(channelId), m_MatchId(matchId), m_Score(MatchScore{teamAScore, teamBScore}), m_CommandReceiver(commandReceiver) {}
+	AddResultCommand(const dpp::snowflake channelId, BetBot& bot, const unsigned int matchId, const unsigned int teamAScore, const unsigned int teamBScore) noexcept :
+		CommandBase(channelId, bot), m_MatchId(matchId), m_Score(MatchScore{teamAScore, teamBScore}) {}
+
+	[[nodiscard]] dpp::message Execute() const override;
 
 private:
 	unsigned int m_MatchId{ Match::INVALID_ID };
 	MatchScore m_Score;
-	ICommandReceiver& m_CommandReceiver;
 
-	[[nodiscard]] dpp::message ExecuteInternal() const final;
-	[[nodiscard]] bool ValidateCommand(std::string& outUserErrMsg) const final;
+	bool ValidateCommand(const DataWriter<ICommandReceiver>& dataWriter, std::string& outUserErrMsg) const;
 };
 

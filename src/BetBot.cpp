@@ -74,7 +74,7 @@ void BetBot::ExecuteAddMatch(const dpp::slashcommand_t& event)
 	auto teamBName = std::get<std::string>(event.get_parameter("team_b"));
 	const unsigned int boSize = static_cast<unsigned int>(std::get<int64_t>(event.get_parameter("bo_size")));
 
-	const AddMatchCommand command{ event.command.channel_id, std::move(teamAName), std::move(teamBName), boSize, m_Data };
+	const AddMatchCommand command{ event.command.channel_id, *this, std::move(teamAName), std::move(teamBName), boSize };
 	event.reply(command.Execute());
 	m_Saver.Save();
 }
@@ -86,7 +86,7 @@ void BetBot::ExecuteAddBet(const dpp::select_click_t& event)
 
 	std::string userName = event.command.get_issuing_user().global_name;
 
-	const AddBetCommand command{ event.command.channel_id, matchId, teamAScore, teamBScore, std::move(userName), m_Data };
+	const AddBetCommand command{ event.command.channel_id, *this, matchId, teamAScore, teamBScore, std::move(userName) };
 	event.reply(command.Execute());
 	m_Saver.Save();
 }
@@ -96,44 +96,44 @@ void BetBot::ExecuteAddResult(const dpp::select_click_t& event)
 	unsigned int matchId, teamAScore, teamBScore;
 	ExtractMatchInfosFromSelectorValue(event.values[0], matchId, teamAScore, teamBScore);
 
-	const AddResultCommand command{ event.command.channel_id, matchId, teamAScore, teamBScore, m_Data };
+	const AddResultCommand command{ event.command.channel_id, *this, matchId, teamAScore, teamBScore };
 	event.reply(command.Execute());
 	m_Saver.Save();
 }
 
 void BetBot::ExecuteShowMatches(const dpp::slashcommand_t& event)
 {
-	const ShowMatchesCommand command{ event.command.channel_id, m_Data };
+	const ShowMatchesCommand command{ event.command.channel_id, *this };
 	event.reply(command.Execute());
 }
 
 void BetBot::ExecuteShowResults(const dpp::slashcommand_t& event)
 {
-	const ShowBettorsResultsCommand command{ event.command.channel_id, m_Data };
+	const ShowBettorsResultsCommand command{ event.command.channel_id, *this };
 	event.reply(command.Execute());
 }
 
 void BetBot::ExecuteShowBetProposal(const dpp::select_click_t& event)
 {
-	const ShowBetProposalCommand command{ event.command.channel_id, static_cast<unsigned int>(std::stoul(event.values[0])), m_Data };
+	const ShowBetProposalCommand command{ event.command.channel_id, *this, static_cast<unsigned int>(std::stoul(event.values[0])) };
 	event.reply(command.Execute());
 }
 
 void BetBot::ExecuteChooseMatchToBetOn(const dpp::select_click_t& event)
 {
-	const ChooseMatchToBetOnCommand command{ event.command.channel_id, m_Data };
+	const ChooseMatchToBetOnCommand command{ event.command.channel_id, *this };
 	event.reply(command.Execute());
 }
 
 void BetBot::ExecuteChooseMatchToSetResult(const dpp::select_click_t& event)
 {
-	const ChooseMatchToSetResultCommand command{ event.command.channel_id, m_Data };
+	const ChooseMatchToSetResultCommand command{ event.command.channel_id, *this };
 	event.reply(command.Execute());
 }
 
 void BetBot::ExecuteShowResultProposal(const dpp::select_click_t& event)
 {
-	const ShowResultProposalCommand command{ event.command.channel_id, static_cast<unsigned int>(std::stoul(event.values[0])), m_Data };
+	const ShowResultProposalCommand command{ event.command.channel_id, *this, static_cast<unsigned int>(std::stoul(event.values[0])) };
 	event.reply(command.Execute());
 }
 

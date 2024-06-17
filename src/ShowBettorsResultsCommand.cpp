@@ -5,6 +5,7 @@
 #include "BettorResults.h"
 #include "DrawUtils.h"
 #include "ICommandReceiver.h"
+#include "LockableDataAccessors.h"
 
 namespace
 {
@@ -59,56 +60,54 @@ namespace
 			outColumns[columnIndex++].emplace_back(std::to_string(bettorResults.GetScore()) + " pts");
 		}
 	}
+
+	unsigned int EvaluateMaxBoSize(const DataReader<ICommandReceiver>& dataReader) noexcept
+	{
+		unsigned int maxBoSize{ 0 };
+		for (const BettorResults& results : dataReader->GetBettorsResults())
+		{
+			maxBoSize = std::max(maxBoSize, results.GetMaxBoSize());
+		}
+		return maxBoSize;
+	}
+
+	std::vector<std::vector<std::string>> GenerateColumnsWithResultsInfos(const DataReader<ICommandReceiver>& dataReader)
+	{
+		const unsigned int maxBoSize = EvaluateMaxBoSize(dataReader);
+		const unsigned int boSizesCount = (maxBoSize + 1) / 2; // We go two by two from 1 to maxBoSize. So if maxBoSize = 5, we have 1, 3 and 5 so 3 different bo sizes
+		const unsigned int columnsCount = COLUMNS_COUNT_OUTSIDE_OF_BOSIZE_COLUMNS + (boSizesCount * 2); // *2 because every bosize will have one column for perfect bet and one for correct bet
+
+		// Note that Bettors result should already be sorted from the bettor with the most point to the less.
+		std::vector<std::vector<std::string>> columnsContents(columnsCount);
+		FillColumnHeaders(maxBoSize, columnsContents);
+		FillColumns(dataReader->GetBettorsResults(), maxBoSize, columnsContents);
+
+		return columnsContents;
+	}
 }
 
-dpp::message ShowBettorsResultsCommand::ExecuteInternal() const
+dpp::message ShowBettorsResultsCommand::Execute() const
 {
 	dpp::message msg{ GetAnswerChannelId(), "" };
 	msg.set_flags(dpp::m_ephemeral);
 
-	if (const std::vector<BettorResults>& allResults = m_CommandReceiver.GetBettorsResults(); 
-		allResults.empty())
 	{
-		msg.set_content("No result to display yet.");
-	}
-	else
-	{
-		std::string msgText;
-		const std::vector<std::vector<std::string>> columnsContents = GenerateColumnsWithResultsInfos();
-		DrawUtils::DrawTable(columnsContents, msgText);
-		msgText += "PB = Perfect Bet (winning team + exact score)    |     CB = Correct Bet (winning team only)";
+		const DataReader dataReader = GetDataReader();
+		if (const std::vector<BettorResults>& allResults = dataReader->GetBettorsResults();
+			allResults.empty())
+		{
+			msg.set_content("No result to display yet.");
+		}
+		else
+		{
+			std::string msgText;
+			const std::vector<std::vector<std::string>> columnsContents = GenerateColumnsWithResultsInfos(dataReader);
+			DrawUtils::DrawTable(columnsContents, msgText);
+			msgText += "PB = Perfect Bet (winning team + exact score)    |     CB = Correct Bet (winning team only)";
 
-		msg.set_content(msgText);
+			msg.set_content(msgText);
+		}
 	}
 
 	return msg;
-}
-
-bool ShowBettorsResultsCommand::ValidateCommand(std::string&) const
-{
-	return true;
-}
-
-unsigned int ShowBettorsResultsCommand::EvaluateMaxBoSize() const noexcept
-{
-	unsigned int maxBoSize{ 0 };
-	for (const BettorResults& results : m_CommandReceiver.GetBettorsResults())
-	{
-		maxBoSize = std::max(maxBoSize, results.GetMaxBoSize());
-	}
-	return maxBoSize;
-}
-
-std::vector<std::vector<std::string>> ShowBettorsResultsCommand::GenerateColumnsWithResultsInfos() const
-{
-	const unsigned int maxBoSize = EvaluateMaxBoSize();
-	const unsigned int boSizesCount = (maxBoSize + 1) / 2; // We go two by two from 1 to maxBoSize. So if maxBoSize = 5, we have 1, 3 and 5 so 3 different bo sizes
-	const unsigned int columnsCount = COLUMNS_COUNT_OUTSIDE_OF_BOSIZE_COLUMNS + (boSizesCount * 2); // *2 because every bosize will have one column for perfect bet and one for correct bet
-
-	// Note that Bettors result should already be sorted from the bettor with the most point to the less.
-	std::vector<std::vector<std::string>> columnsContents(columnsCount);
-	FillColumnHeaders(maxBoSize, columnsContents);
-	FillColumns(m_CommandReceiver.GetBettorsResults(), maxBoSize, columnsContents);
-
-	return columnsContents;
 }

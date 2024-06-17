@@ -1,37 +1,47 @@
 #include "AddBetCommand.h"
 
-#include <functional>
-
 #include "Bet.h"
 #include "ICommandReceiver.h"
+#include "LockableDataAccessors.h"
 
-dpp::message AddBetCommand::ExecuteInternal() const 
+dpp::message AddBetCommand::Execute() const 
 {
 	dpp::message msg{ GetAnswerChannelId(), "" };
 	msg.set_flags(dpp::m_ephemeral);
 
-	if (const std::optional<std::reference_wrapper<const Bet>> bet = m_CommandReceiver.GetBet(m_MatchId, m_BettorName))
 	{
-		if (m_Score == bet->get().GetScore())
+		const DataWriter dataWriter = GetDataWriter();
+		if (std::string errorMsg;
+			!ValidateCommand(dataWriter, errorMsg))
 		{
-			msg.set_content("You already have the exact same bet for this match.");
+			msg.set_content("Error: " + errorMsg);
 		}
 		else
 		{
-			m_CommandReceiver.ModifyBet(m_MatchId, m_Score, m_BettorName);
-			msg.set_content("You already had a different bet for this match. Your bet has been modified.");
+			if (const std::optional<std::reference_wrapper<const Bet>> bet = dataWriter->GetBet(m_MatchId, m_BettorName))
+			{
+				if (m_Score == bet->get().GetScore())
+				{
+					msg.set_content("You already have the exact same bet for this match.");
+				}
+				else
+				{
+					dataWriter->ModifyBet(m_MatchId, m_Score, m_BettorName);
+					msg.set_content("You already had a different bet for this match. Your bet has been modified.");
+				}
+			}
+			else
+			{
+				dataWriter->AddBet(m_MatchId, m_Score, m_BettorName);
+				msg.set_content("Bet added.");
+			}
 		}
-	}
-	else
-	{
-		m_CommandReceiver.AddBet(m_MatchId, m_Score, m_BettorName);
-		msg.set_content("Bet added.");
 	}
 
 	return msg; 
 }
 
-bool AddBetCommand::ValidateCommand(std::string& outUserErrMsg) const
+bool AddBetCommand::ValidateCommand(const DataWriter<ICommandReceiver>& dataWriter, std::string& outUserErrMsg) const
 {
 	if (m_BettorName.empty())
 	{
@@ -39,7 +49,7 @@ bool AddBetCommand::ValidateCommand(std::string& outUserErrMsg) const
 		return false;
 	}
 
-	const std::optional<std::reference_wrapper<const Match>> matchOptional = m_CommandReceiver.GetMatch(m_MatchId);
+	const std::optional<std::reference_wrapper<const Match>> matchOptional = dataWriter->GetMatch(m_MatchId);
 	if (!matchOptional.has_value())
 	{
 		outUserErrMsg = "No match with the given ID " + std::to_string(m_MatchId);
@@ -63,7 +73,7 @@ bool AddBetCommand::ValidateCommand(std::string& outUserErrMsg) const
 		return false;
 	}
 
-	if (const std::optional<std::reference_wrapper<const Bet>> bet = m_CommandReceiver.GetBet(m_MatchId, m_BettorName))
+	if (const std::optional<std::reference_wrapper<const Bet>> bet = dataWriter->GetBet(m_MatchId, m_BettorName))
 	{
 		if (bet.value().get().GetScore() == m_Score)
 		{

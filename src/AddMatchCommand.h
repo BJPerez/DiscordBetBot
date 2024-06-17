@@ -11,16 +11,16 @@ class ICommandReceiver;
 class AddMatchCommand final : public CommandBase
 {
 public:
-	explicit AddMatchCommand(const dpp::snowflake channelId, std::string teamAName, std::string teamBName, const unsigned int boSize, ICommandReceiver& commandReceiver):
-		CommandBase(channelId), m_TeamAName(std::move(teamAName)), m_TeamBName(std::move(teamBName)), m_BoSize(boSize), m_CommandReceiver(commandReceiver) {}
+	AddMatchCommand(const dpp::snowflake channelId, BetBot& bot, std::string teamAName, std::string teamBName, const unsigned int boSize) noexcept :
+		CommandBase(channelId, bot), m_TeamAName(std::move(teamAName)), m_TeamBName(std::move(teamBName)), m_BoSize(boSize) {}
+
+	[[nodiscard]] dpp::message Execute() const override;
 
 private:
 	std::string m_TeamAName;
 	std::string m_TeamBName;
 	unsigned int m_BoSize{ 0 };
-	ICommandReceiver& m_CommandReceiver;
 
-	[[nodiscard]] dpp::message ExecuteInternal() const final;
-	[[nodiscard]] bool ValidateCommand(std::string& outUserErrMsg) const final;
+	bool ValidateCommand(std::string& outUserErrMsg) const;
 };
 

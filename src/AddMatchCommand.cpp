@@ -1,13 +1,27 @@
 #include "AddMatchCommand.h"
 
 #include "ICommandReceiver.h"
+#include "LockableDataAccessors.h"
 
-dpp::message AddMatchCommand::ExecuteInternal() const
+dpp::message AddMatchCommand::Execute() const
 {
-	m_CommandReceiver.AddMatch(m_TeamAName, m_TeamBName, m_BoSize);
-
-	dpp::message msg{ GetAnswerChannelId(), "Match added." };
+	dpp::message msg{ GetAnswerChannelId(), "" };
 	msg.set_flags(dpp::m_ephemeral);
+
+	{
+		const DataWriter dataWriter = GetDataWriter();
+		if (std::string errorMsg;
+			!ValidateCommand(errorMsg))
+		{
+			msg.set_content("Error: " + errorMsg);
+		}
+		else
+		{
+			dataWriter->AddMatch(m_TeamAName, m_TeamBName, m_BoSize);
+			msg.set_content("Match added.");
+		}
+	}
+
 	return msg;
 }
 

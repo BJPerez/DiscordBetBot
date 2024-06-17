@@ -1,13 +1,16 @@
 #pragma once
 
-#include <string>
 #include <dpp/message.h>
 #include <dpp/snowflake.h>
+
+#include "BetBot.h"
+#include "ICommandReceiver.h"
+#include "LockableDataAccessors.h"
 
 class CommandBase
 {
 public:
-	explicit CommandBase(const dpp::snowflake chanelId) : m_AnswerChannelId(chanelId) {}
+	CommandBase(const dpp::snowflake chanelId, BetBot& bot ) noexcept : m_AnswerChannelId(chanelId), m_Bot(&bot) {}
 
 	CommandBase(const CommandBase& other) = default;
 	CommandBase(CommandBase&& other) = default;
@@ -15,15 +18,15 @@ public:
 	CommandBase& operator=(const CommandBase& other) = default;
 	CommandBase& operator=(CommandBase&& other) = default;
 
-	[[nodiscard]] dpp::message Execute() const;
+	[[nodiscard]] virtual dpp::message Execute() const = 0;
 
 protected:
-	[[nodiscard]] dpp::snowflake GetAnswerChannelId() const { return m_AnswerChannelId; }
-
-	[[nodiscard]] virtual dpp::message ExecuteInternal() const = 0;
-	[[nodiscard]] virtual bool ValidateCommand(std::string& outUserErrMsg) const = 0;
+	[[nodiscard]] dpp::snowflake GetAnswerChannelId() const noexcept { return m_AnswerChannelId; }
+	[[nodiscard]] DataReader<ICommandReceiver> GetDataReader() const { return m_Bot->GetDataReader(); }
+	[[nodiscard]] DataWriter<ICommandReceiver> GetDataWriter() const { return m_Bot->GetDataWriter(); }
 
 private:
 	dpp::snowflake m_AnswerChannelId;
+	BetBot* m_Bot;
 };
 

@@ -13,16 +13,16 @@ class ICommandReceiver;
 class AddBetCommand final : public CommandBase
 {
 public:
-	explicit AddBetCommand(const dpp::snowflake channelId, const unsigned int matchId, const unsigned int teamAScore, const unsigned int teamBScore, std::string bettorName, ICommandReceiver& commandReceiver):
-		CommandBase(channelId), m_MatchId(matchId), m_Score{ teamAScore, teamBScore }, m_BettorName(std::move(bettorName)), m_CommandReceiver(commandReceiver) {}
+	AddBetCommand(const dpp::snowflake channelId, BetBot& bot, const unsigned int matchId, const unsigned int teamAScore, const unsigned int teamBScore, std::string bettorName) noexcept:
+		CommandBase(channelId, bot), m_MatchId(matchId), m_Score{ teamAScore, teamBScore }, m_BettorName(std::move(bettorName)) {}
+
+	[[nodiscard]] dpp::message Execute() const override;
 
 private:
 	unsigned int m_MatchId{ Match::INVALID_ID };
 	MatchScore m_Score;
 	std::string m_BettorName;
-	ICommandReceiver& m_CommandReceiver;
 
-	[[nodiscard]] dpp::message ExecuteInternal() const final;
-	[[nodiscard]] bool ValidateCommand(std::string& outUserErrMsg) const final;
+	bool ValidateCommand(const DataWriter<ICommandReceiver>& dataWriter, std::string& outUserErrMsg) const;
 };
 
