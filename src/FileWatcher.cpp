@@ -1,5 +1,7 @@
 #include "FileWatcher.h"
 
+#include <algorithm>
+
 #include <filesystem>
 #include <thread>
 
