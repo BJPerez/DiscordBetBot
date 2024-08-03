@@ -49,6 +49,8 @@
 		"src/FileWatcher.cpp"
 		"src/FileWatcher.h"
 		"src/LockableDataAccessors.h"
+		"src/BotConfigReader.cpp"
+		"src/BotConfigReader.h"
 		)
 	 
 	# Find our pre-installed DPP package (using FindDPP.cmake).

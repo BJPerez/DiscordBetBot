@@ -5,15 +5,21 @@
 #include <shared_mutex>
 
 #include "BotData.h"
+#include "FileWatcher.h"
 #include "ICommandReceiver.h"
 #include "JsonSerializer.h"
 #include "LockableDataAccessors.h"
 #include "SaveManager.h"
 
+namespace BotConfigReader
+{
+	struct Results;
+}
+
 class BetBot
 {
 public:
-	BetBot(const std::string& betToken, std::string saveFilePath);
+	explicit BetBot(BotConfigReader::Results config);
 
 	void Start();
 	[[nodiscard]] DataReader<ICommandReceiver> GetDataReader() const { return { m_Data, m_DataMutex }; };
@@ -21,14 +27,18 @@ public:
 
 private:
 	dpp::cluster m_Cluster;
+	dpp::snowflake m_AnswerChannelId;
 	BotData m_Data;
 	mutable std::shared_mutex m_DataMutex;
 	SaveManager m_Saver;
+	std::optional<FileWatcher> m_NewMatchWatcher;
+	std::optional<FileWatcher> m_NewResultWatcher;
 
 	void CreateCommands();
 	void SetUpCallbacks();
 	void SetUpCommandCallbacks();
 	void SetUpSelectCallbacks();
+	void SetupFileWatchers(BotConfigReader::Results& config);
 
 	[[nodiscard]] dpp::slashcommand CreateAddMatchCommand() const;
 	[[nodiscard]] dpp::slashcommand CreateShowMatchesCommand() const { return { "show_matches", "Show the incoming matches. Also allows you to bet on them or set their result.", m_Cluster.me.id }; }
@@ -43,4 +53,6 @@ private:
 	void ExecuteChooseMatchToSetResult(const dpp::select_click_t& event);
 	void ExecuteAddResult(const dpp::select_click_t& event);
 	void ExecuteShowResultProposal(const dpp::select_click_t& event);
+	void OnNewMatch(const std::string& file);
+	void OnNewResult(const std::string& file) {};
 };

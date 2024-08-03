@@ -29,7 +29,7 @@ bool AddResultCommand::ValidateCommand(const DataWriter<ICommandReceiver>& dataW
 	const std::optional<std::reference_wrapper<const Match>> matchOpt = dataWriter->GetMatch(m_MatchId);
 	if (!matchOpt.has_value())
 	{
-		outUserErrMsg = "No match with the given ID " + std::to_string(m_MatchId);
+		outUserErrMsg = "No match with the given ID " + m_MatchId;
 		return false;
 	}
 	const Match& match = matchOpt.value().get();

@@ -94,7 +94,7 @@ dpp::component DrawUtils::CreateMatchSelector(const std::string& placeHolder, co
 	std::ranges::for_each(matches,
 		[&selectMenu](const Match& match)
 		{
-			selectMenu.add_select_option(dpp::select_option(match.GetTeamAName() + " - " + match.GetTeamBName(), std::to_string(match.GetId())));
+			selectMenu.add_select_option(dpp::select_option(match.GetTeamAName() + " - " + match.GetTeamBName(), match.GetId()));
 		}
 	);
 	selectMenu.set_id(selectorId);
@@ -104,10 +104,10 @@ dpp::component DrawUtils::CreateMatchSelector(const std::string& placeHolder, co
 
 namespace
 {
-	dpp::select_option CreateSelectMenuOption(const unsigned int matchId, const MatchScore& score)
+	dpp::select_option CreateSelectMenuOption(const std::string& matchId, const MatchScore& score)
 	{
 		const std::string displayedOption = score.ToString();
-		const std::string optionValue = std::to_string(matchId) + "-" + std::to_string(score.m_TeamAScore) + "-" + std::to_string(score.m_TeamBScore); // score.ToString has space around the '-' that we don't want in the value
+		const std::string optionValue = matchId + "-" + std::to_string(score.m_TeamAScore) + "-" + std::to_string(score.m_TeamBScore); // score.ToString has space around the '-' that we don't want in the value
 		return { displayedOption, optionValue };
 	}
 }

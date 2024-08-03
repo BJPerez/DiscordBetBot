@@ -44,7 +44,7 @@ namespace
 		dpp::embed result;
 
 		result.set_title(match.GetTeamAName() + " - " + match.GetTeamBName());
-		result.set_description("ID: " + std::to_string(match.GetId()) + ", BO" + std::to_string(match.GetBoSize()));
+		result.set_description("ID: " + match.GetId() + ", BO" + std::to_string(match.GetBoSize()));
 		result.set_color(PopRandomColor(possibleColors));
 
 		std::string fieldContent;

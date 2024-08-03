@@ -18,8 +18,11 @@ FileWatcher::FileWatcher(FileWatcher&& other) noexcept: m_FolderToWatch(std::mov
 
 FileWatcher::~FileWatcher()
 {
-	Stop();
-	m_WorkingThread.join();
+	if (m_IsRunning.load())
+	{
+		Stop();
+		m_WorkingThread.join();
+	}
 }
 
 FileWatcher& FileWatcher::operator=(FileWatcher&& other) noexcept

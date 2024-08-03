@@ -34,7 +34,7 @@ bool ShowResultProposalCommand::ValidateCommand(const DataReader<ICommandReceive
 	if (const std::optional<std::reference_wrapper<const Match>> matchOpt = dataReader->GetMatch(m_MatchId);
 		!matchOpt.has_value())
 	{
-		outUserErrMsg = "Couldn't find any match with given ID [" + std::to_string(m_MatchId) + "]";
+		outUserErrMsg = "Couldn't find any match with given ID [" + m_MatchId + "]";
 		return false;
 	}
 

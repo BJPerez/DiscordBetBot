@@ -17,7 +17,7 @@ dpp::message AddMatchCommand::Execute() const
 		}
 		else
 		{
-			dataWriter->AddMatch(m_TeamAName, m_TeamBName, m_BoSize);
+			dataWriter->AddMatch(m_MatchId, m_TeamAName, m_TeamBName, m_BoSize);
 			msg.set_content("Match added.");
 		}
 	}
@@ -27,6 +27,12 @@ dpp::message AddMatchCommand::Execute() const
 
 bool AddMatchCommand::ValidateCommand(std::string& outUserErrMsg) const
 {
+	if (m_MatchId.has_value() && m_MatchId.value().empty())
+	{
+		outUserErrMsg = "Given match id is empty.";
+		return false;
+	}
+
 	if (m_TeamAName.empty() || m_TeamBName.empty())
 	{
 		outUserErrMsg = "Some of the teams has no name.";

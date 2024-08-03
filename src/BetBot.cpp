@@ -3,6 +3,7 @@
 #include "AddBetCommand.h"
 #include "AddMatchCommand.h"
 #include "AddResultCommand.h"
+#include "BotConfigReader.h"
 #include "ChooseMatchToBetOnCommand.h"
 #include "ChooseMatchToSetResultCommand.h"
 #include "ShowBetProposalCommand.h"
@@ -12,15 +13,15 @@
 
 namespace
 {
-	void ExtractMatchInfosFromSelectorValue(std::string selectorValue, unsigned int& outMatchId, unsigned int& outTeamAScore, unsigned int& outTeamBScore)
+	void ExtractMatchInfosFromSelectorValue(std::string selectorValue, std::string& outMatchId, unsigned int& outTeamAScore, unsigned int& outTeamBScore)
 	{
 		// format of the value is "MatchId-AScore-BScore"
 
 		std::size_t delimiter = selectorValue.find('-');
-		outMatchId = std::stoul(selectorValue.substr(0, delimiter));
+		outMatchId = selectorValue.substr(0, delimiter);
 		selectorValue = selectorValue.substr(delimiter + 1);
 
-		delimiter = selectorValue.find("-");
+		delimiter = selectorValue.find('-');
 		outTeamAScore = std::stoul(selectorValue.substr(0, delimiter));
 		selectorValue = selectorValue.substr(delimiter + 1);
 
@@ -28,15 +29,39 @@ namespace
 	}
 }
 
-BetBot::BetBot(const std::string& betToken, std::string saveFilePath): m_Cluster(betToken), m_Data(), m_Saver(std::move(saveFilePath), m_Data)
+BetBot::BetBot(BotConfigReader::Results config) : m_Cluster(std::move(config.m_BotToken)), m_AnswerChannelId(config.m_AnswerChannelId), m_Data(),
+	m_Saver(std::move(config.m_SaveFilePath))
 {
-	m_Saver.Load();
+	m_Saver.Load(GetDataWriter());
 	m_Cluster.on_log(dpp::utility::cout_logger());
 
 	CreateCommands();
 	SetUpCallbacks();
+	SetupFileWatchers(config);
 
 	srand(time(nullptr)); // Init randomness
+}
+
+void BetBot::SetupFileWatchers(BotConfigReader::Results& config)
+{
+	if (config.m_NewMatchesFolder.has_value() && config.m_NewResultsFolder.has_value() && config.m_DelayBetweenChecks.has_value())
+	{
+		m_NewMatchWatcher.emplace(std::move(config.m_NewMatchesFolder.value()), config.m_DelayBetweenChecks.value(),
+			[this](const std::string& filePath)
+			{
+				OnNewMatch(filePath);
+			}
+		);
+		m_NewMatchWatcher->Run();
+
+		m_NewResultWatcher.emplace(std::move(config.m_NewResultsFolder.value()), std::move(config.m_DelayBetweenChecks.value()),
+			[this](const std::string& filePath)
+			{
+				OnNewResult(filePath);
+			}
+		);
+		m_NewResultWatcher->Run();
+	}
 }
 
 dpp::slashcommand BetBot::CreateAddMatchCommand() const
@@ -74,66 +99,92 @@ void BetBot::ExecuteAddMatch(const dpp::slashcommand_t& event)
 	auto teamBName = std::get<std::string>(event.get_parameter("team_b"));
 	const unsigned int boSize = static_cast<unsigned int>(std::get<int64_t>(event.get_parameter("bo_size")));
 
-	const AddMatchCommand command{ event.command.channel_id, *this, std::move(teamAName), std::move(teamBName), boSize };
+	const AddMatchCommand command{ m_AnswerChannelId, *this, std::move(teamAName), std::move(teamBName), boSize };
 	event.reply(command.Execute());
-	m_Saver.Save();
+	m_Saver.Save(GetDataReader());
+}
+
+void BetBot::OnNewMatch(const std::string& file)
+{
+	if (std::ifstream fileStream{ file }; 
+		!fileStream.good()) // does file exists ?
+	{
+		dpp::json fileContent;
+		fileStream >> fileContent;
+
+		if (fileContent.contains("matchid") &&
+			fileContent.contains("team1") &&
+			fileContent.contains("team2") &&
+			fileContent.contains("bo_size")
+			)
+		{
+			const AddMatchCommand command{ m_AnswerChannelId, *this, fileContent["team1"], fileContent["team2"], fileContent["bo_size"], fileContent["matchid"] };
+			dpp::message msg = command.Execute();
+			msg.content = "Automatic add match: " + msg.content;
+
+			m_Cluster.message_create(msg);
+			m_Saver.Save(GetDataReader());
+		}
+	}
 }
 
 void BetBot::ExecuteAddBet(const dpp::select_click_t& event)
 {
-	unsigned int matchId, teamAScore, teamBScore;
+	std::string matchId;
+	unsigned int teamAScore, teamBScore;
 	ExtractMatchInfosFromSelectorValue(event.values[0], matchId, teamAScore, teamBScore);
 
 	std::string userName = event.command.get_issuing_user().global_name;
 
-	const AddBetCommand command{ event.command.channel_id, *this, matchId, teamAScore, teamBScore, std::move(userName) };
+	const AddBetCommand command{ m_AnswerChannelId, *this, matchId, teamAScore, teamBScore, std::move(userName) };
 	event.reply(command.Execute());
-	m_Saver.Save();
+	m_Saver.Save(GetDataReader());
 }
 
 void BetBot::ExecuteAddResult(const dpp::select_click_t& event)
 {
-	unsigned int matchId, teamAScore, teamBScore;
+	std::string matchId;
+	unsigned int teamAScore, teamBScore;
 	ExtractMatchInfosFromSelectorValue(event.values[0], matchId, teamAScore, teamBScore);
 
-	const AddResultCommand command{ event.command.channel_id, *this, matchId, teamAScore, teamBScore };
+	const AddResultCommand command{ m_AnswerChannelId, *this, matchId, teamAScore, teamBScore };
 	event.reply(command.Execute());
-	m_Saver.Save();
+	m_Saver.Save(GetDataReader());
 }
 
 void BetBot::ExecuteShowMatches(const dpp::slashcommand_t& event)
 {
-	const ShowMatchesCommand command{ event.command.channel_id, *this };
+	const ShowMatchesCommand command{ m_AnswerChannelId, *this };
 	event.reply(command.Execute());
 }
 
 void BetBot::ExecuteShowResults(const dpp::slashcommand_t& event)
 {
-	const ShowBettorsResultsCommand command{ event.command.channel_id, *this };
+	const ShowBettorsResultsCommand command{ m_AnswerChannelId, *this };
 	event.reply(command.Execute());
 }
 
 void BetBot::ExecuteShowBetProposal(const dpp::select_click_t& event)
 {
-	const ShowBetProposalCommand command{ event.command.channel_id, *this, static_cast<unsigned int>(std::stoul(event.values[0])) };
+	const ShowBetProposalCommand command{ m_AnswerChannelId, *this, event.values[0] };
 	event.reply(command.Execute());
 }
 
 void BetBot::ExecuteChooseMatchToBetOn(const dpp::select_click_t& event)
 {
-	const ChooseMatchToBetOnCommand command{ event.command.channel_id, *this };
+	const ChooseMatchToBetOnCommand command{ m_AnswerChannelId, *this };
 	event.reply(command.Execute());
 }
 
 void BetBot::ExecuteChooseMatchToSetResult(const dpp::select_click_t& event)
 {
-	const ChooseMatchToSetResultCommand command{ event.command.channel_id, *this };
+	const ChooseMatchToSetResultCommand command{ m_AnswerChannelId, *this };
 	event.reply(command.Execute());
 }
 
 void BetBot::ExecuteShowResultProposal(const dpp::select_click_t& event)
 {
-	const ShowResultProposalCommand command{ event.command.channel_id, *this, static_cast<unsigned int>(std::stoul(event.values[0])) };
+	const ShowResultProposalCommand command{ m_AnswerChannelId, *this, event.values[0] };
 	event.reply(command.Execute());
 }
 

@@ -91,28 +91,28 @@ dpp::json JsonSerializer::ToJson(const BettorResults::ResultsByBoSize& results)
 	return json;
 }
 
-dpp::json JsonSerializer::ToJson(const BotData& data)
+dpp::json JsonSerializer::ToJson(const DataReader<ICommandReceiver>& dataReader)
 {
 	dpp::json json;
-	json["Matches"] = ToJsonArray(data.GetIncomingMatches());
-	json["Bets"] = ToJsonArray(data.GetBets());
-	json["BettorsResults"] = ToJsonArray(data.GetBettorsResults());
+	json["Matches"] = ToJsonArray(dataReader->GetIncomingMatches());
+	json["Bets"] = ToJsonArray(dataReader->GetBets());
+	json["BettorsResults"] = ToJsonArray(dataReader->GetBettorsResults());
 
 	return json;
 }
 
-void JsonSerializer::Serialize(const BotData& data, std::ofstream& file) const
+void JsonSerializer::Serialize(const DataReader<ICommandReceiver>& dataReader, std::ofstream& file) const
 {
-	const dpp::json botAsJson = ToJson(data);
+	const dpp::json botAsJson = ToJson(dataReader);
 	file << botAsJson;
 }
 
-void JsonSerializer::UnSerialize(std::ifstream& file, BotData& data) const
+void JsonSerializer::UnSerialize(std::ifstream& file, const DataWriter<ICommandReceiver>& dataWriter) const
 {
 	dpp::json dataAsJson;
 	file >> dataAsJson;
 
-	FromJson(dataAsJson, data);
+	FromJson(dataAsJson, dataWriter);
 }
 
 void JsonSerializer::FromJson(const dpp::json& json, Match& outMatch)
@@ -148,18 +148,18 @@ void JsonSerializer::FromJson(const dpp::json& json, BettorResults::ResultsByBoS
 	outResults.m_Score = json["Score"];
 }
 
-void JsonSerializer::FromJson(const dpp::json& json, BotData& outData)
+void JsonSerializer::FromJson(const dpp::json& json, const DataWriter<ICommandReceiver>& dataWriter)
 {
 	std::vector<Match> incomingMatches;
 	FromJsonArray(json["Matches"], incomingMatches);
-	outData.SetIncomingMatches(std::move(incomingMatches));
+	dataWriter->SetIncomingMatches(std::move(incomingMatches));
 
 	std::vector<Bet> bets;
 	FromJsonArray(json["Bets"], bets);
-	outData.SetBets(std::move(bets));
+	dataWriter->SetBets(std::move(bets));
 
 	std::vector<BettorResults> results;
 	FromJsonArray(json["BettorsResults"], results);
-	outData.SetBettorResults(std::move(results));
+	dataWriter->SetBettorResults(std::move(results));
 }
 

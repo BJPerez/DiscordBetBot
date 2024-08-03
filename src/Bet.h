@@ -8,10 +8,10 @@ class Bet
 {
 public:
 	Bet() = default; // should only be used by serialization
-	Bet(const unsigned int matchId, const MatchScore& score, std::string bettorName) noexcept :
-		m_MatchId(matchId), m_Score{ score }, m_BettorName(std::move(bettorName)) {}
+	Bet(std::string matchId, const MatchScore& score, std::string bettorName) noexcept :
+		m_MatchId(std::move(matchId)), m_Score{ score }, m_BettorName(std::move(bettorName)) {}
 
-	[[nodiscard]] unsigned int GetMatchId() const noexcept { return m_MatchId; }
+	[[nodiscard]] const std::string& GetMatchId() const noexcept { return m_MatchId; }
 	[[nodiscard]] const MatchScore& GetScore() const noexcept { return m_Score; }
 	[[nodiscard]] const std::string& GetBettorName() const noexcept { return m_BettorName; }
 
@@ -20,7 +20,7 @@ public:
 	void SetBettorName(std::string bettorName) noexcept { m_BettorName = std::move(bettorName); }
 
 private:
-	unsigned int m_MatchId {0};
+	std::string m_MatchId;
 	MatchScore m_Score;
 	std::string m_BettorName;
 };
