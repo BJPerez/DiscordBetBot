@@ -1,7 +1,6 @@
 #include "AddMatchCommand.h"
 
 #include "ICommandReceiver.h"
-#include "LockableDataAccessors.h"
 
 dpp::message AddMatchCommand::Execute() const
 {
@@ -11,7 +10,7 @@ dpp::message AddMatchCommand::Execute() const
 	{
 		const DataWriter dataWriter = GetDataWriter();
 		if (std::string errorMsg;
-			!ValidateCommand(errorMsg))
+			!ValidateCommand(dataWriter, errorMsg))
 		{
 			msg.set_content("Error: " + errorMsg);
 		}
@@ -25,11 +24,17 @@ dpp::message AddMatchCommand::Execute() const
 	return msg;
 }
 
-bool AddMatchCommand::ValidateCommand(std::string& outUserErrMsg) const
+bool AddMatchCommand::ValidateCommand(const DataWriter<ICommandReceiver>& data, std::string& outUserErrMsg) const
 {
 	if (m_MatchId.has_value() && m_MatchId.value().empty())
 	{
 		outUserErrMsg = "Given match id is empty.";
+		return false;
+	}
+
+	if (m_MatchId.has_value() && data->GetMatch(m_MatchId.value()).has_value())
+	{
+		outUserErrMsg = "There is already a match with this ID.";
 		return false;
 	}
 

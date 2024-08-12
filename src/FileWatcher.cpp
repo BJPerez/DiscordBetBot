@@ -10,7 +10,7 @@ FileWatcher::FileWatcher(std::string pathToFolder, const std::chrono::minutes de
 {
 }
 
-FileWatcher::FileWatcher(FileWatcher&& other) noexcept: m_FolderToWatch(std::move(other.m_FolderToWatch)), m_DelayBetweenChecks(other.m_DelayBetweenChecks), m_Files(std::move(other.m_Files)),
+FileWatcher::FileWatcher(FileWatcher&& other) noexcept: m_FolderToWatch(std::move(other.m_FolderToWatch)), m_DelayBetweenChecks(other.m_DelayBetweenChecks),
 	m_IsRunning(other.m_IsRunning.load()), m_OnFileCreatedCallback(std::move(other.m_OnFileCreatedCallback)), m_WorkingThread(std::move(other.m_WorkingThread))
 {
 	
@@ -29,7 +29,6 @@ FileWatcher& FileWatcher::operator=(FileWatcher&& other) noexcept
 {
 	m_FolderToWatch = std::move(other.m_FolderToWatch);
 	m_DelayBetweenChecks = other.m_DelayBetweenChecks;
-	m_Files = std::move(other.m_Files);
 	m_IsRunning.store(other.m_IsRunning.load());
 	m_OnFileCreatedCallback = std::move(other.m_OnFileCreatedCallback);
 	m_WorkingThread = std::move(other.m_WorkingThread);
@@ -50,14 +49,13 @@ void FileWatcher::Run(const bool returnAfter)
 	}
 }
 
-void FileWatcher::RunInternal()
+void FileWatcher::RunInternal() const
 {
 	while (m_IsRunning.load())
 	{
-		RemovedErasedFiles();
-		CheckForNewFiles();
-
 		std::this_thread::sleep_for(m_DelayBetweenChecks);
+
+		CheckForFiles();
 	}
 }
 
@@ -67,27 +65,11 @@ void FileWatcher::Stop() noexcept
 	m_IsRunning.compare_exchange_strong(expected, false);
 }
 
-void FileWatcher::CheckForNewFiles()
+void FileWatcher::CheckForFiles() const
 {
+	// Note that if the file hasn't been deleted by the callback, it will trigger the callback again
 	for (auto& file : std::filesystem::recursive_directory_iterator(m_FolderToWatch))
 	{
-		const std::string fileName = file.path().string();
-		if (std::ranges::find(m_Files, fileName) != m_Files.end())
-		{
-			continue;
-		}
-
-		m_Files.emplace_back(fileName);
-		m_OnFileCreatedCallback(fileName);
+		m_OnFileCreatedCallback(file.path().string());
 	}
-}
-
-void FileWatcher::RemovedErasedFiles()
-{
-	std::ranges::remove_if(m_Files,
-		[](const std::string& file)
-		{
-			return !std::filesystem::exists(file);
-		}
-	);
 }

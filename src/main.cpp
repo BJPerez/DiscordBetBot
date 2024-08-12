@@ -10,9 +10,9 @@ int main()
 		BetBot bot(BotConfigReader::Read());
 		bot.Start();
 	}
-	catch (const dpp::invalid_token_exception&)
+	catch (const std::exception& e)
 	{
-		std::cout << "The bot token given in the config file doesn't work." << std::endl;
+		std::cout << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
 

@@ -13,8 +13,8 @@ namespace BotConfigReader
 	constexpr std::string_view BOT_TOKEN_KEY = "BotToken";
 	constexpr std::string_view CHANNEL_ID_KEY = "ChannelId";
 	constexpr std::string_view SAVE_FILE_PATH_KEY = "SaveFile";
-	constexpr std::string_view NEW_MATCHES_FOLDER_KEY = "NewMatches";
-	constexpr std::string_view NEW_RESULTS_FOLDER_KEY = "NewResults";
+	constexpr std::string_view NEW_MATCHES_FOLDER_KEY = "NewMatchesFolder";
+	constexpr std::string_view NEW_RESULTS_FOLDER_KEY = "NewResultsFolder";
 	constexpr std::string_view DELAY_BETWEEN_CHECKS_KEY = "DelayBetweenChecks";
 	constexpr std::string_view SAVE_FILE_EXTENSION = ".json";
 

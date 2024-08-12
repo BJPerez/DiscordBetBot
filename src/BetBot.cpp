@@ -47,7 +47,7 @@ void BetBot::SetupFileWatchers(BotConfigReader::Results& config)
 	if (config.m_NewMatchesFolder.has_value() && config.m_NewResultsFolder.has_value() && config.m_DelayBetweenChecks.has_value())
 	{
 		m_NewMatchWatcher.emplace(std::move(config.m_NewMatchesFolder.value()), config.m_DelayBetweenChecks.value(),
-			[this](const std::string& filePath)
+			[this](const std::filesystem::path& filePath)
 			{
 				OnNewMatch(filePath);
 			}
@@ -55,7 +55,7 @@ void BetBot::SetupFileWatchers(BotConfigReader::Results& config)
 		m_NewMatchWatcher->Run();
 
 		m_NewResultWatcher.emplace(std::move(config.m_NewResultsFolder.value()), std::move(config.m_DelayBetweenChecks.value()),
-			[this](const std::string& filePath)
+			[this](const std::filesystem::path& filePath)
 			{
 				OnNewResult(filePath);
 			}
@@ -104,10 +104,10 @@ void BetBot::ExecuteAddMatch(const dpp::slashcommand_t& event)
 	m_Saver.Save(GetDataReader());
 }
 
-void BetBot::OnNewMatch(const std::string& file)
+void BetBot::OnNewMatch(const std::filesystem::path& file)
 {
-	if (std::ifstream fileStream{ file }; 
-		!fileStream.good()) // does file exists ?
+	if (std::ifstream fileStream{ file.relative_path() };
+		fileStream.good()) // does file exists ?
 	{
 		dpp::json fileContent;
 		fileStream >> fileContent;
@@ -115,15 +115,21 @@ void BetBot::OnNewMatch(const std::string& file)
 		if (fileContent.contains("matchid") &&
 			fileContent.contains("team1") &&
 			fileContent.contains("team2") &&
-			fileContent.contains("bo_size")
+			fileContent.contains("bo_size") 
 			)
 		{
-			const AddMatchCommand command{ m_AnswerChannelId, *this, fileContent["team1"], fileContent["team2"], fileContent["bo_size"], fileContent["matchid"] };
-			dpp::message msg = command.Execute();
+			const std::string boSizeStr = fileContent["bo_size"];
+			const unsigned int boSize = std::stol(boSizeStr);
+
+			const AddMatchCommand command{ m_AnswerChannelId, *this, fileContent["team1"], fileContent["team2"], boSize, fileContent["matchid"] };
+			dpp::message msg = command.Execute(); 
 			msg.content = "Automatic add match: " + msg.content;
 
 			m_Cluster.message_create(msg);
 			m_Saver.Save(GetDataReader());
+
+			fileStream.close();
+			std::filesystem::remove(file);
 		}
 	}
 }

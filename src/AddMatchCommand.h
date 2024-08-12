@@ -6,6 +6,7 @@
 #include <dpp/snowflake.h>
 
 #include "CommandBase.h"
+#include "LockableDataAccessors.h"
 
 class ICommandReceiver;
 
@@ -24,6 +25,6 @@ private:
 	std::string m_TeamBName;
 	unsigned int m_BoSize{ 0 };
 
-	bool ValidateCommand(std::string& outUserErrMsg) const;
+	bool ValidateCommand(const DataWriter<ICommandReceiver>& data, std::string& outUserErrMsg) const;
 };
 

@@ -1,7 +1,8 @@
 #include "BotConfigReader.h"
 
-#include <dpp/json.h>
+#include <filesystem>
 #include <fstream>
+#include <dpp/json.h>
 
 namespace
 {
@@ -98,7 +99,10 @@ namespace
 		if (std::string newMatchesFolder = config[BotConfigReader::NEW_MATCHES_FOLDER_KEY]; 
 			!newMatchesFolder.empty())
 		{
-			outResults.m_NewMatchesFolder.emplace(std::move(newMatchesFolder));
+			if (std::filesystem::is_directory(newMatchesFolder))
+			{
+				outResults.m_NewMatchesFolder.emplace(std::move(newMatchesFolder));
+			}
 		}
 	}
 
@@ -107,7 +111,10 @@ namespace
 		if (std::string newResultsFolder = config[BotConfigReader::NEW_RESULTS_FOLDER_KEY];
 			!newResultsFolder.empty())
 		{
-			outResults.m_NewResultsFolder.emplace(std::move(newResultsFolder));
+			if (std::filesystem::is_directory(newResultsFolder))
+			{
+				outResults.m_NewResultsFolder.emplace(std::move(newResultsFolder));
+			}
 		}
 	}
 

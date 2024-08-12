@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <filesystem>
 #include <functional>
 #include <string>
 #include <thread>
@@ -9,7 +10,7 @@
 
 class FileWatcher
 {
-	using Callback = std::function<void(const std::string&)>;
+	using Callback = std::function<void(const std::filesystem::path&)>;
 
 public:
 	FileWatcher(std::string pathToFolder, std::chrono::minutes delay, Callback onFileCreatedCallback) noexcept;
@@ -26,12 +27,10 @@ public:
 private:
 	std::string m_FolderToWatch;
 	std::chrono::minutes m_DelayBetweenChecks;
-	std::vector<std::string> m_Files;
 	std::atomic<bool> m_IsRunning{ false };
 	Callback m_OnFileCreatedCallback;
 	std::thread m_WorkingThread;
 
-	void CheckForNewFiles();
-	void RemovedErasedFiles();
-	void RunInternal();
+	void CheckForFiles() const;
+	void RunInternal() const;
 };
