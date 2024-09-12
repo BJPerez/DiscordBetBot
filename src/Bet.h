@@ -13,9 +13,9 @@ public:
 
 	[[nodiscard]] const std::string& GetMatchId() const noexcept { return m_MatchId; }
 	[[nodiscard]] const MatchScore& GetScore() const noexcept { return m_Score; }
-	[[nodiscard]] const std::string& GetBettorName() const noexcept { return m_BettorName; }
+	[[nodiscard]] const std::string& GetBettorName() const noexcept { return m_BettorName; } 
 
-	void SetMatchId(const unsigned int id) noexcept { m_MatchId = id; }
+	void SetMatchId(const std::string& id) noexcept { m_MatchId = id; }
 	void SetScore(const MatchScore& score) noexcept { m_Score = score; }
 	void SetBettorName(std::string bettorName) noexcept { m_BettorName = std::move(bettorName); }
 

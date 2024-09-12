@@ -158,6 +158,37 @@ void BetBot::ExecuteAddResult(const dpp::select_click_t& event)
 	m_Saver.Save(GetDataReader());
 }
 
+void BetBot::OnNewResult(const std::filesystem::path& file)
+{
+	if (std::ifstream fileStream{ file.relative_path() };
+		fileStream.good()) // does file exists ?
+	{
+		dpp::json fileContent;
+		fileStream >> fileContent;
+
+		if (fileContent.contains("team1") &&
+			fileContent.contains("team2")
+			)
+		{
+			const std::string teamAScoreStr = fileContent["team1score"];
+			const unsigned int teamAScore = std::stol(teamAScoreStr);
+
+			const std::string teamBScoreStr = fileContent["team2score"];
+			const unsigned int teamBScore = std::stol(teamBScoreStr);
+
+			const AddResultCommand command{ m_AnswerChannelId, *this, file.stem().string(), teamAScore, teamBScore };
+			dpp::message msg = command.Execute();
+			msg.content = "Automatic add result: " + msg.content;
+
+			m_Cluster.message_create(msg);
+			m_Saver.Save(GetDataReader());
+
+			fileStream.close();
+			std::filesystem::remove(file);
+		}
+	}
+}
+
 void BetBot::ExecuteShowMatches(const dpp::slashcommand_t& event)
 {
 	const ShowMatchesCommand command{ m_AnswerChannelId, *this };

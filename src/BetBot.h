@@ -54,5 +54,5 @@ private:
 	void ExecuteAddResult(const dpp::select_click_t& event);
 	void ExecuteShowResultProposal(const dpp::select_click_t& event);
 	void OnNewMatch(const std::filesystem::path& file);
-	void OnNewResult(const std::filesystem::path& file) {};
+	void OnNewResult(const std::filesystem::path& file);
 };
