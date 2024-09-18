@@ -45,12 +45,8 @@ void FileWatcher::Run() const
 bool FileWatcher::Wait() const
 {
 	std::unique_lock lock{ m_Mutex };
-	return m_Notifier.wait_for(lock, m_DelayBetweenChecks,
-		[this]()
-		{
-			return m_IsRunning;
-		}
-	);
+	m_Notifier.wait_for(lock, m_DelayBetweenChecks);
+	return m_IsRunning;
 }
 
 void FileWatcher::CheckForFiles() const
