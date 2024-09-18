@@ -31,7 +31,7 @@ namespace BotConfigReader
 	class ConfigErrorException final : public std::exception 
 	{
 	public:
-		explicit ConfigErrorException(std::string what) noexcept : m_What(std::move(what)) {};
+		explicit ConfigErrorException(std::string what) noexcept : m_What(std::move(what)) {}
 
 		[[nodiscard]] const char* what() const noexcept override
 		{
@@ -45,15 +45,15 @@ namespace BotConfigReader
 	class MissingConfigKeyException final : public std::exception
 	{
 	public:
-		explicit MissingConfigKeyException(std::string missingKey) noexcept : m_What("You're config file is not conform to the one available on github. It misses the key: " + std::move(missingKey)) {};
+		explicit MissingConfigKeyException(std::string missingKey) noexcept : m_ConfigKey("You're config file is not conform to the one available on github. It misses the key: " + std::move(missingKey)) {};
 
 		[[nodiscard]] const char* what() const noexcept override
 		{
-			return m_What.data();
+			return m_ConfigKey.data();
 		}
 
 	private:
-		std::string m_What;
+		std::string m_ConfigKey;
 	};
 
 	class EmptyConfigValueException final : public std::exception

@@ -24,7 +24,7 @@ public:
 
 	// SetID should only be used by serialization when loading the save file. And the loading should happen before any new creation of match.
 	// Because if we have no way to know which IDs are already used before we load. 
-	void SetId(std::string id);
+	void SetId(const std::string& id);
 	void SetTeamAName(std::string name) { m_TeamAName = std::move(name); }
 	void SetTeamBName(std::string name) { m_TeamBName = std::move(name); }
 	void SetBoSize(const unsigned int size) { m_BoSize = size; }

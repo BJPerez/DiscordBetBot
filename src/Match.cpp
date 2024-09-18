@@ -15,9 +15,9 @@ Match::Match(std::optional<std::string> matchId, std::string teamAName, std::str
 	}
 }
 
-void Match::SetId(std::string id)
+void Match::SetId(const std::string& id)
 {
-	m_Id = std::move(id);
+	m_Id = id;
 
 	// We update s_NextId only if the given id is a custom id
 	// We do not want to do it if it is an id generated outside of the bot 

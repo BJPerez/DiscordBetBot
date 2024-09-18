@@ -52,7 +52,6 @@ void BetBot::SetupFileWatchers(BotConfigReader::Results& config)
 				OnNewMatch(filePath);
 			}
 		);
-		m_NewMatchWatcher->Run();
 
 		m_NewResultWatcher.emplace(std::move(config.m_NewResultsFolder.value()), std::move(config.m_DelayBetweenChecks.value()),
 			[this](const std::filesystem::path& filePath)
@@ -60,7 +59,6 @@ void BetBot::SetupFileWatchers(BotConfigReader::Results& config)
 				OnNewResult(filePath);
 			}
 		);
-		m_NewResultWatcher->Run();
 	}
 }
 

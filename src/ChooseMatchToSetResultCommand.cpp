@@ -3,8 +3,8 @@
 #include <vector>
 
 #include "DrawUtils.h"
-#include "ICommandReceiver.h"
 #include "LockableDataAccessors.h"
+#include "Match.h"
 
 dpp::message ChooseMatchToSetResultCommand::Execute() const
 {

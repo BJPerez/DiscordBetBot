@@ -6,7 +6,7 @@
 
 #include "CommandBase.h"
 
-class ICommandReceiver;
+class BetBot;
 
 class ChooseMatchToBetOnCommand final : public CommandBase
 {

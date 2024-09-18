@@ -30,7 +30,7 @@ protected:
 		other.m_Data = nullptr;
 	}
 
-	~DataAccessor() = default;
+	virtual ~DataAccessor() = default;
 
 	DataAccessor& operator=(DataAccessor&& other) noexcept
 	{
@@ -75,7 +75,7 @@ public:
 		return *this;
 	}
 
-	~DataReader() = default;
+	~DataReader() override = default;
 };
 
 template<typename DataType>
@@ -104,5 +104,5 @@ public:
 		return *this;
 	}
 
-	~DataWriter() = default;
+	~DataWriter() override = default;
 };

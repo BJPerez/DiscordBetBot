@@ -2,18 +2,18 @@
 
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
 #include <filesystem>
 #include <functional>
 #include <string>
 #include <thread>
-#include <vector>
 
 class FileWatcher
 {
 	using Callback = std::function<void(const std::filesystem::path&)>;
 
 public:
-	FileWatcher(std::string pathToFolder, std::chrono::minutes delay, Callback onFileCreatedCallback) noexcept;
+	FileWatcher(std::string pathToFolder, const std::chrono::minutes delay, Callback onFileCreatedCallback) noexcept;
 	FileWatcher(const FileWatcher& other) = delete;
 	FileWatcher(FileWatcher&& other) noexcept;
 	~FileWatcher();
@@ -21,16 +21,17 @@ public:
 	FileWatcher& operator=(const FileWatcher& other) = delete;
 	FileWatcher& operator=(FileWatcher&& other) noexcept;
 
-	void Run(const bool returnAfter = true);
-	void Stop() noexcept;
-
 private:
 	std::string m_FolderToWatch;
 	std::chrono::minutes m_DelayBetweenChecks;
-	std::atomic<bool> m_IsRunning{ false };
 	Callback m_OnFileCreatedCallback;
+
+	mutable std::condition_variable m_Notifier;
+	mutable std::mutex m_Mutex;
+	bool m_IsRunning{ true };
 	std::thread m_WorkingThread;
 
 	void CheckForFiles() const;
-	void RunInternal() const;
+	void Run() const;
+	bool Wait() const;
 };
