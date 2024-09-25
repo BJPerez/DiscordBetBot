@@ -20,7 +20,9 @@ It should work on both Linux and Windows, but I'm only using the bot on a Linux 
 2. Create an output directory, go into it and run cmake with the following command: ```cmake <path-to-the-folder-containing-CMakeLists.txt>```. CMake will use the current directory as output directory, that's why you shouldn't forget to go into the output directory you created before running the command.
 3. Compile. The command will depend on your system. On Linux, you should be able to do it by simply using ```make``` in the output directory. 
 5. Update the config.json file. You must at least give a valid discord bot token.
-6. Run. If you run directly from your output directory, you have nothing else to do since CMake should copy the config.json file in your output directory. If you moved the executable somewhere (on a server for example), don't forget to also move the config.json file next to it. 
+6. Run. If you run directly from your output directory, you have nothing else to do since CMake should copy the config.json file in your output directory. If you moved the executable somewhere (on a server for example), don't forget to also move the config.json file next to it.
+
+### Configuration
 
 ## Usage
 
@@ -74,10 +76,10 @@ To give some examples:
 
 ### Automatic management of matches and results
 
-You also have the option to have an automatic management of new matches and new results to avoid having to manually add them. For this, you'll need a script that get with one way or another (API, scrap or other) the data you need. 
-When your script detect a new match or a new result, it will have a to generate a json file following these format
+You also have the option to have an automatic management of new matches and new results to avoid having to manually add them. For this, you'll need a script to produce files that comply with these requirements:
 
-'''
+#### For a new match
+```
 {
    "matchid":"MatchTest",
    "team1":"Team BDS",
@@ -85,8 +87,19 @@ When your script detect a new match or a new result, it will have a to generate 
    "bo_size":"5",
    "date":"2024-07-26 15:00:00"
 }
-'''
+```
 
+The name of the file is not important and the file must be placed in the folder indicated by the NewMatchesFolder parameter in the configuration file (relative path to the executable).
 
+#### For a new results
+
+```
+{
+   "team1score":"0",
+   "team2score":"3",
+}
+```
+
+The name of the file must be the MatchID given when you added the match. Also, the team1score must be the score of the team called team1 when you added the match. The file must be placed inthe folder indicated by the NewResultsFolder parameter in the configuration file (relative path to the executable). 
 
  
