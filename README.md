@@ -74,6 +74,18 @@ To give some examples:
 
 ### Automatic management of matches and results
 
+You also have the option to have an automatic management of new matches and new results to avoid having to manually add them. For this, you'll need a script that get with one way or another (API, scrap or other) the data you need. 
+When your script detect a new match or a new result, it will have a to generate a json file following these format
+
+'''
+{
+   "matchid":"MatchTest",
+   "team1":"Team BDS",
+   "team2":"Fnatic",
+   "bo_size":"5",
+   "date":"2024-07-26 15:00:00"
+}
+'''
 
 
 
