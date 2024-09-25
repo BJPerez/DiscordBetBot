@@ -19,10 +19,27 @@ It should work on both Linux and Windows, but I'm only using the bot on a Linux 
 1. Clone the repository
 2. Create an output directory, go into it and run cmake with the following command: ```cmake <path-to-the-folder-containing-CMakeLists.txt>```. CMake will use the current directory as output directory, that's why you shouldn't forget to go into the output directory you created before running the command.
 3. Compile. The command will depend on your system. On Linux, you should be able to do it by simply using ```make``` in the output directory. 
-5. Update the config.json file. You must at least give a valid discord bot token.
+5. Update the config.json file. 
 6. Run. If you run directly from your output directory, you have nothing else to do since CMake should copy the config.json file in your output directory. If you moved the executable somewhere (on a server for example), don't forget to also move the config.json file next to it.
 
 ### Configuration
+The configuration file contains the following options: 
+
+```
+{
+  "BotToken": "", // Mandatory, the token of your bot
+  "ChannelId": "", // Mandatory: the identifier of the channel in which you want the bot to respond to your commands.
+  "SaveFile": "save.json", // Mandatory, relative path to the file in which you want the bot to save its data
+  "NewMatchesFolder": "NewMatches", // Optional, relative path to the folder in which you want the bot to check for automatic management of new matches
+  "NewResultsFolder": "NewResults", // Optional, relative path to the folder in which you want the bot to check for automatic management of new results
+  "DelayBetweenChecks": "5" // Optional, the time (in minutes) between checks for new matches and new results.
+}
+```
+#### ChannelId
+You can obtain the channel ID by switching discord to dev mode and right-clicking on a channel.
+
+#### NewMatchesFolder, NewResultsFolder and DelayBetweenChecks
+All these options are optional and you have to fill them only if you want the automatic management described [here](#Automatic management of matches and results) to be enabled 
 
 ## Usage
 
@@ -100,6 +117,6 @@ The name of the file is not important and the file must be placed in the folder 
 }
 ```
 
-The name of the file must be the MatchID given when you added the match. Also, the team1score must be the score of the team called team1 when you added the match. The file must be placed inthe folder indicated by the NewResultsFolder parameter in the configuration file (relative path to the executable). 
+The name of the file must be the MatchID given when you added the match. Also, the team1score must be the score of the team called team1 when you added the match. The file must be placed in the folder indicated by the NewResultsFolder parameter in the configuration file (relative path to the executable). 
 
  
