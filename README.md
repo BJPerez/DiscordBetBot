@@ -27,19 +27,28 @@ The configuration file contains the following options:
 
 ```
 {
-  "BotToken": "", // Mandatory, the token of your bot
-  "ChannelId": "", // Mandatory: the identifier of the channel in which you want the bot to respond to your commands.
-  "SaveFile": "save.json", // Mandatory, relative path to the file in which you want the bot to save its data
-  "NewMatchesFolder": "NewMatches", // Optional, relative path to the folder in which you want the bot to check for automatic management of new matches
-  "NewResultsFolder": "NewResults", // Optional, relative path to the folder in which you want the bot to check for automatic management of new results
-  "DelayBetweenChecks": "5" // Optional, the time (in minutes) between checks for new matches and new results.
+  "BotToken": "", 
+  "ChannelId": "", 
+  "SaveFile": "save.json",
+  "NewMatchesFolder": "NewMatches", 
+  "NewResultsFolder": "NewResults",
+  "DelayBetweenChecks": "5" 
 }
 ```
+
+#### BotToken
+Mandatory, the token of your bot.
+
 #### ChannelId
-You can obtain the channel ID by switching discord to dev mode and right-clicking on a channel.
+Mandatory: the identifier of the channel in which you want the bot to respond to your commands. You can obtain it by switching discord to developper mode and right-clicking on a channel.
+
+#### SaveFile
+Mandatory, relative path to the file in which you want the bot to save its data
 
 #### NewMatchesFolder, NewResultsFolder and DelayBetweenChecks
-All these options are optional and you have to fill them only if you want the automatic management described [here](#automatic-management-of-matches-and-results) to be enabled 
+All these options are optional and you have to fill them only if you want the automatic management described [here](#automatic-management-of-matches-and-results) to be enabled.
+NewMatchesFolder and NewResultsFolder are the relative pathes to the folders in which you'll put your files containing the data of the new matches and new results. 
+DelayBetweenChecks is the time (in minutes) between checks for new matches and new results.
 
 ## Usage
 
