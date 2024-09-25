@@ -24,7 +24,9 @@ It should work on both Linux and Windows, but I'm only using the bot on a Linux 
 
 ## Usage
 
-### add_match
+### Classic usage
+
+#### add_match
 
 ![image](https://github.com/BJPerez/DiscordBetBot/assets/16210134/8a8f023a-a422-4d26-9634-0fd1580dc19a)
 
@@ -33,7 +35,7 @@ Use it to add a match on which the users can bet. It has 3 parameters:
 - The first two parameters are the names of the two teams
 - The third parameter is the size of the 'Best Of'. A quick explanation in case you don't know what a "Best of X" is: in most esports and some traditional sports, a match between two teams is not limited to a single game. Instead, the teams will play a series of games called a "Best Of X" with X being the maximum number of games for the series. For example, a "Best Of 5" or "BO5" will have a maximum of 5 games and the first team to win 3 games wins the match. If you are betting on a traditional single match sport, you can simply set this parameter to "1".
 
-### show_matches
+#### show_matches
 
 ![image](https://github.com/BJPerez/DiscordBetBot/assets/16210134/dcb9d431-41c0-4c99-a921-ab00cff03624)
 
@@ -56,7 +58,7 @@ Then will come a new selector asking to choose a score (your bet or the final re
 
 Once selected, depending on what you chose to do at start, your bet will be placed or the result set and bettor's results updated.
 
-### show_results
+#### show_results
 
 It allows you to see the global score of the different users. 
 
@@ -69,6 +71,8 @@ To give some examples:
 - For a BO5, bet was 3-1 and the final score is 3-0, you will have: 2 + ( (5+1) / 2 ) - ( 1 + 1 ) = 2 + 3 - 2 = 3 pts.
 - For a BO3, bet was 2-0 and final score is 2-0, you will have: 2 + ( (3+1) / 2 ) - (0 + 1) = 2 + 2 - 1 = 3pts;
 - For a BO5, bet was 3-2 and final score is 3-0, you will have: 2 + ( (5+1) / 2 ) - (2 + 1) = 2 + 3 - 3 = 2pts;
+
+### Automatic management of matches and results
 
 
 
