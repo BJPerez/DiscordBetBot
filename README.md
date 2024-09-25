@@ -39,7 +39,7 @@ The configuration file contains the following options:
 You can obtain the channel ID by switching discord to dev mode and right-clicking on a channel.
 
 #### NewMatchesFolder, NewResultsFolder and DelayBetweenChecks
-All these options are optional and you have to fill them only if you want the automatic management described [here](#Automatic management of matches and results) to be enabled 
+All these options are optional and you have to fill them only if you want the automatic management described [here](#automatic-management-of-matches-and-results) to be enabled 
 
 ## Usage
 
