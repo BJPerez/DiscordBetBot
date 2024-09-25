@@ -30,8 +30,8 @@ The configuration file contains the following options:
   "BotToken": "", 
   "ChannelId": "", 
   "SaveFile": "save.json",
-  "NewMatchesFolder": "NewMatches", 
-  "NewResultsFolder": "NewResults",
+  "NewMatchesFolder": "", 
+  "NewResultsFolder": "",
   "DelayBetweenChecks": "5" 
 }
 ```
@@ -49,6 +49,8 @@ Mandatory, relative path to the file in which you want the bot to save its data
 All these options are optional and you have to fill them only if you want the automatic management described [here](#automatic-management-of-matches-and-results) to be enabled.
 NewMatchesFolder and NewResultsFolder are the relative pathes to the folders in which you'll put your files containing the data of the new matches and new results. 
 DelayBetweenChecks is the time (in minutes) between checks for new matches and new results.
+
+Note: the 3 parameters must be valid for the automatic management to be enabled. 
 
 ## Usage
 
