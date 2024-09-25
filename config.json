@@ -1,8 +1,8 @@
 {
-  "BotToken": "",
+  "BotToken": "", 
   "ChannelId": "",
   "SaveFile": "save.json",
-  "NewMatchesFolder": "NewMatches",
-  "NewResultsFolder": "NewResults",
-  "DelayBetweenChecks":  "5" 
+  "NewMatchesFolder": "", 
+  "NewResultsFolder": "", 
+  "DelayBetweenChecks": "5" 
 }
