@@ -1,8 +1,8 @@
 {
-  "BotToken": "", // Mandatory, the token of your bot
-  "ChannelId": "", // Mandatory: the identifier of the channel in which you want the bot to respond to your commands.
-  "SaveFile": "save.json", // Mandatory, relative path to the file in which you want the bot to save its data
-  "NewMatchesFolder": "", // Optional, relative path to the folder in which you want the bot to check for automatic management of new matches
-  "NewResultsFolder": "", // Optional, relative path to the folder in which you want the bot to check for automatic management of new results
-  "DelayBetweenChecks": "5" // Optional, the time (in minutes) between checks for new matches and new results.
+  "BotToken": "", 
+  "ChannelId": "",
+  "SaveFile": "save.json",
+  "NewMatchesFolder": "", 
+  "NewResultsFolder": "", 
+  "DelayBetweenChecks": "5" 
 }
