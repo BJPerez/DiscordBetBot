@@ -164,8 +164,8 @@ void BetBot::OnNewResult(const std::filesystem::path& file)
 		dpp::json fileContent;
 		fileStream >> fileContent;
 
-		if (fileContent.contains("team1") &&
-			fileContent.contains("team2")
+		if (fileContent.contains("team1score") &&
+			fileContent.contains("team2score")
 			)
 		{
 			const std::string teamAScoreStr = fileContent["team1score"];
