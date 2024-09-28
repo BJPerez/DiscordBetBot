@@ -1,11 +1,9 @@
-	# Minimum CMake version required, we'll just use the latest version.
 	cmake_minimum_required(VERSION 3.25)
-	# Project name, version and description
 	project(BetBot VERSION 2.0 DESCRIPTION "A simple discord bot to handle friendly bets.")
 	 
 	list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 	 
-	# Create an executable
+	# Main Executable
 	add_executable(${PROJECT_NAME}
 	    "src/main.cpp"
 		"src/AddBetCommand.cpp"
@@ -66,11 +64,30 @@
 	    ${DPP_INCLUDE_DIR}
 	)
 	 
-	# Set C++ version
 	set_target_properties(${PROJECT_NAME} PROPERTIES
 	    CXX_STANDARD 20
 	    CXX_STANDARD_REQUIRED ON
 	)
+
+	# Google Test
+	include(FetchContent)
+	FetchContent_Declare(
+	  googletest
+	  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+	)
+
+	# For Windows: Prevent overriding the parent project's compiler/linker settings
+	set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+	FetchContent_MakeAvailable(googletest)
+
+	# Test executable
+	enable_testing()
+
+	add_executable(Tests
+	  "tests/test.cc"
+	)
+	target_link_libraries(Tests GTest::gtest_main)
+	target_compile_definitions(Tests PRIVATE TEST_ENABLED=1)
 
 	add_custom_command(
 			TARGET ${PROJECT_NAME}  POST_BUILD
