@@ -9,14 +9,14 @@
 class Match;
 class ICommandReceiver;
 
-class ShowMatchesCommand final : public CommandBase
+class ShowIncomingMatchesCommand final : public CommandBase
 {
 public:
 	static constexpr std::string_view SELECT_MENU_ID = "Choose-What-To-Do";
 	static constexpr std::string_view BET_OPTION_VALUE = "Bet";
 	static constexpr std::string_view RESULT_OPTION_VALUE = "Result";
 
-	ShowMatchesCommand(const dpp::snowflake channelId, BetBot& bot) noexcept : CommandBase(channelId, bot) {}
+	ShowIncomingMatchesCommand(const dpp::snowflake channelId, BetBot& bot) noexcept : CommandBase(channelId, bot) {}
 
 	[[nodiscard]] dpp::message Execute() const override;
 };

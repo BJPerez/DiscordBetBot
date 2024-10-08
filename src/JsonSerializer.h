@@ -17,13 +17,11 @@ public:
 
 	[[nodiscard]] static dpp::json ToJson(const Match& match);
 	[[nodiscard]] static dpp::json ToJson(const Bet& bet);
-	[[nodiscard]] static dpp::json ToJson(const BettorResults& bettorResults);
 	[[nodiscard]] static dpp::json ToJson(const DataReader<ICommandReceiver>& dataReader);
 	[[nodiscard]] static dpp::json ToJson(const BettorResults::ResultsByBoSize& results);
 
 	static void FromJson(const dpp::json& json, Match& outMatch);
 	static void FromJson(const dpp::json& json, Bet& outBet);
-	static void FromJson(const dpp::json& json, BettorResults& outResults);
 	static void FromJson(const dpp::json& json, const DataWriter<ICommandReceiver>& dataWriter);
 	static void FromJson(const dpp::json& json, BettorResults::ResultsByBoSize& outResults);
 };

@@ -1,5 +1,5 @@
 	cmake_minimum_required(VERSION 3.25)
-	project(BetBot VERSION 2.0 DESCRIPTION "A simple discord bot to handle friendly bets.")
+	project(BetBot VERSION 2.1 DESCRIPTION "A simple discord bot to handle friendly bets.")
 	 
 	list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 	 
@@ -26,8 +26,8 @@
 		"src/MatchScore.h"
 		"src/ShowBettorsResultsCommand.cpp"
 		"src/ShowBettorsResultsCommand.h"
-		"src/ShowMatchesCommand.cpp"
-		"src/ShowMatchesCommand.h"
+		"src/ShowIncomingMatchesCommand.cpp"
+		"src/ShowIncomingMatchesCommand.h"
 		"src/JsonSerializer.cpp"
 		"src/JsonSerializer.h"
 		"src/SaveManager.cpp"

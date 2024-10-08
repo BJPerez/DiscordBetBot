@@ -73,28 +73,72 @@ namespace
 		}
 	}
 
-	unsigned int EvaluateMaxBoSize(const DataReader<ICommandReceiver>& dataReader) noexcept
+	unsigned int EvaluateMaxBoSize(const std::vector<BettorResults>& allResults) noexcept
 	{
 		unsigned int maxBoSize{ 0 };
-		for (const BettorResults& results : dataReader->GetBettorsResults())
+		for (const BettorResults& results : allResults)
 		{
 			maxBoSize = std::max(maxBoSize, results.GetMaxBoSize());
 		}
 		return maxBoSize;
 	}
 
-	std::vector<std::vector<std::string>> GenerateColumnsWithResultsInfos(const DataReader<ICommandReceiver>& dataReader)
+	std::vector<std::vector<std::string>> GenerateColumnsWithResultsInfos(const std::vector<BettorResults>& allResults)
 	{
-		const unsigned int maxBoSize = EvaluateMaxBoSize(dataReader);
+		const unsigned int maxBoSize = EvaluateMaxBoSize(allResults);
 		const unsigned int boSizesCount = (maxBoSize + 1) / 2; // We go two by two from 1 to maxBoSize. So if maxBoSize = 5, we have 1, 3 and 5 so 3 different bo sizes
 		const unsigned int columnsCount = COLUMNS_COUNT_OUTSIDE_OF_BOSIZE_COLUMNS + (boSizesCount * 2 - 1); // *2 -1 because every bosize (except for BO1s thus the -1) will have one column for perfect bet and one for correct bet
 
 		// Note that Bettors result should already be sorted from the bettor with the most point to the less.
 		std::vector<std::vector<std::string>> columnsContents(columnsCount);
 		FillColumnHeaders(maxBoSize, columnsContents);
-		FillColumns(dataReader->GetBettorsResults(), maxBoSize, columnsContents);
+		FillColumns(allResults, maxBoSize, columnsContents);
 
 		return columnsContents;
+	}
+
+	BettorResults& GetOrCreateBettorResults(const std::string& bettorName, std::vector<BettorResults>& allResults)
+	{
+		const auto pred =
+			[&bettorName](const BettorResults& results)
+			{
+				return results.GetBettorName() == bettorName;
+			}
+		;
+
+		if (const auto it = std::ranges::find_if(allResults, pred);
+			it == allResults.end())
+		{
+			return allResults.emplace_back(bettorName);
+		}
+		else
+		{
+			return *it;
+		}
+	}
+
+	std::vector<BettorResults> GenerateResults(const DataReader<ICommandReceiver>& data)
+	{
+		std::vector<BettorResults> allResults;
+		for (const Bet& bet : data->GetBets())
+		{
+			std::optional<Match> matchOpt = data->GetMatch(bet.GetMatchId());
+			if (!matchOpt.has_value())
+			{
+				continue;
+			}
+
+			const Match& match = matchOpt.value();
+			if (!match.IsPlayed())
+			{
+				continue;
+			}
+
+			BettorResults& results = GetOrCreateBettorResults(bet.GetBettorName(), allResults);
+			results.AddResult(match.GetBoSize(), match.GetResult().value(), bet.GetScore());
+		}
+		std::ranges::sort(allResults, std::greater());
+		return allResults;
 	}
 }
 
@@ -105,7 +149,8 @@ dpp::message ShowBettorsResultsCommand::Execute() const
 
 	{
 		const DataReader dataReader = GetDataReader();
-		if (const std::vector<BettorResults>& allResults = dataReader->GetBettorsResults();
+
+		if (const std::vector<BettorResults> allResults = GenerateResults(dataReader); 
 			allResults.empty())
 		{
 			msg.set_content("No result to display yet.");
@@ -113,7 +158,7 @@ dpp::message ShowBettorsResultsCommand::Execute() const
 		else
 		{
 			std::string msgText;
-			const std::vector<std::vector<std::string>> columnsContents = GenerateColumnsWithResultsInfos(dataReader);
+			const std::vector<std::vector<std::string>> columnsContents = GenerateColumnsWithResultsInfos(allResults);
 			DrawUtils::DrawTable(columnsContents, msgText);
 			msgText += "PB = Perfect Bet (winning team + exact score)    |     CB = Correct Bet (winning team only)";
 

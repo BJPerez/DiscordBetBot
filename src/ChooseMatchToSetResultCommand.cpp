@@ -13,7 +13,7 @@ dpp::message ChooseMatchToSetResultCommand::Execute() const
 
 	{
 		const DataReader dataReader = GetDataReader();
-		if (const std::vector<Match>& matches = dataReader->GetIncomingMatches();
+		if (const std::vector<std::reference_wrapper<const Match>> matches = dataReader->GetIncomingMatches();
 			matches.empty())
 		{
 			msg.set_content("At the moment, there are no match to add a result to.");

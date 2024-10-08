@@ -55,21 +55,18 @@ bool AddBetCommand::ValidateCommand(const DataWriter<ICommandReceiver>& dataWrit
 		outUserErrMsg = "No match with the given ID " + m_MatchId;
 		return false;
 	}
-	const Match& match = matchOptional.value().get();
 
-	if (const unsigned int boSize = match.GetBoSize(); 
-		boSize < m_Score.GetTotalNumberOfGames())
+	const Match& match = matchOptional.value().get();
+	if (match.IsPlayed())
 	{
-		outUserErrMsg = "The match is a BO" + std::to_string(boSize) + ". You gave a score [" + std::to_string(m_Score.m_TeamAScore) + "-" + std::to_string(m_Score.m_TeamBScore) +
-			"] with too many games.";
+		outUserErrMsg = "The match has already been played. You can't bet on it.";
 		return false;
 	}
 
-	if (const unsigned int numberOfGamesToWin = match.GetNumberOfGamesToWin(); 
-		m_Score.m_TeamAScore != numberOfGamesToWin && m_Score.m_TeamBScore != numberOfGamesToWin)
+	if (!match.IsValidScore(m_Score))
 	{
-		outUserErrMsg = "The winning team must have " + std::to_string(numberOfGamesToWin) + " games. You gave a score [" + std::to_string(m_Score.m_TeamAScore) + "-" + 
-			std::to_string(m_Score.m_TeamBScore) + "] without a winning team.";
+		outUserErrMsg = "The match is a BO" + std::to_string(match.GetBoSize()) + ". You gave a non valid score [" + std::to_string(m_Score.m_TeamAScore) + "-" + std::to_string(m_Score.m_TeamBScore) +
+			"].";
 		return false;
 	}
 

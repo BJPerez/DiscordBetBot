@@ -1,10 +1,8 @@
 #include "BotData.h"
 
-#include <algorithm>
-
 void BotData::AddMatch(std::optional<std::string> matchId, std::string teamAName, std::string teamBName, const unsigned int boSize)
 {
-	m_IncomingMatches.emplace_back(std::move(matchId), std::move(teamAName), std::move(teamBName), boSize);
+	m_Matches.emplace_back(std::move(matchId), std::move(teamAName), std::move(teamBName), boSize);
 }
 
 void BotData::AddBet(std::string matchId, const MatchScore& matchResult, std::string bettorName)
@@ -12,91 +10,36 @@ void BotData::AddBet(std::string matchId, const MatchScore& matchResult, std::st
 	m_Bets.emplace_back(std::move(matchId), matchResult, std::move(bettorName));
 }
 
-std::vector<std::reference_wrapper<const Bet>> BotData::GetBetsLinkedToMatch(const std::string& matchId) const
-{
-	std::vector<std::reference_wrapper<const Bet>>  betsLinkedToMatch;
-	std::ranges::for_each(m_Bets,
-		[&betsLinkedToMatch, matchId](const Bet& bet)
-		{
-			if (bet.GetMatchId() == matchId)
-			{
-				betsLinkedToMatch.emplace_back(bet);
-			}
-		}
-	);
-
-	return betsLinkedToMatch;
-}
-
-void BotData::EraseBetsLinkedToMatch(const std::string& matchId)
-{
-	std::erase_if(m_Bets,
-		[matchId](const Bet& bet)
-		{
-			return bet.GetMatchId() == matchId;
-		}
-	);
-}
-
-BettorResults& BotData::GetOrCreateBettorResults(std::string bettorName)
-{
-	const auto valueFound = std::ranges::find_if(m_BettorResults,
-		[&bettorName](const BettorResults& results)
-		{
-			return results.GetBettorName() == bettorName;
-		}
-	);
-
-	if (valueFound == m_BettorResults.end())
-	{
-		return m_BettorResults.emplace_back(std::move(bettorName));
-	}
-	return *valueFound;
-}
-
 void BotData::AddResult(const std::string& matchId, const MatchScore& matchResult)
 {
-	const std::optional<std::reference_wrapper<const Match>> matchOpt = GetMatch(matchId);
+	const std::optional<std::reference_wrapper<Match>> matchOpt = GetMatch(matchId);
 	if (!matchOpt.has_value())
 	{
 		return;
 	}
-	const Match& match = matchOpt.value().get();
-
-	std::vector<std::reference_wrapper<const Bet>> betsLinkedToMatch = GetBetsLinkedToMatch(matchId);
-	std::ranges::for_each(betsLinkedToMatch,
-		[this, &matchResult, &match](const Bet& bet)
-		{
-			BettorResults& results = GetOrCreateBettorResults(bet.GetBettorName());
-			results.AddResult(match.GetBoSize(), matchResult, bet.GetScore());
-		}
-	);
-
-	std::ranges::sort(m_BettorResults, std::greater());
-
-	EraseBetsLinkedToMatch(matchId);
-	m_IncomingMatches.erase(std::ranges::find(m_IncomingMatches, match));
+	Match& match = matchOpt.value().get();
+	match.SetResult(matchResult);
 }
 
 std::optional<std::reference_wrapper<const Match>> BotData::GetMatch(const std::string& matchId) const
 {
-	if (matchId == Match::INVALID_ID)
-	{
-		return std::nullopt;
-	}
+	return const_cast<BotData*>(this)->GetMatch(matchId);
+}
 
-	const auto matchIt = std::ranges::find_if(m_IncomingMatches,
+std::optional<std::reference_wrapper<Match>> BotData::GetMatch(const std::string& matchId)
+{
+	const auto filter =
 		[matchId](const Match& match)
 		{
 			return match.GetId() == matchId;
-		}
-	);
+		};
 
-	if (matchIt == m_IncomingMatches.end())
+	std::vector<std::reference_wrapper<Match>> matches = GetMatchesWithFilter(filter);
+	if (matches.empty())
 	{
 		return std::nullopt;
 	}
-	return std::optional<std::reference_wrapper<const Match>>(*matchIt);
+	return matches[0]; // Should only have one value in the vector
 }
 
 std::optional<std::reference_wrapper<const Bet>> BotData::GetBet(const std::string& matchId, const std::string& bettorName) const
@@ -106,11 +49,6 @@ std::optional<std::reference_wrapper<const Bet>> BotData::GetBet(const std::stri
 
 std::optional<std::reference_wrapper<Bet>> BotData::GetBet(const std::string& matchId, const std::string& bettorName) 
 {
-	if (matchId == Match::INVALID_ID || bettorName.empty())
-	{
-		return std::nullopt;
-	}
-
 	const auto filter =
 		[matchId, &bettorName](const Bet& bet)
 		{
@@ -133,46 +71,6 @@ void BotData::ModifyBet(const std::string& matchId, const MatchScore& matchResul
 	}
 }
 
-void BotData::SetBettorResults(std::vector<BettorResults> results)
-{
-	m_BettorResults = std::move(results);
-	std::ranges::sort(m_BettorResults, std::greater());
-}
-
-std::vector<std::reference_wrapper<const Bet>> BotData::GetBetsWithFilter(const BetFilter& filter) const
-{
-	std::vector<std::reference_wrapper<const Bet>> bets;
-
-	std::ranges::for_each(m_Bets,
-		[&bets, &filter](const Bet& bet)
-		{
-			if (filter(bet))
-			{
-				bets.emplace_back(bet);
-			}
-		}
-	);
-
-	return bets;
-}
-
-std::vector<std::reference_wrapper<Bet>> BotData::GetBetsWithFilter(const BetFilter& filter)
-{
-	std::vector<std::reference_wrapper<Bet>> bets;
-
-	std::ranges::for_each(m_Bets,
-		[&bets, &filter](Bet& bet)
-		{
-			if (filter(bet))
-			{
-				bets.emplace_back(bet);
-			}
-		}
-	);
-
-	return bets;
-}
-
 std::vector<std::reference_wrapper<const Bet>> BotData::GetBetsOnMatch(const std::string& matchId) const
 {
 	const auto filter =
@@ -182,4 +80,26 @@ std::vector<std::reference_wrapper<const Bet>> BotData::GetBetsOnMatch(const std
 		};
 
 	return GetBetsWithFilter(filter);
+}
+
+std::vector<std::reference_wrapper<const Match>> BotData::GetIncomingMatches() const
+{
+	const auto filter =
+		[](const Match& match)
+		{
+			return !match.IsPlayed();
+		};
+
+	return GetMatchesWithFilter(filter);
+}
+
+std::vector<std::reference_wrapper<const Match>> BotData::GetPastMatches() const
+{
+	const auto filter =
+		[](const Match& match)
+		{
+			return match.IsPlayed();
+		};
+
+	return GetMatchesWithFilter(filter);
 }

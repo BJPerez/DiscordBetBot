@@ -1,10 +1,10 @@
 #include "MatchScore.h"
 
-MatchScore::ComparingResult MatchScore::Compare(const MatchScore& other) const noexcept
+MatchScore::EComparingResult MatchScore::Compare(const MatchScore& other) const noexcept
 {
 	if (m_TeamAScore == other.m_TeamAScore && m_TeamBScore == other.m_TeamBScore)
 	{
-		return ComparingResult::Perfect;
+		return EComparingResult::Perfect;
 	}
 	else if
 		( 
@@ -12,7 +12,7 @@ MatchScore::ComparingResult MatchScore::Compare(const MatchScore& other) const n
 			( m_TeamBScore > m_TeamAScore && other.m_TeamBScore > other.m_TeamAScore ) 
 		)
 	{
-		return ComparingResult::Correct;
+		return EComparingResult::Correct;
 	}
-	return ComparingResult::Incorrect;
+	return EComparingResult::Incorrect;
 }

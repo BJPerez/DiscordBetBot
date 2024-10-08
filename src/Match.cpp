@@ -31,3 +31,19 @@ void Match::SetId(const std::string& id)
 		}
 	}
 }
+
+bool Match::IsValidScore(const MatchScore& score) const noexcept
+{
+	if (m_BoSize < score.GetTotalNumberOfGames())
+	{
+		return false;
+	}
+
+	if (const unsigned int numberOfGamesToWin = GetNumberOfGamesToWin();
+		score.m_TeamAScore != numberOfGamesToWin && score.m_TeamBScore != numberOfGamesToWin)
+	{
+		return false;
+	}
+
+	return true;
+}

@@ -32,7 +32,13 @@ bool AddResultCommand::ValidateCommand(const DataWriter<ICommandReceiver>& dataW
 		outUserErrMsg = "No match with the given ID " + m_MatchId;
 		return false;
 	}
+
 	const Match& match = matchOpt.value().get();
+	if (match.IsPlayed())
+	{
+		outUserErrMsg = "The match result has already been set.";
+		return false;
+	}
 
 	if (const unsigned int boSize = match.GetBoSize();
 		boSize < m_Score.GetTotalNumberOfGames())

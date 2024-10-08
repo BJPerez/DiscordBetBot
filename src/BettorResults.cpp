@@ -34,13 +34,13 @@ void BettorResults::AddResult(const unsigned int boSize, const MatchScore& match
 	//   The maximal bonus is ((boSize + 1) / 2) - 1. For a BO5 it would be 2 for example. 
 	switch (matchScore.Compare(betScore))
 	{
-		case MatchScore::ComparingResult::Perfect:
+		case MatchScore::EComparingResult::Perfect:
 		{
 			++perfectBetsCount;
 			score += CORRECT_WINNING_TEAM_SCORE + ((boSize + 1) / 2) - 1;
 			break;
 		}
-		case MatchScore::ComparingResult::Correct:
+		case MatchScore::EComparingResult::Correct:
 		{
 			++correctBetsCount;
 
@@ -49,7 +49,7 @@ void BettorResults::AddResult(const unsigned int boSize, const MatchScore& match
 			const unsigned int loosingTeamDelta = std::max(matchLoosingTeamScore, betLoosingTeamScore) - std::min(matchLoosingTeamScore, betLoosingTeamScore);
 			score += CORRECT_WINNING_TEAM_SCORE + ((boSize + 1) / 2)  - (loosingTeamDelta + 1);
 		}
-		case MatchScore::ComparingResult::Incorrect:
+		case MatchScore::EComparingResult::Incorrect:
 		{
 			++incorrectBetsCount;
 		}

@@ -1,12 +1,26 @@
 #pragma once
 
 #include <functional>
+#include <optional>
+#include <string>
 #include <vector>
 
 #include "Bet.h"
-#include "BettorResults.h"
 #include "ICommandReceiver.h"
 #include "Match.h"
+#include "MatchScore.h"
+
+template<typename Filter>
+concept BetFilter = requires(Filter filter, const Bet& bet)
+{
+	{ filter(bet) } -> std::convertible_to<bool>;
+};
+
+template<typename Filter>
+concept MatchFilter = requires(Filter filter, const Match& match)
+{
+	{ filter(match) } -> std::convertible_to<bool>;
+};
 
 class BotData final : public ICommandReceiver
 {
@@ -20,28 +34,82 @@ public:
 	[[nodiscard]] std::optional<std::reference_wrapper<const Bet>> GetBet(const std::string& matchId, const std::string& bettorName) const override;
 	[[nodiscard]] std::vector<std::reference_wrapper<const Bet>> GetBetsOnMatch(const std::string& matchId) const override;
 	[[nodiscard]] const std::vector<Bet>& GetBets() const override { return m_Bets; }
-	[[nodiscard]] const std::vector<Match>& GetIncomingMatches() const override { return m_IncomingMatches; }
-	[[nodiscard]] const std::vector<BettorResults>& GetBettorsResults() const override { return m_BettorResults; }
+	[[nodiscard]] const std::vector<Match>& GetAllMatches() const override { return m_Matches; }
+	[[nodiscard]] std::vector<std::reference_wrapper<const Match>> GetIncomingMatches() const override;
+	[[nodiscard]] std::vector<std::reference_wrapper<const Match>> GetPastMatches() const override;
 
-	void SetIncomingMatches(std::vector<Match> matches) override  { m_IncomingMatches = std::move(matches); }
+	void SetMatches(std::vector<Match> matches) override  { m_Matches = std::move(matches); }
 	void SetBets(std::vector<Bet> bets) override  { m_Bets = std::move(bets); }
-	void SetBettorResults(std::vector<BettorResults> results) override;
 
 private:
-	std::vector<Match> m_IncomingMatches;
+	std::vector<Match> m_Matches;
 	std::vector<Bet> m_Bets;
-	std::vector<BettorResults> m_BettorResults;
 
-	[[nodiscard]] std::vector<std::reference_wrapper<const Bet>> GetBetsLinkedToMatch(const std::string& matchId) const;
 	[[nodiscard]] std::optional<std::reference_wrapper<Bet>> GetBet(const std::string& matchId, const std::string& bettorName);
+	[[nodiscard]] std::optional<std::reference_wrapper<Match>> GetMatch(const std::string& matchId);
 
-	[[nodiscard]] BettorResults& GetOrCreateBettorResults(std::string bettorName);
+	template<BetFilter Filter>
+	[[nodiscard]] std::vector<std::reference_wrapper<Bet>> GetBetsWithFilter(Filter filter)
+	{
+		std::vector<std::reference_wrapper<Bet>> bets;
 
+		for (Bet& bet : m_Bets)
+		{
+			if (filter(bet))
+			{
+				bets.emplace_back(bet);
+			}
+		}
 
-	void EraseBetsLinkedToMatch(const std::string& matchId);
+		return bets;
+	}
 
-	using BetFilter = std::function<bool(const Bet& bet)>;
-	[[nodiscard]] std::vector<std::reference_wrapper<const Bet>> GetBetsWithFilter(const BetFilter& filter) const;
-	[[nodiscard]] std::vector<std::reference_wrapper<Bet>> GetBetsWithFilter(const BetFilter& filter);
+	template<BetFilter Filter>
+	[[nodiscard]] std::vector<std::reference_wrapper<const Bet>> GetBetsWithFilter(Filter filter) const
+	{
+		std::vector<std::reference_wrapper<const Bet>> bets;
+
+		for (const Bet& bet : m_Bets)
+		{
+			if (filter(bet))
+			{
+				bets.emplace_back(bet);
+			}
+		}
+
+		return bets;
+	}
+
+	template<MatchFilter Filter>
+	[[nodiscard]] std::vector<std::reference_wrapper<Match>> GetMatchesWithFilter(Filter filter)
+	{
+		std::vector<std::reference_wrapper<Match>> matches;
+
+		for (Match& match : m_Matches)
+		{
+			if (filter(match))
+			{
+				matches.emplace_back(match);
+			}
+		}
+
+		return matches;
+	}
+
+	template<MatchFilter Filter>
+	[[nodiscard]] std::vector<std::reference_wrapper<const Match>> GetMatchesWithFilter(Filter filter) const
+	{
+		std::vector<std::reference_wrapper<const Match>> matches;
+
+		for (const Match& match : m_Matches)
+		{
+			if (filter(match))
+			{
+				matches.emplace_back(match);
+			}
+		}
+
+		return matches;
+	}
 };
 

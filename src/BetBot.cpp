@@ -8,7 +8,7 @@
 #include "ChooseMatchToSetResultCommand.h"
 #include "ShowBetProposalCommand.h"
 #include "ShowBettorsResultsCommand.h"
-#include "ShowMatchesCommand.h"
+#include "ShowIncomingMatchesCommand.h"
 #include "ShowResultProposalCommand.h"
 
 namespace
@@ -189,7 +189,7 @@ void BetBot::OnNewResult(const std::filesystem::path& file)
 
 void BetBot::ExecuteShowMatches(const dpp::slashcommand_t& event)
 {
-	const ShowMatchesCommand command{ m_AnswerChannelId, *this };
+	const ShowIncomingMatchesCommand command{ m_AnswerChannelId, *this };
 	event.reply(command.Execute());
 }
 
@@ -251,14 +251,14 @@ void BetBot::SetUpSelectCallbacks()
 		[this](const dpp::select_click_t& event)
 		{
 			if (const std::string selectorId = event.custom_id;
-				selectorId == ShowMatchesCommand::SELECT_MENU_ID)
+				selectorId == ShowIncomingMatchesCommand::SELECT_MENU_ID)
 			{
 				const std::string& optionValue = event.values[0];
-				if (optionValue == ShowMatchesCommand::BET_OPTION_VALUE)
+				if (optionValue == ShowIncomingMatchesCommand::BET_OPTION_VALUE)
 				{
 					ExecuteChooseMatchToBetOn(event);
 				}
-				else if (optionValue == ShowMatchesCommand::RESULT_OPTION_VALUE)
+				else if (optionValue == ShowIncomingMatchesCommand::RESULT_OPTION_VALUE)
 				{
 					ExecuteChooseMatchToSetResult(event);
 				}

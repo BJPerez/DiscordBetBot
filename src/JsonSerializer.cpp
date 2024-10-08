@@ -55,6 +55,11 @@ dpp::json JsonSerializer::ToJson(const Match& match)
 	json["TeamAName"] = match.GetTeamAName();
 	json["TeamBName"] = match.GetTeamBName();
 	json["BoSize"] = match.GetBoSize();
+	if (match.IsPlayed())
+	{
+		json["TeamAScore"] = match.GetResult().value().m_TeamAScore;
+		json["TeamBScore"] = match.GetResult().value().m_TeamBScore;
+	}
 
 	return json;
 }
@@ -66,15 +71,6 @@ dpp::json JsonSerializer::ToJson(const Bet& bet)
 	json["TeamAScore"] = bet.GetScore().m_TeamAScore;
 	json["TeamBScore"] = bet.GetScore().m_TeamBScore;
 	json["BettorName"] = bet.GetBettorName();
-
-	return json;
-}
-
-dpp::json JsonSerializer::ToJson(const BettorResults& bettorResults)
-{
-	dpp::json json;
-	json["BettorName"] = bettorResults.GetBettorName();
-	json["Results"] = ToJsonArray(bettorResults.GetResults());
 
 	return json;
 }
@@ -94,9 +90,8 @@ dpp::json JsonSerializer::ToJson(const BettorResults::ResultsByBoSize& results)
 dpp::json JsonSerializer::ToJson(const DataReader<ICommandReceiver>& dataReader)
 {
 	dpp::json json;
-	json["Matches"] = ToJsonArray(dataReader->GetIncomingMatches());
+	json["Matches"] = ToJsonArray(dataReader->GetAllMatches());
 	json["Bets"] = ToJsonArray(dataReader->GetBets());
-	json["BettorsResults"] = ToJsonArray(dataReader->GetBettorsResults());
 
 	return json;
 }
@@ -121,6 +116,10 @@ void JsonSerializer::FromJson(const dpp::json& json, Match& outMatch)
 	outMatch.SetTeamAName(json["TeamAName"]);
 	outMatch.SetTeamBName(json["TeamBName"]);
 	outMatch.SetBoSize(json["BoSize"]);
+	if (json.contains("TeamAScore") && json.contains("TeamBScore"))
+	{
+		outMatch.SetResult({ json["TeamAScore"], json["TeamBScore"] });
+	}
 }
 
 void JsonSerializer::FromJson(const dpp::json& json, Bet& outBet)
@@ -128,15 +127,6 @@ void JsonSerializer::FromJson(const dpp::json& json, Bet& outBet)
 	outBet.SetMatchId(json["MatchID"]);
 	outBet.SetScore(MatchScore{ json["TeamAScore"], json["TeamBScore"] });
 	outBet.SetBettorName(json["BettorName"]);
-}
-
-void JsonSerializer::FromJson(const dpp::json& json, BettorResults& outResults)
-{
-	outResults.SetBettorName(json["BettorName"]);
-
-	std::vector<BettorResults::ResultsByBoSize> results;
-	FromJsonArray(json["Results"], results);
-	outResults.SetResults(std::move(results));
 }
 
 void JsonSerializer::FromJson(const dpp::json& json, BettorResults::ResultsByBoSize& outResults)
@@ -152,14 +142,10 @@ void JsonSerializer::FromJson(const dpp::json& json, const DataWriter<ICommandRe
 {
 	std::vector<Match> incomingMatches;
 	FromJsonArray(json["Matches"], incomingMatches);
-	dataWriter->SetIncomingMatches(std::move(incomingMatches));
+	dataWriter->SetMatches(std::move(incomingMatches));
 
 	std::vector<Bet> bets;
 	FromJsonArray(json["Bets"], bets);
 	dataWriter->SetBets(std::move(bets));
-
-	std::vector<BettorResults> results;
-	FromJsonArray(json["BettorsResults"], results);
-	dataWriter->SetBettorResults(std::move(results));
 }
 

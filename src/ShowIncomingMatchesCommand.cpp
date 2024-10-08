@@ -1,4 +1,4 @@
-#include "ShowMatchesCommand.h"
+#include "ShowIncomingMatchesCommand.h"
 
 #include <algorithm>
 #include <dpp/colors.h>
@@ -32,9 +32,9 @@ namespace
 		dpp::component selectMenu;
 		selectMenu.set_type(dpp::cot_selectmenu);
 		selectMenu.set_placeholder("What do you want to do?");
-		selectMenu.add_select_option(dpp::select_option("Place a bet on a match", std::string(ShowMatchesCommand::BET_OPTION_VALUE)));
-		selectMenu.add_select_option(dpp::select_option("Add a match result", std::string(ShowMatchesCommand::RESULT_OPTION_VALUE)));
-		selectMenu.set_id(std::string(ShowMatchesCommand::SELECT_MENU_ID));
+		selectMenu.add_select_option(dpp::select_option("Place a bet on a match", std::string(ShowIncomingMatchesCommand::BET_OPTION_VALUE)));
+		selectMenu.add_select_option(dpp::select_option("Add a match result", std::string(ShowIncomingMatchesCommand::RESULT_OPTION_VALUE)));
+		selectMenu.set_id(std::string(ShowIncomingMatchesCommand::SELECT_MENU_ID));
 
 		return selectMenu;
 	}
@@ -72,14 +72,14 @@ namespace
 	}
 }
 
-dpp::message ShowMatchesCommand::Execute() const
+dpp::message ShowIncomingMatchesCommand::Execute() const
 {
 	dpp::message msg{ GetAnswerChannelId(), "" };
 	msg.set_flags(dpp::m_ephemeral);
 
 	{
 		const DataReader dataReader = GetDataReader();
-		if (const std::vector<Match>& matches = dataReader->GetIncomingMatches();
+		if (const std::vector<std::reference_wrapper<const Match>> matches = dataReader->GetIncomingMatches();
 			matches.empty())
 		{
 			msg.set_content("No match to display yet.");

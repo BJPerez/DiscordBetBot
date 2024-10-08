@@ -86,7 +86,7 @@ std::vector<std::size_t> DrawUtils::GetColumnSizes(const std::vector<std::vector
 	return result;
 }
 
-dpp::component DrawUtils::CreateMatchSelector(const std::string& placeHolder, const std::string& selectorId, const std::vector<Match>& matches)
+dpp::component DrawUtils::CreateMatchSelector(const std::string& placeHolder, const std::string& selectorId, const std::vector<std::reference_wrapper<const Match>>& matches)
 {
 	dpp::component selectMenu;
 	selectMenu.set_type(dpp::cot_selectmenu);
