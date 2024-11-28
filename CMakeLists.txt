@@ -1,9 +1,18 @@
 	cmake_minimum_required(VERSION 3.25)
 	project(BetBot VERSION 2.1 DESCRIPTION "A simple discord bot to handle friendly bets.")
 	 
+
+	# ------------------------ Common -----------------------------
 	list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+	list(APPEND PROJECT_MAIN_TESTED_SRC  
+		"src/MatchScore.cpp"
+		"src/MatchScore.h"
+	)
+	list(APPEND PROJECT_TEST_SRC  
+		"tests/MatchScore_Tests.cc"
+	)
 	 
-	# Main Executable
+	# ------------------------ Main Executable -----------------------------
 	add_executable(${PROJECT_NAME}
 	    "src/main.cpp"
 		"src/AddBetCommand.cpp"
@@ -22,8 +31,6 @@
 		"src/BotData.h"
 		"src/Match.cpp"
 		"src/Match.h"
-		"src/MatchScore.cpp"
-		"src/MatchScore.h"
 		"src/ShowBettorsResultsCommand.cpp"
 		"src/ShowBettorsResultsCommand.h"
 		"src/ShowIncomingMatchesCommand.cpp"
@@ -49,6 +56,7 @@
 		"src/LockableDataAccessors.h"
 		"src/BotConfigReader.cpp"
 		"src/BotConfigReader.h"
+		${PROJECT_MAIN_TESTED_SRC}
 		)
 	 
 	# Find our pre-installed DPP package (using FindDPP.cmake).
@@ -69,6 +77,15 @@
 	    CXX_STANDARD_REQUIRED ON
 	)
 
+	# Copy config.json next to the exe
+	add_custom_command(
+			TARGET ${PROJECT_NAME}  POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy
+					${CMAKE_SOURCE_DIR}/config.json
+					${CMAKE_CURRENT_BINARY_DIR}/config.json
+	)
+
+	# ------------------------ Test executable -----------------------------
 	# Google Test
 	include(FetchContent)
 	FetchContent_Declare(
@@ -80,18 +97,16 @@
 	set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 	FetchContent_MakeAvailable(googletest)
 
-	# Test executable
 	enable_testing()
 
 	add_executable(Tests
-	  "tests/test.cc"
+		${PROJECT_MAIN_TESTED_SRC}
+		${PROJECT_TEST_SRC}
 	)
 	target_link_libraries(Tests GTest::gtest_main)
 	target_compile_definitions(Tests PRIVATE TEST_ENABLED=1)
 
-	add_custom_command(
-			TARGET ${PROJECT_NAME}  POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy
-					${CMAKE_SOURCE_DIR}/config.json
-					${CMAKE_CURRENT_BINARY_DIR}/config.json
+	set_target_properties(Tests PROPERTIES
+	    CXX_STANDARD 20
+	    CXX_STANDARD_REQUIRED ON
 	)
