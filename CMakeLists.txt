@@ -29,6 +29,7 @@
 		"src/ICommandReceiver.h"
 		"src/BotData.cpp"
 		"src/BotData.h"
+		"src/BotDataExceptions.h"
 		"src/Match.cpp"
 		"src/Match.h"
 		"src/ShowBettorsResultsCommand.cpp"
@@ -56,6 +57,8 @@
 		"src/LockableDataAccessors.h"
 		"src/BotConfigReader.cpp"
 		"src/BotConfigReader.h"
+		"src/DiscordMessageBuilder.cpp"
+		"src/DiscordMessageBuilder.h"
 		${PROJECT_MAIN_TESTED_SRC}
 		)
 	 

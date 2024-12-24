@@ -1,54 +1,41 @@
 #include "AddMatchCommand.h"
 
+#include "BotDataExceptions.h"
+#include "DiscordMessageBuilder.h"
 #include "ICommandReceiver.h"
+#include "LockableDataAccessors.h"
+
+namespace
+{
+	constexpr std::string_view MATCH_ADDED_TXT = "Match added.";
+}
 
 dpp::message AddMatchCommand::Execute() const
 {
-	dpp::message msg{ GetAnswerChannelId(), "" };
-	msg.set_flags(dpp::m_ephemeral);
-
+	try
 	{
 		const DataWriter dataWriter = GetDataWriter();
-		if (std::string errorMsg;
-			!ValidateCommand(dataWriter, errorMsg))
-		{
-			msg.set_content("Error: " + errorMsg);
-		}
-		else
-		{
-			dataWriter->AddMatch(m_MatchId, m_TeamAName, m_TeamBName, m_BoSize);
-			msg.set_content("Match added.");
-		}
+		dataWriter->AddMatch(m_MatchId, m_TeamAName, m_TeamBName, m_BoSize);
+		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(), std::string{ MATCH_ADDED_TXT });
 	}
-
-	return msg;
-}
-
-bool AddMatchCommand::ValidateCommand(const DataWriter<ICommandReceiver>& data, std::string& outUserErrMsg) const
-{
-	if (m_MatchId.has_value() && m_MatchId.value().empty())
+	catch (const InvalidMatchIdException& exception)
 	{
-		outUserErrMsg = "Given match id is empty.";
-		return false;
+		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(),
+			"Error: Given ID [" + m_MatchId.value() + "] is invalid.");
 	}
-
-	if (m_MatchId.has_value() && data->GetMatch(m_MatchId.value()).has_value())
+	catch (const MatchIdUnavailableException& exception)
 	{
-		outUserErrMsg = "There is already a match with this ID.";
-		return false;
+		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(),
+			"User error: Given ID [" + exception.GetMatchId() + "] is not available.");
 	}
-
-	if (m_TeamAName.empty() || m_TeamBName.empty())
+	catch (const InvalidTeamNameException& exception)
 	{
-		outUserErrMsg = "Some of the teams has no name.";
-		return false;
+		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(),
+			"User error: At least one of the given team names is invalid. Team A: [" + exception.GetTeamAName() + "]. Team B: [" 
+			+ exception.GetTeamBName() + "].");
 	}
-
-	if (m_BoSize %2 != 1)
+	catch (const InvalidBoSizeException& exception)
 	{
-		outUserErrMsg = "The match must have an odd number of games.";
-		return false;
+		return DiscordMessageBuilder::BuildInvalidBoSizeAnswer(GetAnswerChannelId(), exception);
 	}
-
-	return true;
 }

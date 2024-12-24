@@ -1,83 +1,62 @@
 #include "AddBetCommand.h"
 
-#include "Bet.h"
+#include "BotDataExceptions.h"
+#include "DiscordMessageBuilder.h"
 #include "ICommandReceiver.h"
 #include "LockableDataAccessors.h"
 
+namespace
+{
+	constexpr std::string_view BET_ADDED_TXT = "Bet added.";
+	constexpr std::string_view BET_MODIFIED_TXT = "Your already existing bet has been modified.";
+}
+
 dpp::message AddBetCommand::Execute() const 
 {
-	dpp::message msg{ GetAnswerChannelId(), "" };
-	msg.set_flags(dpp::m_ephemeral);
-
+	try 
 	{
-		const DataWriter dataWriter = GetDataWriter();
-		if (std::string errorMsg;
-			!ValidateCommand(dataWriter, errorMsg))
+		if (const DataWriter dataWriter = GetDataWriter(); 
+			dataWriter->HasBet(m_MatchId, m_BettorName))
 		{
-			msg.set_content("Error: " + errorMsg);
+			dataWriter->ModifyBet(m_MatchId, m_Score, m_BettorName);
+			return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(), std::string{ BET_MODIFIED_TXT });
 		}
 		else
 		{
-			if (const std::optional<std::reference_wrapper<const Bet>> bet = dataWriter->GetBet(m_MatchId, m_BettorName))
-			{
-				if (m_Score == bet->get().GetScore())
-				{
-					msg.set_content("You already have the exact same bet for this match.");
-				}
-				else
-				{
-					dataWriter->ModifyBet(m_MatchId, m_Score, m_BettorName);
-					msg.set_content("You already had a different bet for this match. Your bet has been modified.");
-				}
-			}
-			else
-			{
-				dataWriter->AddBet(m_MatchId, m_Score, m_BettorName);
-				msg.set_content("Bet added.");
-			}
+			dataWriter->AddBet(m_MatchId, m_Score, m_BettorName);
+			return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(), std::string{ BET_ADDED_TXT });
 		}
 	}
-
-	return msg; 
-}
-
-bool AddBetCommand::ValidateCommand(const DataWriter<ICommandReceiver>& dataWriter, std::string& outUserErrMsg) const
-{
-	if (m_BettorName.empty())
+	catch (const InvalidMatchIdException& exception) 
 	{
-		outUserErrMsg = "Internal error.";
-		return false;
+		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(), 
+			"User error: Given ID [" + exception.GetMatchId() + "] is invalid.");
 	}
-
-	const std::optional<std::reference_wrapper<const Match>> matchOptional = dataWriter->GetMatch(m_MatchId);
-	if (!matchOptional.has_value())
+	catch (const MatchNotFoundException& exception)
 	{
-		outUserErrMsg = "No match with the given ID " + m_MatchId;
-		return false;
+		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(),
+			"User error: Could not find any match with the given ID [" + exception.GetMatchId() + "].");
 	}
-
-	const Match& match = matchOptional.value().get();
-	if (match.IsPlayed())
+	catch (const MatchAlreadyPlayedException& exception)
 	{
-		outUserErrMsg = "The match has already been played. You can't bet on it.";
-		return false;
+		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(),
+			"User error: Can't add a bet on a match already played. MatchID: [" + exception.GetMatchId() + "].");
 	}
-
-	if (!match.IsValidScore(m_Score))
+	catch (const InvalidScoreException& exception)
 	{
-		outUserErrMsg = "The match is a BO" + std::to_string(match.GetBoSize()) + ". You gave a non valid score [" + std::to_string(m_Score.m_TeamAScore) + "-" + std::to_string(m_Score.m_TeamBScore) +
-			"].";
-		return false;
+		return DiscordMessageBuilder::BuildInvalidScoreAnswer(GetAnswerChannelId(), exception);
 	}
-
-	if (const std::optional<std::reference_wrapper<const Bet>> bet = dataWriter->GetBet(m_MatchId, m_BettorName))
+	catch (const InvalidBettorNameException& exception)
 	{
-		if (bet.value().get().GetScore() == m_Score)
-		{
-			outUserErrMsg = "You already have a bet for this match with the exact same score.";
-			return false;
-		}
+		return DiscordMessageBuilder::BuildInvalidBettorNameAnswer(GetAnswerChannelId(), exception);
 	}
-
-	return true;
+	catch (const BetAlreadyExistException& exception)
+	{
+		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(),
+			"Internal error: A bet already exist for [" + exception.GetBettorName() + "] on the match with ID: [" + exception.GetMatchId() + "].");
+	}
+	catch (const BetNotFoundException& exception)
+	{
+		return DiscordMessageBuilder::BuildBetNotFoundAnswer(GetAnswerChannelId(), exception);
+	}
 }

@@ -1,60 +1,40 @@
 #include "AddResultCommand.h"
 
+#include "BotDataExceptions.h"
+#include "DiscordMessageBuilder.h"
 #include "ICommandReceiver.h"
 #include "LockableDataAccessors.h"
 
-dpp::message AddResultCommand::Execute() const
+namespace
 {
-	dpp::message msg{ GetAnswerChannelId(), "" };
-	msg.set_flags(dpp::m_ephemeral);
-
-	{
-		const DataWriter dataWriter = GetDataWriter();
-		if (std::string errorMsg;
-			!ValidateCommand(dataWriter, errorMsg))
-		{
-			msg.set_content("Error: " + errorMsg);
-		}
-		else
-		{
-			dataWriter->AddResult(m_MatchId, m_Score);
-			msg.set_content("Result added and bettors' scores updated.");
-		}
-	}
-	return msg;
+	constexpr std::string_view RESULT_ADDED_TXT = "Result added.";
 }
 
-bool AddResultCommand::ValidateCommand(const DataWriter<ICommandReceiver>& dataWriter, std::string& outUserErrMsg) const
+dpp::message AddResultCommand::Execute() const
 {
-	const std::optional<std::reference_wrapper<const Match>> matchOpt = dataWriter->GetMatch(m_MatchId);
-	if (!matchOpt.has_value())
+	try
 	{
-		outUserErrMsg = "No match with the given ID " + m_MatchId;
-		return false;
+		const DataWriter dataWriter = GetDataWriter();
+		dataWriter->AddResult(m_MatchId, m_Score);
+		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(), std::string{RESULT_ADDED_TXT});
 	}
-
-	const Match& match = matchOpt.value().get();
-	if (match.IsPlayed())
+	catch (const InvalidMatchIdException& exception)
 	{
-		outUserErrMsg = "The match result has already been set.";
-		return false;
+		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(),
+			"User error: Given ID [" + exception.GetMatchId() + "] is invalid.");
 	}
-
-	if (const unsigned int boSize = match.GetBoSize();
-		boSize < m_Score.GetTotalNumberOfGames())
+	catch (const MatchNotFoundException& exception)
 	{
-		outUserErrMsg = "The match is a BO" + std::to_string(boSize) + ". You gave a score [" + std::to_string(m_Score.m_TeamAScore) + "-" + std::to_string(m_Score.m_TeamBScore) +
-			"] with too many games.";
-		return false;
+		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(),
+			"User error: Could not find any match with the given ID [" + exception.GetMatchId() + "].");
 	}
-
-	if (const unsigned int numberOfGamesToWin = match.GetNumberOfGamesToWin();
-		m_Score.m_TeamAScore != numberOfGamesToWin && m_Score.m_TeamBScore != numberOfGamesToWin)
+	catch (const MatchAlreadyPlayedException& exception)
 	{
-		outUserErrMsg = "The winning team must have " + std::to_string(numberOfGamesToWin) + "games. You gave a score [" + std::to_string(m_Score.m_TeamAScore) + "-" +
-			std::to_string(m_Score.m_TeamBScore) + "] without a winning team.";
-		return false;
+		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(),
+			"User error: Can't add a result to a match already played. MatchID: [" + exception.GetMatchId() + "].");
 	}
-
-	return true;
+	catch (const InvalidScoreException& exception)
+	{
+		return DiscordMessageBuilder::BuildInvalidScoreAnswer(GetAnswerChannelId(), exception);
+	}
 }

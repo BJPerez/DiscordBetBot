@@ -2,28 +2,41 @@
 
 #include <vector>
 
-#include "DrawUtils.h"
+#include "DiscordMessageBuilder.h"
 #include "LockableDataAccessors.h"
 #include "Match.h"
 
+namespace
+{
+	constexpr std::string_view NO_MATCH_TXT = "There are no match to add a result to.";
+	constexpr std::string_view SELECT_MATCH_TXT = "Select the match you want to add a result to:";
+	constexpr std::string_view SELECTOR_PLACE_HOLDER = "Choose the match you want to add a result to";
+}
+
 dpp::message ChooseMatchToSetResultCommand::Execute() const
 {
-	dpp::message msg{ GetAnswerChannelId(), "" };
-	msg.set_flags(dpp::m_ephemeral);
-
+	const DataReader dataReader = GetDataReader();
+	if (const std::vector<std::reference_wrapper<const Match>> matches = dataReader->GetIncomingMatches();
+		matches.empty())
 	{
-		const DataReader dataReader = GetDataReader();
-		if (const std::vector<std::reference_wrapper<const Match>> matches = dataReader->GetIncomingMatches();
-			matches.empty())
-		{
-			msg.set_content("At the moment, there are no match to add a result to.");
-		}
-		else
-		{
-			msg.set_content("Select the match you want to add a result to:");
-			msg.add_component(dpp::component().add_component(DrawUtils::CreateMatchSelector("Choose the match you want to add a result to", std::string(SELECT_MENU_ID), matches)));
-		}
+		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(), std::string{ NO_MATCH_TXT });
 	}
+	else
+	{
+		std::vector<std::pair<std::string, std::string>> selectorOptions;
+		for (const std::reference_wrapper<const Match>& matchRef : matches)
+		{
+			const Match& match = matchRef.get();
+			selectorOptions.emplace_back(match.GetTeamAName() + " - " + match.GetTeamBName(), match.GetId());
+		}
 
-	return msg;
+		const DiscordMessageBuilder::SelectorParams params
+		{
+			std::string(SELECT_MENU_ID) ,
+			selectorOptions,
+			std::string{SELECTOR_PLACE_HOLDER}
+		};
+
+		return DiscordMessageBuilder::BuildAnswerWithSelector(GetAnswerChannelId(), std::string{ SELECT_MATCH_TXT }, params);
+	}
 }

@@ -1,41 +1,59 @@
 #include "ShowBetProposalCommand.h"
 
-#include "DrawUtils.h"
+#include "BotDataExceptions.h"
+#include "DiscordMessageBuilder.h"
 #include "ICommandReceiver.h"
 #include "LockableDataAccessors.h"
 #include "Match.h"
 
-dpp::message ShowBetProposalCommand::Execute() const
+namespace
 {
-	dpp::message msg{ GetAnswerChannelId(), "" };
-	msg.set_flags(dpp::m_ephemeral);
-
+	std::pair<std::string, std::string> BuildSelectorOption(const std::string& matchId, const unsigned int teamAScore, const unsigned int teamBScore)
 	{
-		const DataReader dataReader = GetDataReader();
-		if (std::string errorMsg;
-			!ValidateCommand(dataReader, errorMsg))
-		{
-			msg.set_content("Error: " + errorMsg);
-		}
-		else
-		{
-			const Match& match = dataReader->GetMatch(m_MatchId).value(); // ValidateCommand already checks that the match exists
-			msg.set_content("Choose your bet for " + match.GetTeamAName() + " - " + match.GetTeamBName() + ":");
-			msg.add_component(dpp::component().add_component(DrawUtils::CreateMatchResultSelector(match.GetTeamAName() + " - " 
-				+ match.GetTeamBName(), std::string(SELECT_MENU_ID), match)));
-		}
+		const MatchScore score{ teamAScore, teamBScore };
+		const std::string optionId = matchId + "-" + std::to_string(teamAScore) + "-" + std::to_string(teamBScore); // Don't want the spaces from ToString function
+		return { score.ToString(), optionId };
 	}
 
-	return msg;
+	std::string BuildMessageContent(const Match& match)
+	{
+		return "Choose your bet for " + match.GetTeamAName() + " - " + match.GetTeamBName() + ":";
+	}
 }
 
-bool ShowBetProposalCommand::ValidateCommand(const DataReader<ICommandReceiver>& dataReader, std::string& outUserErrMsg) const
+dpp::message ShowBetProposalCommand::Execute() const
 {
-	if (const std::optional<std::reference_wrapper<const Match>> matchOpt = dataReader->GetMatch(m_MatchId);
-		!matchOpt.has_value())
+	try
 	{
-		return false;
-	}
+		const DataReader dataReader = GetDataReader();
+		const Match& match = dataReader->GetMatch(m_MatchId);
+		const std::string& matchId = match.GetId();
+		const unsigned int winningTeamScore = match.GetNumberOfGamesToWin();
 
-	return true;
+		std::vector<std::pair<std::string, std::string>> selectorOptions;
+		for (unsigned int loosingTeamScore = 0; loosingTeamScore < winningTeamScore; ++loosingTeamScore)
+		{
+			selectorOptions.push_back(BuildSelectorOption(matchId, winningTeamScore, loosingTeamScore));
+			selectorOptions.push_back(BuildSelectorOption(matchId, loosingTeamScore, winningTeamScore));
+		}
+
+		const DiscordMessageBuilder::SelectorParams params
+		{
+			std::string {SELECT_MENU_ID},
+			selectorOptions,
+			match.GetTeamAName() + " - " + match.GetTeamBName()
+		};
+
+		return DiscordMessageBuilder::BuildAnswerWithSelector(GetAnswerChannelId(), BuildMessageContent(match), params);
+	}
+	catch(const InvalidMatchIdException& exception)
+	{
+		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(),
+			"User error: Given ID [" + exception.GetMatchId() + "] is invalid.");
+	}
+	catch(const MatchNotFoundException& exception)
+	{
+		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(),
+			"User error: Could not find any match with the given ID [" + exception.GetMatchId() + "].");
+	}
 }

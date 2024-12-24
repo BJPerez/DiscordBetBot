@@ -20,6 +20,4 @@ public:
 
 private:
 	std::string m_MatchId{ Match::INVALID_ID };
-
-	bool ValidateCommand(const DataReader<ICommandReceiver>& dataReader, std::string& outUserErrMsg) const;
 };

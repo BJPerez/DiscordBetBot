@@ -1,5 +1,7 @@
 #include "Match.h"
 
+#include "BotDataExceptions.h"
+
 Match::Match(std::optional<std::string> matchId, std::string teamAName, std::string teamBName, const unsigned int maxNumberOfGame) :
 	m_TeamAName(std::move(teamAName)),
 	m_TeamBName(std::move(teamBName)),
@@ -46,4 +48,14 @@ bool Match::IsValidScore(const MatchScore& score) const noexcept
 	}
 
 	return true;
+}
+
+const MatchScore& Match::GetResult() const
+{
+	if (!m_Result.has_value())
+	{
+		throw MatchNotPlayedException(m_Id);
+	}
+
+	return m_Result.value();
 }

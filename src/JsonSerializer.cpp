@@ -57,8 +57,8 @@ dpp::json JsonSerializer::ToJson(const Match& match)
 	json["BoSize"] = match.GetBoSize();
 	if (match.IsPlayed())
 	{
-		json["TeamAScore"] = match.GetResult().value().m_TeamAScore;
-		json["TeamBScore"] = match.GetResult().value().m_TeamBScore;
+		json["TeamAScore"] = match.GetResult().m_TeamAScore;
+		json["TeamBScore"] = match.GetResult().m_TeamBScore;
 	}
 
 	return json;

@@ -22,7 +22,5 @@ private:
 	std::string m_MatchId{ Match::INVALID_ID };
 	MatchScore m_Score;
 	std::string m_BettorName;
-
-	bool ValidateCommand(const DataWriter<ICommandReceiver>& dataWriter, std::string& outUserErrMsg) const;
 };
 

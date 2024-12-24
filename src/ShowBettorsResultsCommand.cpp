@@ -3,13 +3,17 @@
 #include <algorithm>
 
 #include "BettorResults.h"
+#include "BotDataExceptions.h"
+#include "DiscordMessageBuilder.h"
 #include "DrawUtils.h"
 #include "ICommandReceiver.h"
 #include "LockableDataAccessors.h"
 
 namespace
 {
-	constexpr unsigned int COLUMNS_COUNT_OUTSIDE_OF_BOSIZE_COLUMNS = 3; // One for place, one for bettor's name and one for total score
+	constexpr size_t COLUMNS_COUNT_OUTSIDE_OF_BO_SIZE_COLUMNS = 3; // One for place, one for bettor's name and one for total score
+	constexpr int JUMP_BETWEEN_BO_SIZE = 2;
+	constexpr int MINIMAL_BO_SIZE = 1;
 
 	void FillColumnHeaders(const unsigned int maxBoSize, std::vector<std::vector<std::string>>& outColumns)
 	{
@@ -17,7 +21,7 @@ namespace
 		outColumns[columnIndex++].emplace_back("Place");
 		outColumns[columnIndex++].emplace_back("Bettor");
 
-		for (int currentBoSize = static_cast<int>(maxBoSize); currentBoSize > 1; currentBoSize -= 2)
+		for (int currentBoSize = static_cast<int>(maxBoSize); currentBoSize > MINIMAL_BO_SIZE; currentBoSize -= JUMP_BETWEEN_BO_SIZE)
 		{
 			outColumns[columnIndex++].emplace_back("BO" + std::to_string(currentBoSize) + " PB");
 			outColumns[columnIndex++].emplace_back("BO" + std::to_string(currentBoSize) + " CB");
@@ -64,7 +68,7 @@ namespace
 			outColumns[columnIndex++].emplace_back(bettorResults.GetBettorName());
 
 			const std::vector<BettorResults::ResultsByBoSize>& resultsByBoSize = bettorResults.GetResults();
-			for (int currentBoSize = static_cast<int>(maxBoSize); currentBoSize > 0; currentBoSize -= 2)
+			for (int currentBoSize = static_cast<int>(maxBoSize); currentBoSize >= MINIMAL_BO_SIZE; currentBoSize -= JUMP_BETWEEN_BO_SIZE)
 			{
 				FillBoSizeColumns(resultsByBoSize, currentBoSize, columnIndex, outColumns);
 			}
@@ -87,7 +91,7 @@ namespace
 	{
 		const unsigned int maxBoSize = EvaluateMaxBoSize(allResults);
 		const unsigned int boSizesCount = (maxBoSize + 1) / 2; // We go two by two from 1 to maxBoSize. So if maxBoSize = 5, we have 1, 3 and 5 so 3 different bo sizes
-		const unsigned int columnsCount = COLUMNS_COUNT_OUTSIDE_OF_BOSIZE_COLUMNS + (boSizesCount * 2 - 1); // *2 -1 because every bosize (except for BO1s thus the -1) will have one column for perfect bet and one for correct bet
+		const unsigned int columnsCount = COLUMNS_COUNT_OUTSIDE_OF_BO_SIZE_COLUMNS + (boSizesCount * 2 - 1); // *2 -1 because every bosize (except for BO1s thus the -1) will have one column for perfect bet and one for correct bet
 
 		// Note that Bettors result should already be sorted from the bettor with the most point to the less.
 		std::vector<std::vector<std::string>> columnsContents(columnsCount);
@@ -122,20 +126,14 @@ namespace
 		std::vector<BettorResults> allResults;
 		for (const Bet& bet : data->GetBets())
 		{
-			std::optional<Match> matchOpt = data->GetMatch(bet.GetMatchId());
-			if (!matchOpt.has_value())
-			{
-				continue;
-			}
-
-			const Match& match = matchOpt.value();
+			const Match& match = data->GetMatch(bet.GetMatchId());
 			if (!match.IsPlayed())
 			{
 				continue;
 			}
 
 			BettorResults& results = GetOrCreateBettorResults(bet.GetBettorName(), allResults);
-			results.AddResult(match.GetBoSize(), match.GetResult().value(), bet.GetScore());
+			results.AddResult(match.GetBoSize(), match.GetResult(), bet.GetScore());
 		}
 		std::ranges::sort(allResults, std::greater());
 		return allResults;
@@ -144,27 +142,40 @@ namespace
 
 dpp::message ShowBettorsResultsCommand::Execute() const
 {
-	dpp::message msg{ GetAnswerChannelId(), "" };
-	msg.set_flags(dpp::m_ephemeral);
-
+	try
 	{
 		const DataReader dataReader = GetDataReader();
-
-		if (const std::vector<BettorResults> allResults = GenerateResults(dataReader); 
+		if (const std::vector<BettorResults> allResults = GenerateResults(dataReader);
 			allResults.empty())
 		{
-			msg.set_content("No result to display yet.");
+			return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(), "No result to display yet.");
 		}
 		else
 		{
-			std::string msgText;
 			const std::vector<std::vector<std::string>> columnsContents = GenerateColumnsWithResultsInfos(allResults);
-			DrawUtils::DrawTable(columnsContents, msgText);
-			msgText += "PB = Perfect Bet (winning team + exact score)    |     CB = Correct Bet (winning team only)";
 
-			msg.set_content(msgText);
+			const DiscordMessageBuilder::TableParams params
+			{
+				{},
+				columnsContents,
+				"PB = Perfect Bet (winning team + exact score)    |     CB = Correct Bet (winning team only)"
+			};
+
+			return DiscordMessageBuilder::BuildAnswerWithTable(GetAnswerChannelId(), params);
 		}
 	}
-
-	return msg;
+	catch (const InvalidMatchIdException& exception)
+	{
+		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(),
+			"Internal error: At least one bet saved in data has an invalid MatchId [." + exception.GetMatchId() + "].");
+	}
+	catch (const MatchNotFoundException& exception)
+	{
+		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(),
+			"Internal error: At least one bet saved in data reference a non existing MatchId [." + exception.GetMatchId() + "].");
+	}
+	catch (const InvalidScoreException& exception)
+	{
+		return DiscordMessageBuilder::BuildInvalidScoreAnswer(GetAnswerChannelId(), exception);
+	}
 }

@@ -23,7 +23,5 @@ private:
 	std::string m_TeamAName;
 	std::string m_TeamBName;
 	unsigned int m_BoSize{ 0 };
-
-	bool ValidateCommand(const DataWriter<ICommandReceiver>& data, std::string& outUserErrMsg) const;
 };
 
