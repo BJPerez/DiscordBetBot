@@ -13,6 +13,9 @@
 	)
 	 
 	# ------------------------ Main Executable -----------------------------
+	# Add DPP as dependency
+	add_subdirectory(libs/DPP)
+
 	add_executable(${PROJECT_NAME}
 	    "src/main.cpp"
 		"src/AddBetCommand.cpp"
@@ -59,17 +62,14 @@
 		${PROJECT_MAIN_TESTED_SRC}
 		)
 	 
-	# Find our pre-installed DPP package (using FindDPP.cmake).
-	find_package(DPP REQUIRED)
-	 
 	# Link the pre-installed DPP package.
 	target_link_libraries(${PROJECT_NAME} 
-	    ${DPP_LIBRARIES}
+	    dpp
 	)
 	 
 	# Include the DPP directories.
 	target_include_directories(${PROJECT_NAME} PRIVATE
-	    ${DPP_INCLUDE_DIR}
+	    libs/DPP/include
 	)
 	 
 	set_target_properties(${PROJECT_NAME} PROPERTIES
