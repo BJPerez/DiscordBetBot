@@ -433,5 +433,8 @@ FodyWeavers.xsd
 # Ignore the folder containing builds
 out/
 
+# Ignore everything from libs
+libs/
+
 #Ignore specifics files
 CMakeSettings.json
