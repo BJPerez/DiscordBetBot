@@ -43,7 +43,7 @@
 		"src/SaveManager.cpp"
 		"src/SaveManager.h"
 		"src/BetBot.cpp"
-		"src/BetBot.h" 
+		"src/BetBot.h"
 		"src/DrawUtils.cpp"
 		"src/DrawUtils.h"
 		"src/ShowBetProposalCommand.cpp"
