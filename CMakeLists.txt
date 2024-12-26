@@ -1,6 +1,9 @@
 	cmake_minimum_required(VERSION 3.25)
 	project(BetBot VERSION 2.1 DESCRIPTION "A simple discord bot to handle friendly bets.")
-	 
+
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})  
 
 	# ------------------------ Common -----------------------------
 	list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -61,18 +64,18 @@
 		"src/DiscordMessageBuilder.h"
 		${PROJECT_MAIN_TESTED_SRC}
 		)
-	 
-	# Find our pre-installed DPP package (using FindDPP.cmake).
-	find_package(DPP REQUIRED)
+
+	# Add DPP as dependency
+	add_subdirectory(libs/DPP)
 	 
 	# Link the pre-installed DPP package.
 	target_link_libraries(${PROJECT_NAME} 
-	    ${DPP_LIBRARIES}
+	    dpp
 	)
 	 
 	# Include the DPP directories.
 	target_include_directories(${PROJECT_NAME} PRIVATE
-	    ${DPP_INCLUDE_DIR}
+	    libs/DPP/include
 	)
 	 
 	set_target_properties(${PROJECT_NAME} PROPERTIES
