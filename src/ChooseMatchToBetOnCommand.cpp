@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "DiscordMessageBuilder.h"
+#include "MessageBuilder.h"
 #include "LockableDataAccessors.h"
 #include "Match.h"
 
@@ -19,7 +19,7 @@ dpp::message ChooseMatchToBetOnCommand::Execute() const
 	if (const std::vector<std::reference_wrapper<const Match>> matches = dataReader->GetIncomingMatches();
 		matches.empty())
 	{
-		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(), std::string{ NO_MATCH_TXT });
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(), std::string{ NO_MATCH_TXT });
 	}
 	else
 	{
@@ -30,13 +30,15 @@ dpp::message ChooseMatchToBetOnCommand::Execute() const
 			selectorOptions.emplace_back(match.GetTeamAName() + " - " + match.GetTeamBName(), match.GetId());
 		}
 
-		const DiscordMessageBuilder::SelectorParams params
+		const MessageBuilder::SelectorParams params
 		{
 			std::string(SELECT_MENU_ID) ,
 			selectorOptions,
 			std::string{SELECTOR_PLACE_HOLDER}
 		};
 
-		return DiscordMessageBuilder::BuildAnswerWithSelector(GetAnswerChannelId(), std::string{ SELECT_MATCH_TXT }, params);
+		dpp::message msg = MessageBuilder::BuildAnswer(GetAnswerChannelId(), std::string{ SELECT_MATCH_TXT });
+		MessageBuilder::AddSelectorToMessage(params, msg);
+		return msg;
 	}
 }

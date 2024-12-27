@@ -1,12 +1,11 @@
 #pragma once
 
 #include <string>
-#include <dpp/message.h>
-#include <dpp/snowflake.h>
 
 #include "CommandBase.h"
 #include "Match.h"
 #include "MatchScore.h"
+#include "MessageBuilder.h"
 
 class ICommandReceiver;
 
@@ -16,7 +15,7 @@ public:
 	AddBetCommand(const dpp::snowflake channelId, BetBot& bot, std::string matchId, const unsigned int teamAScore, const unsigned int teamBScore, std::string bettorName) noexcept:
 		CommandBase(channelId, bot), m_MatchId(std::move(matchId)), m_Score{ teamAScore, teamBScore }, m_BettorName(std::move(bettorName)) {}
 
-	[[nodiscard]] dpp::message Execute() const override;
+	[[nodiscard]] MessageBuilder::Message Execute() const override;
 
 private:
 	std::string m_MatchId{ Match::INVALID_ID };

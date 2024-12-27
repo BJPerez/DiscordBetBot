@@ -25,6 +25,12 @@ protected:
 	[[nodiscard]] DataReader<ICommandReceiver> GetDataReader() const { return m_Bot->GetDataReader(); }
 	[[nodiscard]] DataWriter<ICommandReceiver> GetDataWriter() const { return m_Bot->GetDataWriter(); }
 
+	class Helper
+	{
+	public:
+		static std::vector<std::pair<std::string, std::string>> BuildAllScoreScoreSelectorOptions(const Match& match);
+	};
+
 private:
 	dpp::snowflake m_AnswerChannelId;
 	BetBot* m_Bot;

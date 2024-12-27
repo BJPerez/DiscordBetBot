@@ -4,8 +4,7 @@
 
 #include "BettorResults.h"
 #include "BotDataExceptions.h"
-#include "DiscordMessageBuilder.h"
-#include "DrawUtils.h"
+#include "MessageBuilder.h"
 #include "ICommandReceiver.h"
 #include "LockableDataAccessors.h"
 
@@ -148,34 +147,30 @@ dpp::message ShowBettorsResultsCommand::Execute() const
 		if (const std::vector<BettorResults> allResults = GenerateResults(dataReader);
 			allResults.empty())
 		{
-			return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(), "No result to display yet.");
+			return MessageBuilder::BuildAnswer(GetAnswerChannelId(), "No result to display yet.");
 		}
 		else
 		{
-			const std::vector<std::vector<std::string>> columnsContents = GenerateColumnsWithResultsInfos(allResults);
+			std::string msgContent = MessageBuilder::BuildTable(GenerateColumnsWithResultsInfos(allResults));
+			msgContent += "PB = Perfect Bet (winning team + exact score)    |     CB = Correct Bet (winning team only)";
 
-			const DiscordMessageBuilder::TableParams params
-			{
-				{},
-				columnsContents,
-				"PB = Perfect Bet (winning team + exact score)    |     CB = Correct Bet (winning team only)"
-			};
-
-			return DiscordMessageBuilder::BuildAnswerWithTable(GetAnswerChannelId(), params);
+			return MessageBuilder::BuildAnswer(GetAnswerChannelId(), msgContent);
 		}
 	}
 	catch (const InvalidMatchIdException& exception)
 	{
-		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(),
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
 			"Internal error: At least one bet saved in data has an invalid MatchId [." + exception.GetMatchId() + "].");
 	}
 	catch (const MatchNotFoundException& exception)
 	{
-		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(),
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
 			"Internal error: At least one bet saved in data reference a non existing MatchId [." + exception.GetMatchId() + "].");
 	}
 	catch (const InvalidScoreException& exception)
 	{
-		return DiscordMessageBuilder::BuildInvalidScoreAnswer(GetAnswerChannelId(), exception);
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"Internal error: A least one bet saved in data has a score [" + exception.GetScore().ToString() + 
+			"] not valid for its BOSize [" + std::to_string(exception.GetBoSize()) + "].");
 	}
 }

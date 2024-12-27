@@ -1,7 +1,6 @@
 #include "AddBetCommand.h"
 
 #include "BotDataExceptions.h"
-#include "DiscordMessageBuilder.h"
 #include "ICommandReceiver.h"
 #include "LockableDataAccessors.h"
 
@@ -19,44 +18,48 @@ dpp::message AddBetCommand::Execute() const
 			dataWriter->HasBet(m_MatchId, m_BettorName))
 		{
 			dataWriter->ModifyBet(m_MatchId, m_Score, m_BettorName);
-			return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(), std::string{ BET_MODIFIED_TXT });
+			return MessageBuilder::BuildAnswer(GetAnswerChannelId(), std::string{ BET_MODIFIED_TXT });
 		}
 		else
 		{
 			dataWriter->AddBet(m_MatchId, m_Score, m_BettorName);
-			return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(), std::string{ BET_ADDED_TXT });
+			return MessageBuilder::BuildAnswer(GetAnswerChannelId(), std::string{ BET_ADDED_TXT });
 		}
 	}
 	catch (const InvalidMatchIdException& exception) 
 	{
-		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(), 
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(), 
 			"User error: Given ID [" + exception.GetMatchId() + "] is invalid.");
 	}
 	catch (const MatchNotFoundException& exception)
 	{
-		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(),
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
 			"User error: Could not find any match with the given ID [" + exception.GetMatchId() + "].");
 	}
 	catch (const MatchAlreadyPlayedException& exception)
 	{
-		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(),
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
 			"User error: Can't add a bet on a match already played. MatchID: [" + exception.GetMatchId() + "].");
 	}
 	catch (const InvalidScoreException& exception)
 	{
-		return DiscordMessageBuilder::BuildInvalidScoreAnswer(GetAnswerChannelId(), exception);
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"User error: Given score [" + exception.GetScore().ToString() + "] is not valid for a BO"
+			+ std::to_string(exception.GetBoSize()) + ".");
 	}
 	catch (const InvalidBettorNameException& exception)
 	{
-		return DiscordMessageBuilder::BuildInvalidBettorNameAnswer(GetAnswerChannelId(), exception);
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"Internal error: Extracted bettor's name is invalid: [" + exception.GetBettorName() + "].");
 	}
 	catch (const BetAlreadyExistException& exception)
 	{
-		return DiscordMessageBuilder::BuildBasicAnswer(GetAnswerChannelId(),
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
 			"Internal error: A bet already exist for [" + exception.GetBettorName() + "] on the match with ID: [" + exception.GetMatchId() + "].");
 	}
 	catch (const BetNotFoundException& exception)
 	{
-		return DiscordMessageBuilder::BuildBetNotFoundAnswer(GetAnswerChannelId(), exception);
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"Internal error: Tried to modify a non existing bet for [" + exception.GetBettorName() + "] on the match with ID: [" + exception.GetMatchId() + "].");
 	}
 }
