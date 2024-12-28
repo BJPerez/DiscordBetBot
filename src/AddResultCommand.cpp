@@ -1,22 +1,16 @@
 #include "AddResultCommand.h"
 
 #include "BotDataExceptions.h"
-#include "MessageBuilder.h"
 #include "ICommandReceiver.h"
 #include "LockableDataAccessors.h"
 
-namespace
-{
-	constexpr std::string_view RESULT_ADDED_TXT = "Result added.";
-}
-
-dpp::message AddResultCommand::Execute() const
+MessageBuilder::Message AddResultCommand::Execute() const
 {
 	try
 	{
 		const DataWriter dataWriter = GetDataWriter();
 		dataWriter->AddResult(m_MatchId, m_Score);
-		return MessageBuilder::BuildAnswer(GetAnswerChannelId(), std::string{RESULT_ADDED_TXT});
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(), "Result added.");
 	}
 	catch (const InvalidMatchIdException& exception)
 	{

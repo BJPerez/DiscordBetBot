@@ -4,13 +4,7 @@
 #include "ICommandReceiver.h"
 #include "LockableDataAccessors.h"
 
-namespace
-{
-	constexpr std::string_view BET_ADDED_TXT = "Bet added.";
-	constexpr std::string_view BET_MODIFIED_TXT = "Your already existing bet has been modified.";
-}
-
-dpp::message AddBetCommand::Execute() const 
+MessageBuilder::Message AddBetCommand::Execute() const 
 {
 	try 
 	{
@@ -18,12 +12,12 @@ dpp::message AddBetCommand::Execute() const
 			dataWriter->HasBet(m_MatchId, m_BettorName))
 		{
 			dataWriter->ModifyBet(m_MatchId, m_Score, m_BettorName);
-			return MessageBuilder::BuildAnswer(GetAnswerChannelId(), std::string{ BET_MODIFIED_TXT });
+			return MessageBuilder::BuildAnswer(GetAnswerChannelId(), "Bet added.");
 		}
 		else
 		{
 			dataWriter->AddBet(m_MatchId, m_Score, m_BettorName);
-			return MessageBuilder::BuildAnswer(GetAnswerChannelId(), std::string{ BET_ADDED_TXT });
+			return MessageBuilder::BuildAnswer(GetAnswerChannelId(), "Your already existing bet has been modified.");
 		}
 	}
 	catch (const InvalidMatchIdException& exception) 
@@ -54,11 +48,13 @@ dpp::message AddBetCommand::Execute() const
 	}
 	catch (const BetAlreadyExistException& exception)
 	{
+		// Should never end up here since we check first if we already have a bet. 
 		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
 			"Internal error: A bet already exist for [" + exception.GetBettorName() + "] on the match with ID: [" + exception.GetMatchId() + "].");
 	}
 	catch (const BetNotFoundException& exception)
 	{
+		// Should never end up here since we check first if we already have a bet.
 		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
 			"Internal error: Tried to modify a non existing bet for [" + exception.GetBettorName() + "] on the match with ID: [" + exception.GetMatchId() + "].");
 	}

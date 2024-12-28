@@ -35,6 +35,8 @@ public:
 	void SetBoSize(const unsigned int size) noexcept { m_BoSize = size; }
 	void SetResult(const MatchScore& score) noexcept { m_Result = score; }; // Command should check if the score is valid
 
+	[[nodiscard]] std::string ToString() const noexcept { return m_TeamAName + " - " + m_TeamBName; }
+
 private:
 	inline static unsigned int s_NextId{ FIRST_ID };
 

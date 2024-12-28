@@ -1,12 +1,11 @@
 #include "ShowBetProposalCommand.h"
 
 #include "BotDataExceptions.h"
-#include "MessageBuilder.h"
 #include "ICommandReceiver.h"
 #include "LockableDataAccessors.h"
 #include "Match.h"
 
-dpp::message ShowBetProposalCommand::Execute() const
+MessageBuilder::Message ShowBetProposalCommand::Execute() const
 {
 	try
 	{
@@ -16,12 +15,12 @@ dpp::message ShowBetProposalCommand::Execute() const
 		const MessageBuilder::SelectorParams params
 		{
 			std::string {SELECT_MENU_ID},
-			CommandBase::Helper::BuildAllScoreScoreSelectorOptions(match),
-			match.GetTeamAName() + " - " + match.GetTeamBName()
+			Helper::BuildScoreSelectorOptions(match),
+			match.ToString()
 		};
 
-		std::string content = "Choose your bet for " + match.GetTeamAName() + " - " + match.GetTeamBName() + ":";
-		dpp::message msg = MessageBuilder::BuildAnswer(GetAnswerChannelId(), std::move(content));
+		const std::string content = "Choose your bet for " + match.ToString() + ":";
+		MessageBuilder::Message msg = MessageBuilder::BuildAnswer(GetAnswerChannelId(), content);
 		MessageBuilder::AddSelectorToMessage(params, msg);
 		return msg;
 	}

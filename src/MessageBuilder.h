@@ -6,7 +6,8 @@
 namespace MessageBuilder
 {
 	using Message = dpp::message;
-
+	using ChannelId = dpp::snowflake;
+		
 	using SelectorOption = std::pair<std::string, std::string>; // OptionDisplayedText, OptionId
 	struct SelectorParams
 	{
@@ -15,7 +16,7 @@ namespace MessageBuilder
 		std::string m_PlaceHolder;
 	};
 
-	using TableContent = std::vector<std::vector<std::string>>;
+	using TableContent = std::vector<std::vector<std::string>>; // column, line
 
 	using Field = std::pair<std::string, std::string>; // FieldTitle, FieldContent
 	struct EmbedParams
@@ -25,10 +26,10 @@ namespace MessageBuilder
 		std::vector<Field> m_Fields;
 	};
 
-	[[nodiscard]] dpp::message BuildAnswer(const dpp::snowflake answerChannelId, const std::string& content);
+	[[nodiscard]] Message BuildAnswer(const ChannelId answerChannelId, const std::string& content);
 
-	void AddSelectorToMessage(const SelectorParams& selectorParams, dpp::message& msg);
-	void AddEmbedToMessage(const EmbedParams& embedParams, dpp::message& msg);
+	void AddSelectorToMessage(const SelectorParams& selectorParams, Message& msg);
+	void AddEmbedToMessage(const EmbedParams& embedParams, Message& msg);
 
 	std::string BuildTable(const TableContent& columnsContent);
 };

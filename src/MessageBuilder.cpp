@@ -17,8 +17,8 @@ namespace
 		separativeLine += TABLE_CELL_ANGLE;
 		for (const std::size_t columnSize : columnSizes)
 		{
-			const std::size_t lineSize = columnSize + (2 * SPACES_AROUND_WORD_IN_CELL);
-			for (unsigned int index = 0; index < lineSize; ++index)
+			const std::size_t cellSize = columnSize + (2 * SPACES_AROUND_WORD_IN_CELL);
+			for (unsigned int index = 0; index < cellSize; ++index)
 			{
 				separativeLine += TABLE_LINE_SEPARATOR;
 			}
@@ -29,11 +29,11 @@ namespace
 		return separativeLine;
 	}
 
-	std::vector<std::size_t> GetColumnSizes(const std::vector<std::vector<std::string>>& columnsContent)
+	std::vector<std::size_t> GetColumnSizes(const MessageBuilder::TableContent& tableContent)
 	{
 		std::vector<std::size_t> result;
 
-		for (const std::vector<std::string>& column : columnsContent)
+		for (const std::vector<std::string>& column : tableContent)
 		{
 			if (column.empty())
 			{
@@ -53,7 +53,7 @@ namespace
 		return result;
 	}
 
-	std::string BuildTableCell(const std::string& word, const unsigned int columnSize)
+	std::string BuildTableCell(const std::string& word, const size_t columnSize)
 	{
 		std::string cell;
 
@@ -76,15 +76,15 @@ namespace
 	}
 }
 
-dpp::message MessageBuilder::BuildAnswer(const dpp::snowflake answerChannelId, const std::string& content)
+MessageBuilder::Message MessageBuilder::BuildAnswer(const ChannelId answerChannelId, const std::string& content)
 {
-	dpp::message msg{ answerChannelId, content };
+	Message msg{ answerChannelId, content };
 	msg.set_flags(dpp::m_ephemeral);
 
 	return msg;
 }
 
-void MessageBuilder::AddSelectorToMessage(const SelectorParams& selectorParams, dpp::message& msg)
+void MessageBuilder::AddSelectorToMessage(const SelectorParams& selectorParams, Message& msg)
 {
 	dpp::component selector;
 
@@ -128,7 +128,7 @@ std::string MessageBuilder::BuildTable(const TableContent& columnsContent)
 	return table;
 }
 
-void MessageBuilder::AddEmbedToMessage(const EmbedParams& embedParams, dpp::message& msg)
+void MessageBuilder::AddEmbedToMessage(const EmbedParams& embedParams, Message& msg)
 {
 	dpp::embed embed;
 
