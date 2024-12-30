@@ -97,19 +97,9 @@ void BetBot::ExecuteAddMatch(const dpp::slashcommand_t& event)
 	auto teamBName = std::get<std::string>(event.get_parameter("team_b"));
 	const unsigned int boSize = static_cast<unsigned int>(std::get<int64_t>(event.get_parameter("bo_size")));
 
-	//const AddMatchCommand command{ m_AnswerChannelId, *this, std::move(teamAName), std::move(teamBName), boSize };
-	//event.reply(command.Execute());
-	//m_Saver.Save(GetDataReader());
-
-	try
-	{
-		const DataWriter writer = GetDataWriter();
-		writer->AddMatch(std::nullopt, teamAName, teamBName, boSize);
-	}
-	catch(std::exception e)
-	{
-		
-	}
+	const AddMatchCommand command{ m_AnswerChannelId, *this, std::move(teamAName), std::move(teamBName), boSize };
+	event.reply(command.Execute());
+	m_Saver.Save(GetDataReader());
 }
 
 void BetBot::OnNewMatch(const std::filesystem::path& file)

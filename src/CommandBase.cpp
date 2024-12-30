@@ -6,7 +6,7 @@ namespace
 		const unsigned int teamBScore)
 	{
 		const MatchScore score{ teamAScore, teamBScore };
-		const std::string optionId = matchId + "-" + std::to_string(teamAScore) + "-" + std::to_string(teamBScore); // Don't want the spaces from ToString function //todo
+		const std::string optionId = matchId + "-" + std::to_string(teamAScore) + "-" + std::to_string(teamBScore); // Don't want the spaces from ToString function
 		return { score.ToString(), optionId };
 	}
 }
@@ -33,7 +33,7 @@ std::vector<MessageBuilder::SelectorOption> CommandBase::Helper::BuildMatchSelec
 	for (const std::reference_wrapper<const Match>& matchRef : matches)
 	{
 		const Match& match = matchRef.get();
-		options.emplace_back(match.ToString(), match.GetId());  //todo to string pour les matches
+		options.emplace_back(match.ToString(), match.GetId());
 	}
 
 	return options;
