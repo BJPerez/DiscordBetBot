@@ -1,54 +1,36 @@
 #include "AddMatchCommand.h"
 
+#include "BotDataExceptions.h"
 #include "ICommandReceiver.h"
+#include "LockableDataAccessors.h"
 
-dpp::message AddMatchCommand::Execute() const
+MessageBuilder::Message AddMatchCommand::Execute() const
 {
-	dpp::message msg{ GetAnswerChannelId(), "" };
-	msg.set_flags(dpp::m_ephemeral);
-
+	try
 	{
 		const DataWriter dataWriter = GetDataWriter();
-		if (std::string errorMsg;
-			!ValidateCommand(dataWriter, errorMsg))
-		{
-			msg.set_content("Error: " + errorMsg);
-		}
-		else
-		{
-			dataWriter->AddMatch(m_MatchId, m_TeamAName, m_TeamBName, m_BoSize);
-			msg.set_content("Match added.");
-		}
+		dataWriter->AddMatch(m_MatchId, m_TeamAName, m_TeamBName, m_BoSize);
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(), "Match added.");
 	}
-
-	return msg;
-}
-
-bool AddMatchCommand::ValidateCommand(const DataWriter<ICommandReceiver>& data, std::string& outUserErrMsg) const
-{
-	if (m_MatchId.has_value() && m_MatchId.value().empty())
+	catch (const InvalidMatchIdException& exception)
 	{
-		outUserErrMsg = "Given match id is empty.";
-		return false;
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"Error: Given ID [" + exception.GetMatchId() + "] is invalid.");
 	}
-
-	if (m_MatchId.has_value() && data->GetMatch(m_MatchId.value()).has_value())
+	catch (const MatchIdUnavailableException& exception)
 	{
-		outUserErrMsg = "There is already a match with this ID.";
-		return false;
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"User error: Given ID [" + exception.GetMatchId() + "] is not available.");
 	}
-
-	if (m_TeamAName.empty() || m_TeamBName.empty())
+	catch (const InvalidTeamNameException& exception)
 	{
-		outUserErrMsg = "Some of the teams has no name.";
-		return false;
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"User error: At least one of the given team names is invalid. Team A: [" + exception.GetTeamAName() + "]. Team B: [" 
+			+ exception.GetTeamBName() + "].");
 	}
-
-	if (m_BoSize %2 != 1)
+	catch (const InvalidBoSizeException& exception)
 	{
-		outUserErrMsg = "The match must have an odd number of games.";
-		return false;
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"User error: The given BoSize [" + std::to_string(exception.GetBoSize()) + "] is invalid. It must be an odd number.");
 	}
-
-	return true;
 }

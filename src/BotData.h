@@ -30,10 +30,10 @@ public:
 	void AddResult(const std::string& matchId, const MatchScore& matchResult) override;
 	void ModifyBet(const std::string& matchId, const MatchScore& matchResult, const std::string& bettorName) override;
 
-	[[nodiscard]] std::optional<std::reference_wrapper<const Match>> GetMatch(const std::string& matchId) const override;
-	[[nodiscard]] std::optional<std::reference_wrapper<const Bet>> GetBet(const std::string& matchId, const std::string& bettorName) const override;
+	[[nodiscard]] const Match& GetMatch(const std::string& matchId) const override;
+	[[nodiscard]] const Bet& GetBet(const std::string& matchId, const std::string& bettorName) const override;
 	[[nodiscard]] std::vector<std::reference_wrapper<const Bet>> GetBetsOnMatch(const std::string& matchId) const override;
-	[[nodiscard]] const std::vector<Bet>& GetBets() const override { return m_Bets; }
+	[[nodiscard]] const std::vector<Bet>& GetBets() const noexcept override { return m_Bets; }
 	[[nodiscard]] const std::vector<Match>& GetAllMatches() const override { return m_Matches; }
 	[[nodiscard]] std::vector<std::reference_wrapper<const Match>> GetIncomingMatches() const override;
 	[[nodiscard]] std::vector<std::reference_wrapper<const Match>> GetPastMatches() const override;
@@ -41,12 +41,15 @@ public:
 	void SetMatches(std::vector<Match> matches) override  { m_Matches = std::move(matches); }
 	void SetBets(std::vector<Bet> bets) override  { m_Bets = std::move(bets); }
 
+	[[nodiscard]] bool HasMatch(const std::string& matchId) const override;
+	[[nodiscard]] bool HasBet(const std::string& matchId, const std::string& bettorName) const override;
+
 private:
 	std::vector<Match> m_Matches;
 	std::vector<Bet> m_Bets;
 
-	[[nodiscard]] std::optional<std::reference_wrapper<Bet>> GetBet(const std::string& matchId, const std::string& bettorName);
-	[[nodiscard]] std::optional<std::reference_wrapper<Match>> GetMatch(const std::string& matchId);
+	[[nodiscard]] Bet& GetBet(const std::string& matchId, const std::string& bettorName);
+	[[nodiscard]] Match& GetMatch(const std::string& matchId);
 
 	template<BetFilter Filter>
 	[[nodiscard]] std::vector<std::reference_wrapper<Bet>> GetBetsWithFilter(Filter filter)

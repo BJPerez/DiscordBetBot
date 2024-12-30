@@ -1,41 +1,37 @@
 #include "ShowBetProposalCommand.h"
 
-#include "DrawUtils.h"
+#include "BotDataExceptions.h"
 #include "ICommandReceiver.h"
 #include "LockableDataAccessors.h"
 #include "Match.h"
 
-dpp::message ShowBetProposalCommand::Execute() const
+MessageBuilder::Message ShowBetProposalCommand::Execute() const
 {
-	dpp::message msg{ GetAnswerChannelId(), "" };
-	msg.set_flags(dpp::m_ephemeral);
-
+	try
 	{
 		const DataReader dataReader = GetDataReader();
-		if (std::string errorMsg;
-			!ValidateCommand(dataReader, errorMsg))
+		const Match& match = dataReader->GetMatch(m_MatchId);
+
+		const MessageBuilder::SelectorParams params
 		{
-			msg.set_content("Error: " + errorMsg);
-		}
-		else
-		{
-			const Match& match = dataReader->GetMatch(m_MatchId).value(); // ValidateCommand already checks that the match exists
-			msg.set_content("Choose your bet for " + match.GetTeamAName() + " - " + match.GetTeamBName() + ":");
-			msg.add_component(dpp::component().add_component(DrawUtils::CreateMatchResultSelector(match.GetTeamAName() + " - " 
-				+ match.GetTeamBName(), std::string(SELECT_MENU_ID), match)));
-		}
+			std::string {SELECT_MENU_ID},
+			Helper::BuildScoreSelectorOptions(match),
+			match.ToString()
+		};
+
+		const std::string content = "Choose your bet for " + match.ToString() + ":";
+		MessageBuilder::Message msg = MessageBuilder::BuildAnswer(GetAnswerChannelId(), content);
+		MessageBuilder::AddSelectorToMessage(params, msg);
+		return msg;
 	}
-
-	return msg;
-}
-
-bool ShowBetProposalCommand::ValidateCommand(const DataReader<ICommandReceiver>& dataReader, std::string& outUserErrMsg) const
-{
-	if (const std::optional<std::reference_wrapper<const Match>> matchOpt = dataReader->GetMatch(m_MatchId);
-		!matchOpt.has_value())
+	catch(const InvalidMatchIdException& exception)
 	{
-		return false;
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"User error: Given ID [" + exception.GetMatchId() + "] is invalid.");
 	}
-
-	return true;
+	catch(const MatchNotFoundException& exception)
+	{
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"User error: Could not find any match with the given ID [" + exception.GetMatchId() + "].");
+	}
 }

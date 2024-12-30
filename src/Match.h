@@ -25,7 +25,7 @@ public:
 	[[nodiscard]] unsigned int GetNumberOfGamesToWin() const noexcept { return (GetBoSize() / 2) + 1; }
 	[[nodiscard]] bool IsPlayed() const noexcept { return m_Result.has_value(); }
 	[[nodiscard]] bool IsValidScore(const MatchScore& score) const noexcept;
-	[[nodiscard]] const std::optional<MatchScore>& GetResult() const noexcept { return m_Result; }
+	[[nodiscard]] const MatchScore& GetResult() const;
 
 	// SetID should only be used by serialization when loading the save file. And the loading should happen before any new creation of match.
 	// Because if we have no way to know which IDs are already used before we load. 
@@ -34,6 +34,8 @@ public:
 	void SetTeamBName(std::string name) noexcept { m_TeamBName = std::move(name); }
 	void SetBoSize(const unsigned int size) noexcept { m_BoSize = size; }
 	void SetResult(const MatchScore& score) noexcept { m_Result = score; }; // Command should check if the score is valid
+
+	[[nodiscard]] std::string ToString() const noexcept { return m_TeamAName + " - " + m_TeamBName; }
 
 private:
 	inline static unsigned int s_NextId{ FIRST_ID };

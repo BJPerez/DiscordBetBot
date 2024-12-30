@@ -2,7 +2,7 @@
 
 MatchScore::EComparingResult MatchScore::Compare(const MatchScore& other) const noexcept
 {
-	if (GetWinningTeamScore() != other.GetWinningTeamScore())
+	if (GetWinningTeamScore() != other.GetWinningTeamScore()) // Tells us if both score has the same BoSize
 	{
 		return EComparingResult::Invalid;
 	}

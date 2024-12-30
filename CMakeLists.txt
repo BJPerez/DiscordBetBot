@@ -27,11 +27,13 @@
 		"src/Bet.h"
 		"src/BettorResults.cpp"
 		"src/BettorResults.h"
+		"src/CommandBase.cpp"
 		"src/CommandBase.h"
 		"src/ICommandReceiver.cpp"
 		"src/ICommandReceiver.h"
 		"src/BotData.cpp"
 		"src/BotData.h"
+		"src/BotDataExceptions.h"
 		"src/Match.cpp"
 		"src/Match.h"
 		"src/ShowBettorsResultsCommand.cpp"
@@ -44,8 +46,6 @@
 		"src/SaveManager.h"
 		"src/BetBot.cpp"
 		"src/BetBot.h"
-		"src/DrawUtils.cpp"
-		"src/DrawUtils.h"
 		"src/ShowBetProposalCommand.cpp"
 		"src/ShowBetProposalCommand.h"
 		"src/ChooseMatchToBetOnCommand.cpp"
@@ -59,6 +59,8 @@
 		"src/LockableDataAccessors.h"
 		"src/BotConfigReader.cpp"
 		"src/BotConfigReader.h"
+		"src/MessageBuilder.cpp"
+		"src/MessageBuilder.h"
 		${PROJECT_MAIN_TESTED_SRC}
 		)
 
