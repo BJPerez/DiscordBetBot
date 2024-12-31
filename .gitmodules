@@ -2,3 +2,7 @@
 	path = libs/DPP
 	url = https://github.com/brainboxdotcc/DPP.git
 	ignore = dirty
+[submodule "libs/googletest"]
+	path = libs/googletest
+	url = https://github.com/google/googletest.git
+	ignore = dirty
