@@ -81,11 +81,6 @@ void BotData::AddResult(const std::string& matchId, const MatchScore& matchResul
 		throw MatchAlreadyPlayedException(matchId);
 	}
 
-	if (!match.IsValidScore(matchResult))
-	{
-		throw InvalidScoreException(match.GetBoSize(), matchResult);
-	}
-
 	match.SetResult(matchResult);
 }
 

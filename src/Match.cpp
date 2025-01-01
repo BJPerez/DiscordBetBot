@@ -23,10 +23,11 @@ void Match::SetId(const std::string& id)
 
 	// We update s_NextId only if the given id is a custom id
 	// We do not want to do it if it is an id generated outside of the bot 
-	if (const std::string idPrefix = m_Id.substr(0, m_Id.find_last_of('_')); 
+	if (const std::string idPrefix = m_Id.substr(0, m_Id.find_last_of('_')+1); // we want the "_" found in idPrefix thus +1
 		idPrefix == std::string(ID_PREFIX))
 	{
-		if (const unsigned int idValue = std::stol(m_Id.substr(m_Id.find_last_of('_')));
+		const std::string idAsString = m_Id.substr(m_Id.find_last_of('_')+1);
+		if (const unsigned int idValue = std::stol(idAsString);
 			s_NextId <= idValue)
 		{
 			s_NextId = idValue + 1;
@@ -59,3 +60,13 @@ const MatchScore& Match::GetResult() const
 
 	return m_Result.value();
 }
+
+void Match::SetResult(const MatchScore& score) 
+{
+	if (!IsValidScore(score))
+	{
+		throw InvalidScoreException(m_BoSize, score);
+	}
+
+	m_Result = score;
+};

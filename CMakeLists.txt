@@ -70,7 +70,7 @@ add_custom_command(
 		TARGET ${PROJECT_NAME}  POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy
 				${CMAKE_SOURCE_DIR}/config.json
-				${CMAKE_CURRENT_BINARY_DIR}/config.json
+				${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/config.json
 )
 
 ########################################

@@ -2,7 +2,7 @@
 
 #include "../src/MatchScore.h"
 
-TEST(MatchScore_Compare, Perfect)
+TEST(MatchScore_Tests, ComparePerfect)
 {
 	constexpr MatchScore aScore{ 1,0 };
 	constexpr MatchScore bScore{ 1,0 };
@@ -25,7 +25,7 @@ TEST(MatchScore_Compare, Perfect)
 	EXPECT_EQ(hScore.Compare(gScore), MatchScore::EComparingResult::Perfect);
 }
 
-TEST(MatchScore_Compare, Correct)
+TEST(MatchScore_Tests, CompareCorrect)
 {
 	constexpr MatchScore aScore{ 3,1 };
 	constexpr MatchScore bScore{ 3,2 };
@@ -38,7 +38,7 @@ TEST(MatchScore_Compare, Correct)
 	EXPECT_EQ(dScore.Compare(cScore), MatchScore::EComparingResult::Correct);
 }
 
-TEST(MatchScore_Compare, Incorrect)
+TEST(MatchScore_Tests, CompareIncorrect)
 {
 	constexpr MatchScore aScore{ 1,0 };
 	constexpr MatchScore bScore{ 0,1 };
@@ -56,7 +56,7 @@ TEST(MatchScore_Compare, Incorrect)
 	EXPECT_EQ(fScore.Compare(eScore), MatchScore::EComparingResult::Incorrect);
 }
 
-TEST(MatchScore_Compare, Invalid)
+TEST(MatchScore_Tests, CompareInvalid)
 {
 	constexpr MatchScore aScore{ 1,0 };
 	constexpr MatchScore bScore{ 2,0 };
@@ -74,7 +74,7 @@ TEST(MatchScore_Compare, Invalid)
 	EXPECT_EQ(fScore.Compare(eScore), MatchScore::EComparingResult::Invalid);
 }
 
-TEST(MatchScore_GetTotalNumberOfGames, GetTotalNumberOfGames)
+TEST(MatchScore_Tests, GetTotalNumberOfGames)
 {
 	constexpr MatchScore aScore{ 1,0 };
 	EXPECT_EQ(aScore.GetTotalNumberOfGames(), 1);
@@ -86,7 +86,7 @@ TEST(MatchScore_GetTotalNumberOfGames, GetTotalNumberOfGames)
 	EXPECT_EQ(cScore.GetTotalNumberOfGames(), 3);
 }
 
-TEST(MatchScore_GetWinningTeamScore, GetWinningTeamScore)
+TEST(MatchScore_Tests, GetWinningTeamScore)
 {
 	constexpr MatchScore aScore{ 1,0 };
 	EXPECT_EQ(aScore.GetWinningTeamScore(), 1);
@@ -98,7 +98,7 @@ TEST(MatchScore_GetWinningTeamScore, GetWinningTeamScore)
 	EXPECT_EQ(cScore.GetWinningTeamScore(), 2);
 }
 
-TEST(MatchScore_GetLoosingTeamScore, GetLoosingTeamScore)
+TEST(MatchScore_Tests, GetLoosingTeamScore)
 {
 	constexpr MatchScore aScore{ 1,0 };
 	EXPECT_EQ(aScore.GetLoosingTeamScore(), 0);
@@ -110,7 +110,7 @@ TEST(MatchScore_GetLoosingTeamScore, GetLoosingTeamScore)
 	EXPECT_EQ(cScore.GetLoosingTeamScore(), 1);
 }
 
-TEST(MatchScore_ToString, ToString)
+TEST(MatchScore_Tests, ToString)
 {
 	constexpr MatchScore aScore{ 1,0 };
 	EXPECT_EQ(aScore.ToString(), "1 - 0");
@@ -122,7 +122,7 @@ TEST(MatchScore_ToString, ToString)
 	EXPECT_EQ(cScore.ToString(), "2 - 1");
 }
 
-TEST(MatchScore_Equals, Equals)
+TEST(MatchScore_Tests, Equals)
 {
 	constexpr MatchScore aScore{ 1,0 };
 	constexpr MatchScore bScore{ 1,0 };
@@ -141,7 +141,7 @@ TEST(MatchScore_Equals, Equals)
 	EXPECT_EQ(gScore == hScore, true);
 }
 
-TEST(MatchScore_Equals, NonEquals)
+TEST(MatchScore_Tests, NonEquals)
 {
 	constexpr MatchScore aScore{ 3,1 };
 	constexpr MatchScore bScore{ 3,2 };
