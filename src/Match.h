@@ -4,6 +4,7 @@
 #include <string>
 
 #include "MatchScore.h"
+#include "gtest/gtest_prod.h"
 
 class Match
 {
@@ -27,13 +28,15 @@ public:
 	[[nodiscard]] bool IsValidScore(const MatchScore& score) const noexcept;
 	[[nodiscard]] const MatchScore& GetResult() const;
 
-	// SetID should only be used by serialization when loading the save file. And the loading should happen before any new creation of match.
-	// Because if we have no way to know which IDs are already used before we load. 
+	void SetResult(const MatchScore& score);
+
+	// All these setters should only be called by serialization when loading the save file
+	// The loading should happen before any new creation of match.
+	// Because if we have no way to know which IDs are already used before we load.
 	void SetId(const std::string& id);
 	void SetTeamAName(std::string name) noexcept { m_TeamAName = std::move(name); }
 	void SetTeamBName(std::string name) noexcept { m_TeamBName = std::move(name); }
 	void SetBoSize(const unsigned int size) noexcept { m_BoSize = size; }
-	void SetResult(const MatchScore& score) noexcept { m_Result = score; }; // Command should check if the score is valid
 
 	[[nodiscard]] std::string ToString() const noexcept { return m_TeamAName + " - " + m_TeamBName; }
 
@@ -45,5 +48,10 @@ private:
 	std::string m_TeamBName;
 	unsigned int m_BoSize {0}; // Max number of games for the match, must be an odd number.
 	std::optional<MatchScore> m_Result {std::nullopt};
+
+#pragma region UnitTestSpecificFriend
+	FRIEND_TEST(Match_Tests, SetId_WithCustomId);
+	FRIEND_TEST(Match_Tests, SetId_WithoutCustomId);
+#pragma endregion 
 };
 

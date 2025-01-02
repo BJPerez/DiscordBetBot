@@ -29,11 +29,6 @@ void BotData::AddMatch(std::optional<std::string> matchId, std::string teamAName
 
 void BotData::AddBet(std::string matchId, const MatchScore& matchResult, std::string bettorName)
 {
-	if (matchId == Match::INVALID_ID || matchId.empty())
-	{
-		throw InvalidMatchIdException(std::move(matchId));
-	}
-
 	if (!HasMatch(matchId))
 	{
 		throw MatchNotFoundException(std::move(matchId));
@@ -65,11 +60,6 @@ void BotData::AddBet(std::string matchId, const MatchScore& matchResult, std::st
 
 void BotData::AddResult(const std::string& matchId, const MatchScore& matchResult)
 {
-	if (matchId == Match::INVALID_ID || matchId.empty())
-	{
-		throw InvalidMatchIdException(matchId);
-	}
-
 	if (!HasMatch(matchId))
 	{
 		throw MatchNotFoundException(matchId);
@@ -79,11 +69,6 @@ void BotData::AddResult(const std::string& matchId, const MatchScore& matchResul
 	if (match.IsPlayed())
 	{
 		throw MatchAlreadyPlayedException(matchId);
-	}
-
-	if (!match.IsValidScore(matchResult))
-	{
-		throw InvalidScoreException(match.GetBoSize(), matchResult);
 	}
 
 	match.SetResult(matchResult);
@@ -142,14 +127,9 @@ Bet& BotData::GetBet(const std::string& matchId, const std::string& bettorName)
 
 void BotData::ModifyBet(const std::string& matchId, const MatchScore& matchResult, const std::string& bettorName)
 {
-	if (matchId.empty() || matchId == Match::INVALID_ID)
+	if (!HasBet(matchId, bettorName))
 	{
-		throw InvalidMatchIdException(matchId);
-	}
-
-	if (!HasMatch(matchId))
-	{
-		throw MatchNotFoundException(matchId);
+		throw BetNotFoundException(matchId, bettorName);
 	}
 
 	const Match& match = GetMatch(matchId);
@@ -163,24 +143,14 @@ void BotData::ModifyBet(const std::string& matchId, const MatchScore& matchResul
 		throw InvalidScoreException(match.GetBoSize(), matchResult);
 	}
 
-	if (bettorName.empty())
-	{
-		throw InvalidBettorNameException(bettorName);
-	}
-
-	if (!HasBet(matchId, bettorName))
-	{
-		throw BetNotFoundException(matchId, bettorName);
-	}
-
 	GetBet(matchId, bettorName).SetScore(matchResult);
 }
 
 std::vector<std::reference_wrapper<const Bet>> BotData::GetBetsOnMatch(const std::string& matchId) const
 {
-	if (matchId.empty() || matchId == Match::INVALID_ID)
+	if (!HasMatch(matchId))
 	{
-		throw InvalidMatchIdException(matchId);
+		throw MatchNotFoundException(matchId);
 	}
 
 	const auto filter =
@@ -237,9 +207,9 @@ bool BotData::HasMatch(const std::string& matchId) const
 
 [[nodiscard]] bool BotData::HasBet(const std::string& matchId, const std::string& bettorName) const
 {
-	if (matchId.empty() || matchId == Match::INVALID_ID)
+	if (!HasMatch(matchId))
 	{
-		throw InvalidMatchIdException(matchId);
+		throw MatchNotFoundException(matchId);
 	}
 
 	if (bettorName.empty())
