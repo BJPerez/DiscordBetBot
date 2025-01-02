@@ -50,8 +50,8 @@ private:
 	std::optional<MatchScore> m_Result {std::nullopt};
 
 #pragma region UnitTestSpecificFriend
-	FRIEND_TEST(Match_Tests, SetIdWithCustom);
-	FRIEND_TEST(Match_Tests, SetIdWithoutCustom);
+	FRIEND_TEST(Match_Tests, SetId_WithCustomId);
+	FRIEND_TEST(Match_Tests, SetId_WithoutCustomId);
 #pragma endregion 
 };
 

@@ -13,7 +13,7 @@ TEST(Match_Tests, ToString)
 	EXPECT_EQ(matchB.ToString(), "TeamB - TeamA");
 }
 
-TEST(Match_Tests, SetIdWithCustom)
+TEST(Match_Tests, SetId_WithCustomId)
 {
 	Match match;
 	match.SetId(std::string(Match::ID_PREFIX) + "2");
@@ -23,7 +23,7 @@ TEST(Match_Tests, SetIdWithCustom)
 	EXPECT_EQ(match.s_NextId, 3);
 }
 
-TEST(Match_Tests, SetIdWithoutCustom)
+TEST(Match_Tests, SetId_WithoutCustomId)
 {
 	const unsigned previousNextId = Match::s_NextId;
 
@@ -35,7 +35,7 @@ TEST(Match_Tests, SetIdWithoutCustom)
 	EXPECT_EQ(match.s_NextId, previousNextId);
 }
 
-TEST(Match_Tests, SetInvalidScore)
+TEST(Match_Tests, SetResult_Invalid)
 {
 	Match matchA{ {}, "TeamA", "TeamB", 3 };
 	ASSERT_THROW(matchA.SetResult({ 1, 1 }) , InvalidScoreException);
@@ -46,7 +46,7 @@ TEST(Match_Tests, SetInvalidScore)
 	ASSERT_THROW(matchA.SetResult({ 0, 3 }), InvalidScoreException);
 }
 
-TEST(Match_Tests, SetValidScore)
+TEST(Match_Tests, SetResult_Valid)
 {
 	Match matchA{ {}, "TeamA", "TeamB", 3 };
 	ASSERT_NO_THROW(matchA.SetResult({ 2, 0 }));
@@ -55,7 +55,7 @@ TEST(Match_Tests, SetValidScore)
 	ASSERT_NO_THROW(matchA.SetResult({ 1, 2 }));
 }
 
-TEST(Match_Tests, IsValidScoreWithInvalid)
+TEST(Match_Tests, IsValidScore_Invalid)
 {
 	const Match matchA{ {}, "TeamA", "TeamB", 3 };
 	EXPECT_FALSE(matchA.IsValidScore({ 1, 1 }));
@@ -66,7 +66,7 @@ TEST(Match_Tests, IsValidScoreWithInvalid)
 	EXPECT_FALSE(matchA.IsValidScore({ 0, 3 }));
 }
 
-TEST(Match_Tests, IsValidScoreWithValid)
+TEST(Match_Tests, IsValidScore_Valid)
 {
 	const Match matchA{ {}, "TeamA", "TeamB", 3 };
 	EXPECT_TRUE(matchA.IsValidScore({ 2, 0 }));
@@ -75,13 +75,13 @@ TEST(Match_Tests, IsValidScoreWithValid)
 	EXPECT_TRUE(matchA.IsValidScore({ 1, 2 }));
 }
 
-TEST(Match_Tests, GetResultWithoutResult)
+TEST(Match_Tests, GetResult_WithoutResult)
 {
 	const Match matchA{ {}, "TeamA", "TeamB", 3 };
 	ASSERT_THROW(MatchScore score = matchA.GetResult(), MatchNotPlayedException);
 }
 
-TEST(Match_Tests, GetResultWithResult)
+TEST(Match_Tests, GetResult_WithResult)
 {
 	Match matchA{ {}, "TeamA", "TeamB", 3 };
 	constexpr MatchScore resultSet{ 2,0 };

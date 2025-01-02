@@ -2,7 +2,7 @@
 
 #include "../src/MatchScore.h"
 
-TEST(MatchScore_Tests, ComparePerfect)
+TEST(MatchScore_Tests, Compare_Perfect)
 {
 	constexpr MatchScore aScore{ 1,0 };
 	constexpr MatchScore bScore{ 1,0 };
@@ -25,7 +25,7 @@ TEST(MatchScore_Tests, ComparePerfect)
 	EXPECT_EQ(hScore.Compare(gScore), MatchScore::EComparingResult::Perfect);
 }
 
-TEST(MatchScore_Tests, CompareCorrect)
+TEST(MatchScore_Tests, Compare_Correct)
 {
 	constexpr MatchScore aScore{ 3,1 };
 	constexpr MatchScore bScore{ 3,2 };
@@ -38,7 +38,7 @@ TEST(MatchScore_Tests, CompareCorrect)
 	EXPECT_EQ(dScore.Compare(cScore), MatchScore::EComparingResult::Correct);
 }
 
-TEST(MatchScore_Tests, CompareIncorrect)
+TEST(MatchScore_Tests, Compare_Incorrect)
 {
 	constexpr MatchScore aScore{ 1,0 };
 	constexpr MatchScore bScore{ 0,1 };
@@ -56,7 +56,7 @@ TEST(MatchScore_Tests, CompareIncorrect)
 	EXPECT_EQ(fScore.Compare(eScore), MatchScore::EComparingResult::Incorrect);
 }
 
-TEST(MatchScore_Tests, CompareInvalid)
+TEST(MatchScore_Tests, Compare_Invalid)
 {
 	constexpr MatchScore aScore{ 1,0 };
 	constexpr MatchScore bScore{ 2,0 };
@@ -122,7 +122,7 @@ TEST(MatchScore_Tests, ToString)
 	EXPECT_EQ(cScore.ToString(), "2 - 1");
 }
 
-TEST(MatchScore_Tests, Equals)
+TEST(MatchScore_Tests, EqualityOperator_Equals)
 {
 	constexpr MatchScore aScore{ 1,0 };
 	constexpr MatchScore bScore{ 1,0 };
@@ -141,7 +141,7 @@ TEST(MatchScore_Tests, Equals)
 	EXPECT_EQ(gScore == hScore, true);
 }
 
-TEST(MatchScore_Tests, NonEquals)
+TEST(MatchScore_Tests, EqualityOperator_NonEquals)
 {
 	constexpr MatchScore aScore{ 3,1 };
 	constexpr MatchScore bScore{ 3,2 };
