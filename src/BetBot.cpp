@@ -125,8 +125,9 @@ void BetBot::OnNewMatch(const std::filesystem::path& file)
 			m_Saver.Save(GetDataReader());
 
 			fileStream.close();
-			std::filesystem::remove(file);
 		}
+
+		std::filesystem::remove(file);
 	}
 }
 
@@ -178,8 +179,9 @@ void BetBot::OnNewResult(const std::filesystem::path& file)
 			m_Saver.Save(GetDataReader());
 
 			fileStream.close();
-			std::filesystem::remove(file);
 		}
+
+		std::filesystem::remove(file);
 	}
 }
 

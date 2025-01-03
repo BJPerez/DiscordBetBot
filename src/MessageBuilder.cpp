@@ -87,7 +87,6 @@ MessageBuilder::Message MessageBuilder::BuildAnswer(const ChannelId answerChanne
 void MessageBuilder::AddSelectorToMessage(const SelectorParams& selectorParams, Message& msg)
 {
 	dpp::component selector;
-
 	selector.set_type(dpp::cot_selectmenu);
 	selector.set_placeholder(selectorParams.m_PlaceHolder);
 	selector.set_id(selectorParams.m_Id);
@@ -97,7 +96,7 @@ void MessageBuilder::AddSelectorToMessage(const SelectorParams& selectorParams, 
 		selector.add_select_option(dpp::select_option(optionText, optionId));
 	}
 
-	msg.add_component(selector);
+	msg.add_component(dpp::component().add_component(selector));
 }
 
 std::string MessageBuilder::BuildTable(const TableContent& columnsContent)

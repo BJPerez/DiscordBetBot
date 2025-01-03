@@ -12,18 +12,25 @@ namespace
 
 	MessageBuilder::EmbedParams BuildEmbedParams(const DataReader<ICommandReceiver>& dataReader, const Match& match)
 	{
-		MessageBuilder::TableContent tableContent(FIELD_TABLE_COLUMN_COUNT);
-		for (const std::vector<std::reference_wrapper<const Bet>> bets = dataReader->GetBetsOnMatch(match.GetId());
-			const std::reference_wrapper<const Bet>& betRef : bets)
-		{
-			const Bet& bet = betRef.get();
-
-			tableContent.at(0).emplace_back(bet.GetBettorName());
-			tableContent.at(1).emplace_back(bet.GetScore().ToString());
-		}
-
 		std::vector<MessageBuilder::Field> embedFields;
-		embedFields.emplace_back("Bets", MessageBuilder::BuildTable(tableContent));
+		if (const std::vector<std::reference_wrapper<const Bet>> bets = dataReader->GetBetsOnMatch(match.GetId()); 
+			bets.empty())
+		{
+			embedFields.emplace_back("Bets", "No bet yet.");
+		}
+		else
+		{
+			MessageBuilder::TableContent tableContent(FIELD_TABLE_COLUMN_COUNT);
+			for (const std::reference_wrapper<const Bet>& betRef : bets)
+			{
+				const Bet& bet = betRef.get();
+
+				tableContent.at(0).emplace_back(bet.GetBettorName());
+				tableContent.at(1).emplace_back(bet.GetScore().ToString());
+			}
+
+			embedFields.emplace_back("Bets", MessageBuilder::BuildTable(tableContent));
+		}
 
 		return
 		{
