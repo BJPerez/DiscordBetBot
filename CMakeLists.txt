@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.25)
 # Project setup
 ########################################
 set(PROJECT_NAME BetBot)
-project(${PROJECT_NAME} VERSION 2.1 DESCRIPTION "A simple discord bot to handle friendly bets.")
+project(${PROJECT_NAME} VERSION 2.2 DESCRIPTION "A simple discord bot to handle friendly bets.")
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
