@@ -8,7 +8,8 @@ struct MatchScore
 	{
 		Perfect, // The two scores have the same winning team and the same scores for team A and B
 		Correct, // The two scores have the same winning team but not the same scores for the loosing team
-		Incorrect // The two scores don't have the same winning team
+		Incorrect, // The two scores don't have the same winning team
+		Invalid // One or both the scores don't have a winner or the two scores are not compatible. For example 2-1 which is BO3 with 3-0 which is BO5
 	};
 
 	unsigned int m_TeamAScore{ 0 };

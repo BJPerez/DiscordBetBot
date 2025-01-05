@@ -5,6 +5,7 @@
 #include <iostream>
 #include <numeric>
 
+#include "BotDataExceptions.h"
 #include "MatchScore.h"
 
 constexpr unsigned int CORRECT_WINNING_TEAM_SCORE = 2;
@@ -52,6 +53,10 @@ void BettorResults::AddResult(const unsigned int boSize, const MatchScore& match
 		case MatchScore::EComparingResult::Incorrect:
 		{
 			++incorrectBetsCount;
+		}
+		case MatchScore::EComparingResult::Invalid:
+		{
+			throw InvalidScoreException(boSize, matchScore);
 		}
 	}
 }

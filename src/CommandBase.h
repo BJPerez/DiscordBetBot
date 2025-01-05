@@ -1,16 +1,14 @@
 #pragma once
 
-#include <dpp/message.h>
-#include <dpp/snowflake.h>
-
 #include "BetBot.h"
 #include "ICommandReceiver.h"
 #include "LockableDataAccessors.h"
+#include "MessageBuilder.h"
 
 class CommandBase
 {
 public:
-	CommandBase(const dpp::snowflake chanelId, BetBot& bot ) noexcept : m_AnswerChannelId(chanelId), m_Bot(&bot) {}
+	CommandBase(const MessageBuilder::ChannelId chanelId, BetBot& bot) noexcept : m_AnswerChannelId(chanelId), m_Bot(&bot) {}
 
 	CommandBase(const CommandBase& other) = default;
 	CommandBase(CommandBase&& other) = default;
@@ -18,15 +16,22 @@ public:
 	CommandBase& operator=(const CommandBase& other) = default;
 	CommandBase& operator=(CommandBase&& other) = default;
 
-	[[nodiscard]] virtual dpp::message Execute() const = 0;
+	[[nodiscard]] virtual MessageBuilder::Message Execute() const = 0;
 
 protected:
-	[[nodiscard]] dpp::snowflake GetAnswerChannelId() const noexcept { return m_AnswerChannelId; }
+	[[nodiscard]] MessageBuilder::ChannelId GetAnswerChannelId() const noexcept { return m_AnswerChannelId; }
 	[[nodiscard]] DataReader<ICommandReceiver> GetDataReader() const { return m_Bot->GetDataReader(); }
 	[[nodiscard]] DataWriter<ICommandReceiver> GetDataWriter() const { return m_Bot->GetDataWriter(); }
 
+	class Helper
+	{
+	public:
+		static std::vector<MessageBuilder::SelectorOption> BuildScoreSelectorOptions(const Match& match);
+		static std::vector<MessageBuilder::SelectorOption> BuildMatchSelectorOptions(const std::vector<std::reference_wrapper<const Match>>& matches);
+	};
+
 private:
-	dpp::snowflake m_AnswerChannelId;
+	MessageBuilder::ChannelId m_AnswerChannelId;
 	BetBot* m_Bot;
 };
 

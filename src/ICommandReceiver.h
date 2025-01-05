@@ -19,15 +19,18 @@ public:
 	virtual void AddResult(const std::string& matchId, const MatchScore& matchResult) = 0;
 	virtual void ModifyBet(const std::string& matchId, const MatchScore& matchResult, const std::string& bettorName) = 0;
 
-	[[nodiscard]] virtual std::optional<std::reference_wrapper<const Bet>> GetBet(const std::string& matchId, const std::string& bettorName) const = 0;
-	[[nodiscard]] virtual std::optional<std::reference_wrapper<const Match>> GetMatch(const std::string& matchId) const = 0;
+	[[nodiscard]] virtual const Bet& GetBet(const std::string& matchId, const std::string& bettorName) const = 0;
+	[[nodiscard]] virtual const Match& GetMatch(const std::string& matchId) const = 0;
 	[[nodiscard]] virtual std::vector<std::reference_wrapper<const Bet>> GetBetsOnMatch(const std::string& matchId) const = 0;
 	[[nodiscard]] virtual const std::vector<Match>& GetAllMatches() const = 0;
 	[[nodiscard]] virtual std::vector<std::reference_wrapper<const Match>> GetIncomingMatches() const = 0;
 	[[nodiscard]] virtual std::vector<std::reference_wrapper<const Match>> GetPastMatches() const = 0;
-	[[nodiscard]] virtual const std::vector<Bet>& GetBets() const = 0;
+	[[nodiscard]] virtual const std::vector<Bet>& GetBets() const noexcept = 0;
 
 	virtual void SetMatches(std::vector<Match> matches) = 0;
 	virtual void SetBets(std::vector<Bet> bets) = 0;
+
+	[[nodiscard]] virtual bool HasMatch(const std::string& matchId) const = 0;
+	[[nodiscard]] virtual bool HasBet(const std::string& matchId, const std::string& bettorName) const = 0;
 };
 

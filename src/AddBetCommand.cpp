@@ -1,83 +1,61 @@
 #include "AddBetCommand.h"
 
-#include "Bet.h"
+#include "BotDataExceptions.h"
 #include "ICommandReceiver.h"
 #include "LockableDataAccessors.h"
 
-dpp::message AddBetCommand::Execute() const 
+MessageBuilder::Message AddBetCommand::Execute() const 
 {
-	dpp::message msg{ GetAnswerChannelId(), "" };
-	msg.set_flags(dpp::m_ephemeral);
-
+	try 
 	{
-		const DataWriter dataWriter = GetDataWriter();
-		if (std::string errorMsg;
-			!ValidateCommand(dataWriter, errorMsg))
+		if (const DataWriter dataWriter = GetDataWriter(); 
+			dataWriter->HasBet(m_MatchId, m_BettorName))
 		{
-			msg.set_content("Error: " + errorMsg);
+			dataWriter->ModifyBet(m_MatchId, m_Score, m_BettorName);
+			return MessageBuilder::BuildAnswer(GetAnswerChannelId(), "Bet added.");
 		}
 		else
 		{
-			if (const std::optional<std::reference_wrapper<const Bet>> bet = dataWriter->GetBet(m_MatchId, m_BettorName))
-			{
-				if (m_Score == bet->get().GetScore())
-				{
-					msg.set_content("You already have the exact same bet for this match.");
-				}
-				else
-				{
-					dataWriter->ModifyBet(m_MatchId, m_Score, m_BettorName);
-					msg.set_content("You already had a different bet for this match. Your bet has been modified.");
-				}
-			}
-			else
-			{
-				dataWriter->AddBet(m_MatchId, m_Score, m_BettorName);
-				msg.set_content("Bet added.");
-			}
+			dataWriter->AddBet(m_MatchId, m_Score, m_BettorName);
+			return MessageBuilder::BuildAnswer(GetAnswerChannelId(), "Your already existing bet has been modified.");
 		}
 	}
-
-	return msg; 
-}
-
-bool AddBetCommand::ValidateCommand(const DataWriter<ICommandReceiver>& dataWriter, std::string& outUserErrMsg) const
-{
-	if (m_BettorName.empty())
+	catch (const InvalidMatchIdException& exception) 
 	{
-		outUserErrMsg = "Internal error.";
-		return false;
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(), 
+			"User error: Given ID [" + exception.GetMatchId() + "] is invalid.");
 	}
-
-	const std::optional<std::reference_wrapper<const Match>> matchOptional = dataWriter->GetMatch(m_MatchId);
-	if (!matchOptional.has_value())
+	catch (const MatchNotFoundException& exception)
 	{
-		outUserErrMsg = "No match with the given ID " + m_MatchId;
-		return false;
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"User error: Could not find any match with the given ID [" + exception.GetMatchId() + "].");
 	}
-
-	const Match& match = matchOptional.value().get();
-	if (match.IsPlayed())
+	catch (const MatchAlreadyPlayedException& exception)
 	{
-		outUserErrMsg = "The match has already been played. You can't bet on it.";
-		return false;
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"User error: Can't add a bet on a match already played. MatchID: [" + exception.GetMatchId() + "].");
 	}
-
-	if (!match.IsValidScore(m_Score))
+	catch (const InvalidScoreException& exception)
 	{
-		outUserErrMsg = "The match is a BO" + std::to_string(match.GetBoSize()) + ". You gave a non valid score [" + std::to_string(m_Score.m_TeamAScore) + "-" + std::to_string(m_Score.m_TeamBScore) +
-			"].";
-		return false;
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"User error: Given score [" + exception.GetScore().ToString() + "] is not valid for a BO"
+			+ std::to_string(exception.GetBoSize()) + ".");
 	}
-
-	if (const std::optional<std::reference_wrapper<const Bet>> bet = dataWriter->GetBet(m_MatchId, m_BettorName))
+	catch (const InvalidBettorNameException& exception)
 	{
-		if (bet.value().get().GetScore() == m_Score)
-		{
-			outUserErrMsg = "You already have a bet for this match with the exact same score.";
-			return false;
-		}
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"Internal error: Extracted bettor's name is invalid: [" + exception.GetBettorName() + "].");
 	}
-
-	return true;
+	catch (const BetAlreadyExistException& exception)
+	{
+		// Should never end up here since we check first if we already have a bet. 
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"Internal error: A bet already exist for [" + exception.GetBettorName() + "] on the match with ID: [" + exception.GetMatchId() + "].");
+	}
+	catch (const BetNotFoundException& exception)
+	{
+		// Should never end up here since we check first if we already have a bet.
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"Internal error: Tried to modify a non existing bet for [" + exception.GetBettorName() + "] on the match with ID: [" + exception.GetMatchId() + "].");
+	}
 }

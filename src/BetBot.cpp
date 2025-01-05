@@ -120,15 +120,14 @@ void BetBot::OnNewMatch(const std::filesystem::path& file)
 			const unsigned int boSize = std::stol(boSizeStr);
 
 			const AddMatchCommand command{ m_AnswerChannelId, *this, fileContent["team1"], fileContent["team2"], boSize, fileContent["matchid"] };
-			dpp::message msg = command.Execute(); 
-			msg.content = "Automatic add match: " + msg.content;
+			command.Execute(); 
 
-			m_Cluster.message_create(msg);
 			m_Saver.Save(GetDataReader());
 
 			fileStream.close();
-			std::filesystem::remove(file);
 		}
+
+		std::filesystem::remove(file);
 	}
 }
 
@@ -175,15 +174,14 @@ void BetBot::OnNewResult(const std::filesystem::path& file)
 			const unsigned int teamBScore = std::stol(teamBScoreStr);
 
 			const AddResultCommand command{ m_AnswerChannelId, *this, file.stem().string(), teamAScore, teamBScore };
-			dpp::message msg = command.Execute();
-			msg.content = "Automatic add result: " + msg.content;
+			command.Execute();
 
-			m_Cluster.message_create(msg);
 			m_Saver.Save(GetDataReader());
 
 			fileStream.close();
-			std::filesystem::remove(file);
 		}
+
+		std::filesystem::remove(file);
 	}
 }
 

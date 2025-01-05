@@ -1,6 +1,6 @@
 # BetBot
 
-A small bot discord to manage friendly bets on sports or esports matches. It was designed with League of Legend in mind, but it works with any competitive scene. 
+A small bot discord to manage friendly bets on esports matches. It was designed with League of Legend in mind, but it works with any competitive scene that works with Best Ofs. 
 
 ## Table of Contents
 - [Installation](#installation)
@@ -10,18 +10,18 @@ A small bot discord to manage friendly bets on sports or esports matches. It was
 
 ### Prerequisites
 - C++ 20 or higher
-- D++ Library installed on your computer (https://dpp.dev/index.html)
 - CMake 3.25 or higher
 
 It should work on both Linux and Windows, but I'm only using the bot on a Linux server so I haven't tested it thoroughly on Windows. 
 
 ### Steps
 1. Clone the repository
-2. Create an output directory, go into it and run cmake with the following command: ```cmake <path-to-the-folder-containing-CMakeLists.txt>```. CMake will use the current directory as output directory, that's why you shouldn't forget to go into the output directory you created before running the command.
-3. Compile. The command will depend on your system. On Linux, you should be able to do it by simply using ```make``` in the output directory. 
-5. Update the config.json file. 
-6. Run. If you run directly from your output directory, you have nothing else to do since CMake should copy the config.json file in your output directory. If you moved the executable somewhere (on a server for example), don't forget to also move the config.json file next to it.
-
+2. Use `git submodule init` and `git submodule update`
+3. Update the config.json file. 
+4. Create an output directory, go into it and run cmake with the following command: ```cmake <path-to-the-folder-containing-CMakeLists.txt>```. CMake will use the current directory as output directory, that's why you shouldn't forget to go into the output directory you created before running the command.
+5. Compile. The command will depend on your system. On Linux, you should be able to do it by simply using ```make``` in the output directory. 
+6. Run. If you run directly from your output directory, you have nothing else to do since CMake should copy the config.json file in your output directory. If you want to move the executable somewhere (on a server for example), you should copy  the whole bin folder since it also contains a copy of the config.json file and all the lib required for the bot to work.
+   
 ### Configuration
 The configuration file contains the following options: 
 
@@ -40,7 +40,7 @@ The configuration file contains the following options:
 Mandatory, the token of your bot.
 
 #### ChannelId
-Mandatory: the identifier of the channel in which you want the bot to respond to your commands. You can obtain it by switching discord to developper mode and right-clicking on a channel.
+Mandatory, the identifier of the channel in which you want the bot to respond to your commands. You can obtain it by switching discord to developper mode and right-clicking on a channel.
 
 #### SaveFile
 Mandatory, relative path to the file in which you want the bot to save its data
@@ -63,7 +63,7 @@ Note: the 3 parameters must be valid for the automatic management to be enabled.
 Use it to add a match on which the users can bet. It has 3 parameters:
 
 - The first two parameters are the names of the two teams
-- The third parameter is the size of the 'Best Of'. A quick explanation in case you don't know what a "Best of X" is: in most esports and some traditional sports, a match between two teams is not limited to a single game. Instead, the teams will play a series of games called a "Best Of X" with X being the maximum number of games for the series. For example, a "Best Of 5" or "BO5" will have a maximum of 5 games and the first team to win 3 games wins the match. If you are betting on a traditional single match sport, you can simply set this parameter to "1".
+- The third parameter is the size of the 'Best Of'. A quick explanation in case you don't know what a "Best of X" is: in most esports, a match between two teams is not limited to a single game. Instead, the teams will play a series of games called a "Best Of X" with X being the maximum number of games for the series. For example, a "Best Of 5" or "BO5" will have a maximum of 5 games and the first team to win 3 games wins the match. If you are betting on a traditional single match sport, you can simply set this parameter to "1".
 
 #### show_matches
 
