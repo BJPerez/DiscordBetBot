@@ -53,6 +53,7 @@ private:
 	void ExecuteChooseMatchToSetResult(const dpp::select_click_t& event);
 	void ExecuteAddResult(const dpp::select_click_t& event);
 	void ExecuteShowResultProposal(const dpp::select_click_t& event);
+	void ExecuteShowNextIncomingMatches(const dpp::button_click_t& event);
 	void OnNewMatch(const std::filesystem::path& file);
 	void OnNewResult(const std::filesystem::path& file);
 };

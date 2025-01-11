@@ -133,4 +133,18 @@ private:
 	std::string m_MatchId;
 };
 
+class IndexInvalidException final : public std::exception
+{
+public:
+	explicit IndexInvalidException(const size_t index, const size_t arraySize) noexcept : m_Index(index),
+		m_ArraySize(arraySize) {}
+
+	[[nodiscard]] size_t GetIndex() const noexcept { return m_Index; }
+	[[nodiscard]] size_t GetArraySize() const noexcept { return m_ArraySize; }
+
+private:
+	size_t m_Index;
+	size_t m_ArraySize;
+};
+
 

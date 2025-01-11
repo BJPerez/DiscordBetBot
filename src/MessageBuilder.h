@@ -26,10 +26,17 @@ namespace MessageBuilder
 		std::vector<Field> m_Fields;
 	};
 
+	struct ButtonParams
+	{
+		std::string m_Label;
+		std::string m_Id;
+	};
+
 	[[nodiscard]] Message BuildAnswer(const ChannelId answerChannelId, const std::string& content);
 
-	void AddSelectorToMessage(const SelectorParams& selectorParams, Message& msg);
-	void AddEmbedToMessage(const EmbedParams& embedParams, Message& msg);
+	void AddSelectorToMessage(const SelectorParams& selectorParams, Message& outMessage);
+	void AddEmbedToMessage(const EmbedParams& embedParams, Message& outMessage);
+	void AddButtonToMessage(const ButtonParams& buttonParams, Message& outMessage); 
 
 	std::string BuildTable(const TableContent& columnsContent);
 };

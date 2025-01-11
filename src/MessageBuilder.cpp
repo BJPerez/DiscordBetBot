@@ -84,7 +84,7 @@ MessageBuilder::Message MessageBuilder::BuildAnswer(const ChannelId answerChanne
 	return msg;
 }
 
-void MessageBuilder::AddSelectorToMessage(const SelectorParams& selectorParams, Message& msg)
+void MessageBuilder::AddSelectorToMessage(const SelectorParams& selectorParams, Message& outMessage)
 {
 	dpp::component selector;
 	selector.set_type(dpp::cot_selectmenu);
@@ -96,7 +96,7 @@ void MessageBuilder::AddSelectorToMessage(const SelectorParams& selectorParams, 
 		selector.add_select_option(dpp::select_option(optionText, optionId));
 	}
 
-	msg.add_component(dpp::component().add_component(selector));
+	outMessage.add_component(dpp::component().add_component(selector));
 }
 
 std::string MessageBuilder::BuildTable(const TableContent& columnsContent)
@@ -127,7 +127,7 @@ std::string MessageBuilder::BuildTable(const TableContent& columnsContent)
 	return table;
 }
 
-void MessageBuilder::AddEmbedToMessage(const EmbedParams& embedParams, Message& msg)
+void MessageBuilder::AddEmbedToMessage(const EmbedParams& embedParams, Message& outMessage)
 {
 	dpp::embed embed;
 
@@ -138,5 +138,14 @@ void MessageBuilder::AddEmbedToMessage(const EmbedParams& embedParams, Message& 
 		embed.add_field(fieldTitle, fieldContent);
 	}
 
-	msg.add_embed(embed);
+	outMessage.add_embed(embed);
+}
+
+void MessageBuilder::AddButtonToMessage(const ButtonParams& buttonParams, Message& outMessage)
+{
+	dpp::component button;
+	button.set_label(buttonParams.m_Label);
+	button.set_id(buttonParams.m_Id);
+
+	outMessage.add_component(dpp::component().add_component(button));
 }
