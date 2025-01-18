@@ -4,7 +4,7 @@
 #include "ICommandReceiver.h"
 #include "LockableDataAccessors.h"
 
-MessageBuilder::Message AddBetCommand::Execute() const 
+MessageBuilder::Message AddBetCommand::Execute() const  
 {
 	try 
 	{
@@ -12,12 +12,12 @@ MessageBuilder::Message AddBetCommand::Execute() const
 			dataWriter->HasBet(m_MatchId, m_BettorName))
 		{
 			dataWriter->ModifyBet(m_MatchId, m_Score, m_BettorName);
-			return MessageBuilder::BuildAnswer(GetAnswerChannelId(), "Bet added.");
+			return MessageBuilder::BuildAnswer(GetAnswerChannelId(), "Your already existing bet has been modified.");
 		}
 		else
 		{
 			dataWriter->AddBet(m_MatchId, m_Score, m_BettorName);
-			return MessageBuilder::BuildAnswer(GetAnswerChannelId(), "Your already existing bet has been modified.");
+			return MessageBuilder::BuildAnswer(GetAnswerChannelId(), "Bet added.");
 		}
 	}
 	catch (const InvalidMatchIdException& exception) 
