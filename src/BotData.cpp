@@ -2,7 +2,7 @@
 
 #include "BotDataExceptions.h"
 
-void BotData::AddMatch(std::optional<std::string> matchId, std::string teamAName, std::string teamBName, const unsigned int boSize)
+void BotData::AddMatch(std::optional<std::string> matchId, std::string teamAName, std::string teamBName, const unsigned int boSize, const time_t dateAndTime)
 {
 	if (matchId.has_value() && (matchId.value().empty() || matchId.value() == Match::INVALID_ID))
 	{
@@ -24,7 +24,9 @@ void BotData::AddMatch(std::optional<std::string> matchId, std::string teamAName
 		throw InvalidBoSizeException(boSize);
 	}
 
-	m_Matches.emplace_back(std::move(matchId), std::move(teamAName), std::move(teamBName), boSize);
+	// ajouter exception pour vérifier que la date est dans le futur
+
+	m_Matches.emplace_back(std::move(matchId), std::move(teamAName), std::move(teamBName), boSize, dateAndTime);
 }
 
 void BotData::AddBet(std::string matchId, const MatchScore& matchResult, std::string bettorName)

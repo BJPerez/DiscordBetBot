@@ -2,10 +2,12 @@
 
 #include "BotDataExceptions.h"
 
-Match::Match(std::optional<std::string> matchId, std::string teamAName, std::string teamBName, const unsigned int maxNumberOfGame) :
-	m_TeamAName(std::move(teamAName)),
-	m_TeamBName(std::move(teamBName)),
-	m_BoSize(maxNumberOfGame)
+Match::Match(std::optional<std::string> matchId, std::string teamAName, std::string teamBName, const unsigned int maxNumberOfGame, 
+	const std::time_t time) :
+		m_TeamAName(std::move(teamAName)),
+		m_TeamBName(std::move(teamBName)),
+		m_BoSize(maxNumberOfGame),
+		m_DateAndTime(time)
 {
 	if (matchId.has_value())
 	{
