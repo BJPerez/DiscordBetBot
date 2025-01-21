@@ -49,10 +49,12 @@ void BettorResults::AddResult(const unsigned int boSize, const MatchScore& match
 			const unsigned int betLoosingTeamScore = betScore.GetLoosingTeamScore();
 			const unsigned int loosingTeamDelta = std::max(matchLoosingTeamScore, betLoosingTeamScore) - std::min(matchLoosingTeamScore, betLoosingTeamScore);
 			score += CORRECT_WINNING_TEAM_SCORE + ((boSize + 1) / 2)  - (loosingTeamDelta + 1);
+			break;
 		}
 		case MatchScore::EComparingResult::Incorrect:
 		{
 			++incorrectBetsCount;
+			break;
 		}
 		case MatchScore::EComparingResult::Invalid:
 		{

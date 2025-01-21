@@ -221,6 +221,14 @@ void BetBot::ExecuteShowResultProposal(const dpp::select_click_t& event)
 	event.reply(command.Execute());
 }
 
+void BetBot::ExecuteShowNextIncomingMatches(const dpp::button_click_t& event)
+{
+	const std::string lastIndexAsStr = event.custom_id.substr(event.custom_id.find_last_of('-') + 1);
+	const size_t lastIndexUsed = std::stol(lastIndexAsStr);
+	const ShowIncomingMatchesCommand command{ m_AnswerChannelId, *this, lastIndexUsed };
+	event.reply(command.Execute());
+}
+
 void BetBot::SetUpCommandCallbacks()
 {
 	m_Cluster.on_slashcommand(
@@ -276,6 +284,17 @@ void BetBot::SetUpSelectCallbacks()
 			else if (selectorId == ShowResultProposalCommand::SELECT_MENU_ID)
 			{
 				ExecuteAddResult(event);
+			}
+		}
+	);
+
+	m_Cluster.on_button_click(
+		[this](const dpp::button_click_t& event)
+		{
+			if (const std::string buttonId = event.custom_id;
+				buttonId.find(ShowIncomingMatchesCommand::BUTTON_ID) != std::string::npos)
+			{
+				ExecuteShowNextIncomingMatches(event);
 			}
 		}
 	);
