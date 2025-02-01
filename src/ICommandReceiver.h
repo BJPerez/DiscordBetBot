@@ -14,8 +14,7 @@ class ICommandReceiver  // NOLINT(cppcoreguidelines-special-member-functions)
 public:
 	virtual ~ICommandReceiver();
 
-	virtual void AddMatch(std::optional<std::string> matchId, std::string teamAName, std::string teamBName, const unsigned int boSize, 
-		const time_t dateAndTime) = 0;
+	virtual void AddMatch(std::optional<std::string> matchId, std::string teamAName, std::string teamBName, const unsigned int boSize) = 0;
 	virtual void AddBet(std::string matchId, const MatchScore& matchResult, std::string bettorName) = 0;
 	virtual void AddResult(const std::string& matchId, const MatchScore& matchResult) = 0;
 	virtual void ModifyBet(const std::string& matchId, const MatchScore& matchResult, const std::string& bettorName) = 0;

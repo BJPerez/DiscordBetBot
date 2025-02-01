@@ -2,6 +2,7 @@
 
 #include <exception>
 
+#include "DateAndTime.h"
 #include "MatchScore.h"
 
 class InvalidBettorNameException final : public std::exception
@@ -136,7 +137,7 @@ private:
 class IndexInvalidException final : public std::exception
 {
 public:
-	explicit IndexInvalidException(const size_t index, const size_t arraySize) noexcept : m_Index(index),
+	IndexInvalidException(const size_t index, const size_t arraySize) noexcept : m_Index(index),
 		m_ArraySize(arraySize) {}
 
 	[[nodiscard]] size_t GetIndex() const noexcept { return m_Index; }
@@ -145,6 +146,28 @@ public:
 private:
 	size_t m_Index;
 	size_t m_ArraySize;
+};
+
+class InvalidDateFormat final : public std::exception
+{
+public:
+	explicit InvalidDateFormat(std::string date) noexcept : m_InvalidDate(std::move(date)) {}
+
+	[[nodiscard]] const std::string& GetDate() const noexcept { return m_InvalidDate; }
+
+private:
+	std::string m_InvalidDate;
+};
+
+class DateTimeInThePastException final : public std::exception
+{
+public:
+	explicit DateTimeInThePastException(const DateAndTime& time) noexcept : m_InvalidDate(time) {}
+
+	[[nodiscard]] DateAndTime GetDate() const noexcept { return m_InvalidDate; }
+
+private:
+	DateAndTime m_InvalidDate;
 };
 
 
