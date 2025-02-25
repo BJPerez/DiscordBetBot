@@ -23,6 +23,11 @@ TEST(DateAndTime_Tests, ToString)
 
 	const DateAndTime test2{ "10-01-1995 18:00:00" };
 	EXPECT_EQ(test2.ToString(), "10-01-1995 18:00");
+
+	const DateAndTime test3{ "01-01-2028 18:00" };
+	EXPECT_EQ(test3.ToString(), "01-01-2028 18:00");
+
+	
 }
 
 TEST(DateAndTime_Tests, IsInFuture)

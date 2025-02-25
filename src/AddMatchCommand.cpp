@@ -9,7 +9,7 @@ MessageBuilder::Message AddMatchCommand::Execute() const
 	try
 	{
 		const DataWriter dataWriter = GetDataWriter();
-		dataWriter->AddMatch(m_MatchId, m_TeamAName, m_TeamBName, m_BoSize);
+		dataWriter->AddMatch(m_MatchId, m_TeamAName, m_TeamBName, m_BoSize, m_DateTimeAsString); 
 		return MessageBuilder::BuildAnswer(GetAnswerChannelId(), "Match added.");
 	}
 	catch (const InvalidMatchIdException& exception)
@@ -32,5 +32,15 @@ MessageBuilder::Message AddMatchCommand::Execute() const
 	{
 		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
 			"User error: The given BoSize [" + std::to_string(exception.GetBoSize()) + "] is invalid. It must be an odd number.");
+	}
+	catch (const InvalidDateFormat& exception)
+	{
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"User error: The given Date [" + exception.GetDate() + "] has not the right format [Day-Month-Year Hours:Minutes].");
+	}
+	catch (const DateTimeInThePastException& exception)
+	{
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"User error: The given Date [" + exception.GetDate().ToString() + "] is in the past.");
 	}
 }

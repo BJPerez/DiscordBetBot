@@ -1,8 +1,10 @@
 #include "BotData.h"
 
 #include "BotDataExceptions.h"
+#include "DateAndTime.h"
 
-void BotData::AddMatch(std::optional<std::string> matchId, std::string teamAName, std::string teamBName, const unsigned int boSize)
+void BotData::AddMatch(std::optional<std::string> matchId, std::string teamAName, std::string teamBName, const unsigned int boSize, 
+	const std::string& timeAsString)
 {
 	if (matchId.has_value() && (matchId.value().empty() || matchId.value() == Match::INVALID_ID))
 	{
@@ -24,7 +26,13 @@ void BotData::AddMatch(std::optional<std::string> matchId, std::string teamAName
 		throw InvalidBoSizeException(boSize);
 	}
 
-	m_Matches.emplace_back(std::move(matchId), std::move(teamAName), std::move(teamBName), boSize);
+	DateAndTime dateTime{ timeAsString };
+	if (!dateTime.IsInFuture())
+	{
+		throw DateTimeInThePastException(dateTime);
+	}
+
+	m_Matches.emplace_back(std::move(matchId), std::move(teamAName), std::move(teamBName), boSize, dateTime);
 }
 
 void BotData::AddBet(std::string matchId, const MatchScore& matchResult, std::string bettorName)

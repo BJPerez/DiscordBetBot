@@ -68,6 +68,8 @@ dpp::slashcommand BetBot::CreateAddMatchCommand() const
 	command.add_option(dpp::command_option(dpp::co_string, "team_a", "The name of the first team.", true));
 	command.add_option(dpp::command_option(dpp::co_string, "team_b", "The name of the second team.", true));
 	command.add_option(dpp::command_option(dpp::co_integer, "bo_size", "The maximal number of game of this match.", true));
+	command.add_option(dpp::command_option(dpp::co_string, "date_time", 
+		"The date and time of the match with this format: Day-Month-Year Hours:Minutes>", true));
 
 	return command;
 }
@@ -96,8 +98,9 @@ void BetBot::ExecuteAddMatch(const dpp::slashcommand_t& event)
 	auto teamAName = std::get<std::string>(event.get_parameter("team_a"));
 	auto teamBName = std::get<std::string>(event.get_parameter("team_b"));
 	const unsigned int boSize = static_cast<unsigned int>(std::get<int64_t>(event.get_parameter("bo_size")));
+	auto dateTimeAsString = std::get<std::string>(event.get_parameter("date_time"));
 
-	const AddMatchCommand command{ m_AnswerChannelId, *this, std::move(teamAName), std::move(teamBName), boSize };
+	const AddMatchCommand command{ m_AnswerChannelId, *this, std::move(teamAName), std::move(teamBName), boSize, dateTimeAsString };
 	event.reply(command.Execute());
 	m_Saver.Save(GetDataReader());
 }
@@ -109,7 +112,7 @@ void BetBot::OnNewMatch(const std::filesystem::path& file)
 	{
 		dpp::json fileContent;
 		fileStream >> fileContent;
-
+		// TODO
 		if (fileContent.contains("matchid") &&
 			fileContent.contains("team1") &&
 			fileContent.contains("team2") &&
