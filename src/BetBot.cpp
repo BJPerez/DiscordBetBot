@@ -27,6 +27,50 @@ namespace
 
 		outTeamBScore = std::stoul(selectorValue);
 	}
+
+	bool ReadAndRemoveFile(const std::filesystem::path& file, dpp::json& outFileContent)
+	{
+		std::ifstream fileStream{ file.relative_path() };
+		if (!fileStream.good()) // does file exists ?
+		{
+			return false;
+		}
+
+		fileStream >> outFileContent;
+		fileStream.close();
+		std::filesystem::remove(file);
+		return true;
+	}
+
+	bool ExtractAddResultsParams(const dpp::json& fileContent, const std::filesystem::path& fileName, ICommandReceiver::AddResultParams& outParams)
+	{
+		if (!fileContent.contains("team1") ||
+			!fileContent.contains("team2") ||
+			!fileContent.contains("team1score") ||
+			!fileContent.contains("team2score")
+			)
+		{
+			return false;
+		}
+
+		const std::string teamAScoreStr = fileContent["team1score"];
+		const unsigned int teamAScore = std::stol(teamAScoreStr);
+
+		const std::string teamBScoreStr = fileContent["team2score"];
+		const unsigned int teamBScore = std::stol(teamBScoreStr);
+
+		outParams = 
+		{
+			fileName.stem().string(),
+			fileContent["team1"],
+			fileContent["team2"],
+			teamAScore,
+			teamBScore
+		};
+
+		return true;
+	}
+	
 }
 
 BetBot::BetBot(BotConfigReader::Results config) : m_Cluster(std::move(config.m_BotToken)), m_AnswerChannelId(config.m_AnswerChannelId), m_Data(),
@@ -150,39 +194,29 @@ void BetBot::ExecuteAddResult(const dpp::select_click_t& event)
 	unsigned int teamAScore, teamBScore;
 	ExtractMatchInfosFromSelectorValue(event.values[0], matchId, teamAScore, teamBScore);
 
-	const AddResultCommand command{ m_AnswerChannelId, *this, matchId, teamAScore, teamBScore };
+	const ICommandReceiver::AddResultParams params {matchId, {}, {}, teamAScore, teamBScore };
+	const AddResultCommand command{ m_AnswerChannelId, *this, params };
 	event.reply(command.Execute());
 	m_Saver.Save(GetDataReader());
 }
 
 void BetBot::OnNewResult(const std::filesystem::path& file)
 {
-	if (std::ifstream fileStream{ file.relative_path() };
-		fileStream.good()) // does file exists ?
+	dpp::json fileContent;
+	if (!ReadAndRemoveFile(file, fileContent))
 	{
-		dpp::json fileContent;
-		fileStream >> fileContent;
-
-		if (fileContent.contains("team1score") &&
-			fileContent.contains("team2score")
-			)
-		{
-			const std::string teamAScoreStr = fileContent["team1score"];
-			const unsigned int teamAScore = std::stol(teamAScoreStr);
-
-			const std::string teamBScoreStr = fileContent["team2score"];
-			const unsigned int teamBScore = std::stol(teamBScoreStr);
-
-			const AddResultCommand command{ m_AnswerChannelId, *this, file.stem().string(), teamAScore, teamBScore };
-			command.Execute();
-
-			m_Saver.Save(GetDataReader());
-
-			fileStream.close();
-		}
-
-		std::filesystem::remove(file);
+		return;
 	}
+
+	ICommandReceiver::AddResultParams params;
+	if (!ExtractAddResultsParams(fileContent, file, params))
+	{
+		return;
+	}
+
+	const AddResultCommand command{ m_AnswerChannelId, *this, params };
+	command.Execute();
+	m_Saver.Save(GetDataReader());
 }
 
 void BetBot::ExecuteShowMatches(const dpp::slashcommand_t& event)

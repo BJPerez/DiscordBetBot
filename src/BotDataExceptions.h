@@ -147,4 +147,23 @@ private:
 	size_t m_ArraySize;
 };
 
+class UnmatchingTeamNameException final : std::exception
+{
+public:
+	explicit UnmatchingTeamNameException(std::string givenA, std::string givenB, std::string savedA, std::string savedB) noexcept :
+		m_GivenAName(std::move(givenA)), m_GivenBName(std::move(givenB)), m_SavedAName(std::move(savedA)),
+		m_SavedBName(std::move(savedB)) {}
+
+	[[nodiscard]] const std::string& GetGivenAName() const noexcept { return m_GivenAName; }
+	[[nodiscard]] const std::string& GetGivenBName() const noexcept { return m_GivenBName; }
+	[[nodiscard]] const std::string& GetSavedAName() const noexcept { return m_SavedAName; }
+	[[nodiscard]] const std::string& GetSavedBName() const noexcept { return m_SavedBName; }
+
+private:
+	std::string m_GivenAName;
+	std::string m_GivenBName;
+
+	std::string m_SavedAName;
+	std::string m_SavedBName;
+};
 

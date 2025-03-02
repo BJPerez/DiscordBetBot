@@ -9,7 +9,7 @@ MessageBuilder::Message AddResultCommand::Execute() const
 	try
 	{
 		const DataWriter dataWriter = GetDataWriter();
-		dataWriter->AddResult(m_MatchId, m_Score);
+		dataWriter->AddResult(m_Params);
 		return MessageBuilder::BuildAnswer(GetAnswerChannelId(), "Result added.");
 	}
 	catch (const InvalidMatchIdException& exception)
@@ -32,5 +32,11 @@ MessageBuilder::Message AddResultCommand::Execute() const
 		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
 			"User error: Given score [" + exception.GetScore().ToString() + "] is not valid for a BO" 
 			+ std::to_string(exception.GetBoSize()) + ".");
+	}
+	catch (const UnmatchingTeamNameException& exception)
+	{
+		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
+			"User error: The given match ID has team names [" + exception.GetSavedAName() + ", " + exception.GetSavedBName() +
+			"] that does not match the given team names [" + exception.GetGivenAName() + ", " + exception.GetGivenBName() + "].");
 	}
 }
