@@ -5,7 +5,7 @@
 
 TEST(DateAndTime_Tests, Constructor_Valid)
 {
-	ASSERT_NO_THROW(DateAndTime("10-01-1995 18:00"));
+	ASSERT_NO_THROW(DateAndTime("10-01-1995 18:00")); 
 }
 
 TEST(DateAndTime_Tests, Constructor_Invalid)
@@ -26,8 +26,6 @@ TEST(DateAndTime_Tests, ToString)
 
 	const DateAndTime test3{ "01-01-2028 18:00" };
 	EXPECT_EQ(test3.ToString(), "01-01-2028 18:00");
-
-	
 }
 
 TEST(DateAndTime_Tests, IsInFuture)

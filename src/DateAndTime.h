@@ -16,5 +16,5 @@ public:
 private:
 	static constexpr std::string_view DATE_TIME_FORMAT = "%d-%m-%Y %H:%M";
 
-	std::tm m_Time;
+	std::tm m_Time {};
 };
