@@ -30,9 +30,9 @@ TEST(DateAndTime_Tests, ToString)
 
 TEST(DateAndTime_Tests, IsInFuture)
 {
-	DateAndTime test{ "10-01-1995 18:00" };
+	const DateAndTime test{ "10-01-1995 18:00" };
 	EXPECT_FALSE(test.IsInFuture());
 
-	DateAndTime test2{ "10-01-2100 18:00" };
+	const DateAndTime test2{ "10-01-2100 18:00" };
 	EXPECT_TRUE(test2.IsInFuture());
 }

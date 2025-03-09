@@ -1,34 +1,30 @@
 #include "DateAndTime.h"
 
-#include <chrono>
-#include <iostream>
+#include<sstream>
 
 #include "BotDataExceptions.h"
 
 DateAndTime::DateAndTime(const std::string& timeAsString) 
 {
-	std::istringstream timeAsStream{ timeAsString };
-	timeAsStream >> std::get_time(&m_Time, std::string{ DATE_TIME_FORMAT }.c_str());
-	if (timeAsStream.fail())
-	{
-		throw InvalidDateFormat(timeAsString);
-	}
+    std::istringstream timeAsStream{ timeAsString };
+    timeAsStream >> std::chrono::parse(std::string{ DATE_TIME_FORMAT }, m_Time);
+    if (timeAsStream.fail())
+    {
+        throw InvalidDateFormat(timeAsString);
+    }
 }
 
 std::string DateAndTime::ToString() const noexcept
 {
-	std::stringstream resultAsStream;
-	resultAsStream << std::put_time(&m_Time, std::string{DATE_TIME_FORMAT}.c_str());
-
-	return resultAsStream.str();
+	return std::vformat("{:" + std::string{ DATE_TIME_FORMAT } + '}', std::make_format_args(m_Time));
 }
 
-bool DateAndTime::IsInFuture() noexcept
+bool DateAndTime::IsInFuture() const noexcept
 {
-	const std::time_t dateInSeconds = std::mktime(&m_Time);
+    const auto dateInSeconds = std::chrono::current_zone()->to_sys(m_Time);
 
-	const std::chrono::time_point now = std::chrono::system_clock::now();
-	const std::time_t nowAsSeconds = std::chrono::system_clock::to_time_t(now);
+    const auto now = std::chrono::system_clock::now();
+    const auto nowAsSeconds = std::chrono::floor<std::chrono::seconds>(now);
 
-	return dateInSeconds > nowAsSeconds;
+    return dateInSeconds > nowAsSeconds;
 }

@@ -26,7 +26,7 @@ TEST(BotData_Tests, AddMatch_InvalidParameters)
 	ASSERT_THROW(data.AddMatch("TestId2", "TeamA", "TeamB", 2, std::string{ "31-01-2100 18:00" }), InvalidBoSizeException);
 	ASSERT_THROW(data.AddMatch("TestId2", "TeamA", "TeamB", 4, std::string{ "31-01-2100 18:00" }), InvalidBoSizeException);
 	ASSERT_THROW(data.AddMatch("TestId2", "TeamA", "TeamB", 3, std::string{ "Invalid" }), InvalidDateFormat);
-	ASSERT_THROW(data.AddMatch("TestId2", "TeamA", "TeamB", 3, std::string{ "01-01-1990" }), DateTimeInThePastException);
+	ASSERT_THROW(data.AddMatch("TestId2", "TeamA", "TeamB", 3, std::string{ "01-01-1990 18:00" }), DateTimeInThePastException);
 }
 
 TEST(BotData_Tests, GetMatch_ValidParameters)

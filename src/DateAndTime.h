@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ctime>
+#include <chrono>
 #include <string>
 #include <string_view>
 
@@ -11,10 +11,10 @@ public:
 	explicit DateAndTime(const std::string& timeAsString);
 
 	[[nodiscard]] std::string ToString() const noexcept;
-	[[nodiscard]] bool IsInFuture() noexcept;
+	[[nodiscard]] bool IsInFuture() const noexcept;
 
 private:
 	static constexpr std::string_view DATE_TIME_FORMAT = "%d-%m-%Y %H:%M";
 
-	std::tm m_Time {};
+	std::chrono::local_seconds m_Time;
 };
