@@ -8,15 +8,14 @@
 
 class ICommandReceiver;
 
-class AddResultCommand final : public CommandBase
+class AddResultCommand final : public CommandBase 
 {
 public:
-	AddResultCommand(const MessageBuilder::ChannelId channelId, BetBot& bot, std::string matchId, const unsigned int teamAScore, const unsigned int teamBScore) noexcept :
-		CommandBase(channelId, bot), m_MatchId(std::move(matchId)), m_Score(MatchScore{teamAScore, teamBScore}) {}
+	AddResultCommand(const MessageBuilder::ChannelId channelId, BetBot& bot, const ICommandReceiver::AddResultParams& params) noexcept :
+			CommandBase(channelId, bot), m_Params(params){}
 
 	MessageBuilder::Message Execute() const override; // NOLINT(modernize-use-nodiscard)
 
 private:
-	std::string m_MatchId;
-	MatchScore m_Score;
+	const ICommandReceiver::AddResultParams& m_Params;
 };

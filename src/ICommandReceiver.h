@@ -12,13 +12,22 @@ class Match;
 class ICommandReceiver  // NOLINT(cppcoreguidelines-special-member-functions)
 {
 public:
-	virtual ~ICommandReceiver();
+	virtual ~ICommandReceiver() = default;
 
 	virtual void AddMatch(std::optional<std::string> matchId, std::string teamAName, std::string teamBName, const unsigned int boSize, 
 		const std::string& timeAsString) = 0;
 	virtual void AddBet(std::string matchId, const MatchScore& matchResult, std::string bettorName) = 0;
-	virtual void AddResult(const std::string& matchId, const MatchScore& matchResult) = 0;
 	virtual void ModifyBet(const std::string& matchId, const MatchScore& matchResult, const std::string& bettorName) = 0;
+
+	struct AddResultParams
+	{
+		std::string m_MatchId;
+		std::optional<std::string> m_TeamAName;
+		std::optional<std::string> m_TeamBName;
+		unsigned int m_TeamAScore;
+		unsigned int m_TeamBScore;
+	};
+	virtual void AddResult(const AddResultParams& params) = 0;
 
 	[[nodiscard]] virtual const Bet& GetBet(const std::string& matchId, const std::string& bettorName) const = 0;
 	[[nodiscard]] virtual const Match& GetMatch(const std::string& matchId) const = 0;

@@ -137,7 +137,7 @@ private:
 class IndexInvalidException final : public std::exception
 {
 public:
-	IndexInvalidException(const size_t index, const size_t arraySize) noexcept : m_Index(index),
+	explicit IndexInvalidException(const size_t index, const size_t arraySize) noexcept : m_Index(index),
 		m_ArraySize(arraySize) {}
 
 	[[nodiscard]] size_t GetIndex() const noexcept { return m_Index; }
@@ -146,6 +146,26 @@ public:
 private:
 	size_t m_Index;
 	size_t m_ArraySize;
+};
+
+class UnmatchingTeamNameException final : std::exception
+{
+public:
+	explicit UnmatchingTeamNameException(std::string givenA, std::string givenB, std::string savedA, std::string savedB) noexcept :
+		m_GivenAName(std::move(givenA)), m_GivenBName(std::move(givenB)), m_SavedAName(std::move(savedA)),
+		m_SavedBName(std::move(savedB)) {}
+
+	[[nodiscard]] const std::string& GetGivenAName() const noexcept { return m_GivenAName; }
+	[[nodiscard]] const std::string& GetGivenBName() const noexcept { return m_GivenBName; }
+	[[nodiscard]] const std::string& GetSavedAName() const noexcept { return m_SavedAName; }
+	[[nodiscard]] const std::string& GetSavedBName() const noexcept { return m_SavedBName; }
+
+private:
+	std::string m_GivenAName;
+	std::string m_GivenBName;
+
+	std::string m_SavedAName;
+	std::string m_SavedBName;
 };
 
 class InvalidDateFormat final : public std::exception
@@ -169,5 +189,4 @@ public:
 private:
 	DateAndTime m_InvalidDate;
 };
-
 

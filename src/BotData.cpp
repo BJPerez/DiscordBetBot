@@ -3,6 +3,33 @@
 #include "BotDataExceptions.h"
 #include "DateAndTime.h"
 
+namespace
+{
+	MatchScore EvaluateScore(const ICommandReceiver::AddResultParams& params, const Match& match)
+	{
+		if (params.m_TeamAName.has_value() && params.m_TeamBName.has_value())
+		{
+			const std::string& userTeamAName = params.m_TeamAName.value();
+			const std::string& userTeamBName = params.m_TeamBName.value();
+
+			if (match.GetTeamAName() == userTeamAName && match.GetTeamBName() == userTeamBName)
+			{
+				return { params.m_TeamAScore, params.m_TeamBScore };
+			}
+			else if (match.GetTeamAName() == userTeamBName && match.GetTeamBName() == userTeamAName)
+			{
+				return { params.m_TeamBScore, params.m_TeamAScore };
+			}
+			else
+			{
+				throw UnmatchingTeamNameException{ userTeamAName, userTeamBName, match.GetTeamAName(), match.GetTeamBName() };
+			}
+		}
+
+		return { params.m_TeamAScore, params.m_TeamBScore };
+	}
+}
+
 void BotData::AddMatch(std::optional<std::string> matchId, std::string teamAName, std::string teamBName, const unsigned int boSize, 
 	const std::string& timeAsString)
 {
@@ -66,20 +93,20 @@ void BotData::AddBet(std::string matchId, const MatchScore& matchResult, std::st
 	m_Bets.emplace_back(std::move(matchId), matchResult, std::move(bettorName));
 }
 
-void BotData::AddResult(const std::string& matchId, const MatchScore& matchResult)
+void BotData::AddResult(const AddResultParams& params)
 {
-	if (!HasMatch(matchId))
+	if (!HasMatch(params.m_MatchId))
 	{
-		throw MatchNotFoundException(matchId);
+		throw MatchNotFoundException(params.m_MatchId);
 	}
 
-	Match& match = GetMatch(matchId);
+	Match& match = GetMatch(params.m_MatchId);
 	if (match.IsPlayed())
 	{
-		throw MatchAlreadyPlayedException(matchId);
+		throw MatchAlreadyPlayedException(params.m_MatchId);
 	}
 
-	match.SetResult(matchResult);
+	match.SetResult(EvaluateScore(params, match));
 }
 
 const Match& BotData::GetMatch(const std::string& matchId) const
