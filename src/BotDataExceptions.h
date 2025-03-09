@@ -189,4 +189,3 @@ public:
 private:
 	DateAndTime m_InvalidDate;
 };
-
