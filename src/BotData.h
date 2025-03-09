@@ -25,8 +25,7 @@ concept MatchFilter = requires(Filter filter, const Match& match)
 class BotData final : public ICommandReceiver
 {
 public:
-	void AddMatch(std::optional<std::string> matchId, std::string teamAName, std::string teamBName, const unsigned int boSize,
-		const std::string& timeAsString) override;
+	void AddMatch(const AddMatchParams& params) override;
 	void AddBet(std::string matchId, const MatchScore& matchResult, std::string bettorName) override;
 	void AddResult(const AddResultParams& params) override;
 	void ModifyBet(const std::string& matchId, const MatchScore& matchResult, const std::string& bettorName) override;

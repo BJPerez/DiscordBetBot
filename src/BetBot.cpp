@@ -70,7 +70,34 @@ namespace
 
 		return true;
 	}
-	
+
+	bool ExtractAddMatchParams(const dpp::json& fileContent, ICommandReceiver::AddMatchParams& outParams)
+	{
+		if (!fileContent.contains("matchid") ||
+			!fileContent.contains("team1") ||
+			!fileContent.contains("team2") ||
+			!fileContent.contains("bo_size") ||
+			!fileContent.contains("date")
+			)
+		{
+			return false;
+		}
+
+		const std::string boSizeStr = fileContent["bo_size"];
+		const unsigned int boSize = std::stol(boSizeStr);
+
+		outParams =
+		{
+			fileContent["matchid"],
+			fileContent["team1"],
+			fileContent["team2"],
+			boSize,
+			fileContent["date"]
+		};
+
+		return true;
+	}
+
 }
 
 BetBot::BetBot(BotConfigReader::Results config) : m_Cluster(std::move(config.m_BotToken)), m_AnswerChannelId(config.m_AnswerChannelId), m_Data(),
@@ -142,40 +169,31 @@ void BetBot::ExecuteAddMatch(const dpp::slashcommand_t& event)
 	auto teamAName = std::get<std::string>(event.get_parameter("team_a"));
 	auto teamBName = std::get<std::string>(event.get_parameter("team_b"));
 	const unsigned int boSize = static_cast<unsigned int>(std::get<int64_t>(event.get_parameter("bo_size")));
-	auto dateTimeAsString = std::get<std::string>(event.get_parameter("date_time"));
+	const auto dateTimeAsString = std::get<std::string>(event.get_parameter("date_time"));
 
-	const AddMatchCommand command{ m_AnswerChannelId, *this, std::move(teamAName), std::move(teamBName), boSize, dateTimeAsString };
+	const ICommandReceiver::AddMatchParams params{ std::nullopt, std::move(teamAName), std::move(teamBName), boSize, dateTimeAsString };
+	const AddMatchCommand command{ m_AnswerChannelId, *this, params };
 	event.reply(command.Execute());
 	m_Saver.Save(GetDataReader());
 }
 
 void BetBot::OnNewMatch(const std::filesystem::path& file)
 {
-	if (std::ifstream fileStream{ file.relative_path() };
-		fileStream.good()) // does file exists ?
+	dpp::json fileContent;
+	if (!ReadAndRemoveFile(file, fileContent))
 	{
-		dpp::json fileContent;
-		fileStream >> fileContent;
-		// TODO
-		if (fileContent.contains("matchid") &&
-			fileContent.contains("team1") &&
-			fileContent.contains("team2") &&
-			fileContent.contains("bo_size") 
-			)
-		{
-			const std::string boSizeStr = fileContent["bo_size"];
-			const unsigned int boSize = std::stol(boSizeStr);
-
-			const AddMatchCommand command{ m_AnswerChannelId, *this, fileContent["team1"], fileContent["team2"], boSize, fileContent["matchid"] };
-			command.Execute(); 
-
-			m_Saver.Save(GetDataReader());
-
-			fileStream.close();
-		}
-
-		std::filesystem::remove(file);
+		return;
 	}
+
+	ICommandReceiver::AddMatchParams params;
+	if (!ExtractAddMatchParams(fileContent, params))
+	{
+		return;
+	}
+
+	const AddMatchCommand command{ m_AnswerChannelId, *this, params };
+	command.Execute();
+	m_Saver.Save(GetDataReader());
 }
 
 void BetBot::ExecuteAddBet(const dpp::select_click_t& event)

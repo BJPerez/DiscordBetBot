@@ -9,7 +9,7 @@ MessageBuilder::Message AddMatchCommand::Execute() const
 	try
 	{
 		const DataWriter dataWriter = GetDataWriter();
-		dataWriter->AddMatch(m_MatchId, m_TeamAName, m_TeamBName, m_BoSize, m_DateTimeAsString); 
+		dataWriter->AddMatch(m_Params); 
 		return MessageBuilder::BuildAnswer(GetAnswerChannelId(), "Match added.");
 	}
 	catch (const InvalidMatchIdException& exception)
