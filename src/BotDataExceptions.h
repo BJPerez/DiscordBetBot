@@ -2,6 +2,7 @@
 
 #include <exception>
 
+#include "DateAndTime.h"
 #include "MatchScore.h"
 
 class InvalidBettorNameException final : public std::exception
@@ -167,3 +168,24 @@ private:
 	std::string m_SavedBName;
 };
 
+class InvalidDateFormat final : public std::exception
+{
+public:
+	explicit InvalidDateFormat(std::string date) noexcept : m_InvalidDate(std::move(date)) {}
+
+	[[nodiscard]] const std::string& GetDate() const noexcept { return m_InvalidDate; }
+
+private:
+	std::string m_InvalidDate;
+};
+
+class DateTimeInThePastException final : public std::exception
+{
+public:
+	explicit DateTimeInThePastException(const DateAndTime& time) noexcept : m_InvalidDate(time) {}
+
+	[[nodiscard]] DateAndTime GetDate() const noexcept { return m_InvalidDate; }
+
+private:
+	DateAndTime m_InvalidDate;
+};

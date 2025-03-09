@@ -36,7 +36,9 @@ namespace
 		return
 		{
 			match.ToString(),			
-			"ID: " + match.GetId() + ", BO" + std::to_string(match.GetBoSize()),
+		match.GetDateAndTime().ToString() + "\n" +
+					"BO" + std::to_string(match.GetBoSize()) + "\n\n"
+					"ID: " + match.GetId(),
 			embedFields
 		};
 	}

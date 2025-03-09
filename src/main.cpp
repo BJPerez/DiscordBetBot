@@ -2,7 +2,6 @@
 
 #include "BotConfigReader.h"
 
-
 int main()
 {
 	try

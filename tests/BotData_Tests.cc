@@ -8,29 +8,31 @@ TEST(BotData_Tests, AddMatch_ValidParameters)
 {
 	BotData data;
 	EXPECT_EQ(data.GetAllMatches().size(), 0);
-	ASSERT_NO_THROW(data.AddMatch("TestId", "TeamA", "TeamB", 3));
+	ASSERT_NO_THROW(data.AddMatch({"TestId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }}));
 	EXPECT_EQ(data.GetAllMatches().size(), 1);
 }
 
 TEST(BotData_Tests, AddMatch_InvalidParameters)
 {
 	BotData data;
-	data.AddMatch("TestId", "TeamA", "TeamB", 3);
+	data.AddMatch({"TestId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 
-	ASSERT_THROW(data.AddMatch(std::string{ Match::INVALID_ID }, "TeamA", "TeamB", 3), InvalidMatchIdException);
-	ASSERT_THROW(data.AddMatch(std::string{ "" }, "TeamA", "TeamB", 3), InvalidMatchIdException);
-	ASSERT_THROW(data.AddMatch("TestId", "TeamA", "TeamB", 3), MatchIdUnavailableException);
-	ASSERT_THROW(data.AddMatch("TestId2", "", "TeamB", 3), InvalidTeamNameException);
-	ASSERT_THROW(data.AddMatch("TestId2", "TeamA", "", 3), InvalidTeamNameException);
-	ASSERT_THROW(data.AddMatch("TestId2", "TeamA", "TeamB", 0), InvalidBoSizeException);
-	ASSERT_THROW(data.AddMatch("TestId2", "TeamA", "TeamB", 2), InvalidBoSizeException);
-	ASSERT_THROW(data.AddMatch("TestId2", "TeamA", "TeamB", 4), InvalidBoSizeException);
+	ASSERT_THROW(data.AddMatch({std::string{ Match::INVALID_ID }, "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }}), InvalidMatchIdException);
+	ASSERT_THROW(data.AddMatch({std::string{ "" }, "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }}), InvalidMatchIdException);
+	ASSERT_THROW(data.AddMatch({"TestId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }}), MatchIdUnavailableException);
+	ASSERT_THROW(data.AddMatch({"TestId2", "", "TeamB", 3, std::string{ "31-01-2100 18:00" }}), InvalidTeamNameException);
+	ASSERT_THROW(data.AddMatch({"TestId2", "TeamA", "", 3, std::string{ "31-01-2100 18:00" }}), InvalidTeamNameException);
+	ASSERT_THROW(data.AddMatch({"TestId2", "TeamA", "TeamB", 0, std::string{ "31-01-2100 18:00" }}), InvalidBoSizeException);
+	ASSERT_THROW(data.AddMatch({"TestId2", "TeamA", "TeamB", 2, std::string{ "31-01-2100 18:00" }}), InvalidBoSizeException);
+	ASSERT_THROW(data.AddMatch({"TestId2", "TeamA", "TeamB", 4, std::string{ "31-01-2100 18:00" }}), InvalidBoSizeException);
+	ASSERT_THROW(data.AddMatch({"TestId2", "TeamA", "TeamB", 3, std::string{ "Invalid" }}), InvalidDateFormat);
+	ASSERT_THROW(data.AddMatch({"TestId2", "TeamA", "TeamB", 3, std::string{ "01-01-1990 18:00" }}), DateTimeInThePastException);
 }
 
 TEST(BotData_Tests, GetMatch_ValidParameters)
 {
 	BotData data;
-	data.AddMatch("TestId", "TeamA", "TeamB", 3);
+	data.AddMatch({"TestId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 
 	auto dataConst = const_cast<const BotData* const>(&data); // to force a call on const getter version which is the only public version
 	ASSERT_NO_THROW(const Match& match = dataConst->GetMatch("TestId"));
@@ -39,7 +41,7 @@ TEST(BotData_Tests, GetMatch_ValidParameters)
 TEST(BotData_Tests, GetMatch_InvalidParameters)
 {
 	BotData data;
-	data.AddMatch("TestId", "TeamA", "TeamB", 3);
+	data.AddMatch({"TestId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 
 	auto dataConst = const_cast<const BotData* const>(&data); // to force a call on const getter version which is the only public version
 	ASSERT_THROW(const Match & match = dataConst->GetMatch(std::string {Match::INVALID_ID}), InvalidMatchIdException);
@@ -50,8 +52,8 @@ TEST(BotData_Tests, GetMatch_InvalidParameters)
 TEST(BotData_Tests, AddResult_ValidParameters)
 {
 	BotData data;
-	data.AddMatch("TestId", "TeamA", "TeamB", 3);
-	data.AddMatch("TestId2", "TeamA", "TeamB", 3);
+	data.AddMatch({"TestId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
+	data.AddMatch({"TestId2", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 
 	auto dataConst = const_cast<const BotData* const>(&data); // to force a call on const getter version which is the only public version
 	EXPECT_FALSE(dataConst->GetMatch("TestId").IsPlayed());
@@ -68,8 +70,8 @@ TEST(BotData_Tests, AddResult_ValidParameters)
 TEST(BotData_Tests, AddResult_InvalidParameters)
 {
 	BotData data;
-	data.AddMatch("PlayedMatchId", "TeamA", "TeamB", 3);
-	data.AddMatch("NonPlayedMatchId", "TeamA", "TeamB", 3);
+	data.AddMatch({"PlayedMatchId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
+	data.AddMatch({"NonPlayedMatchId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 	data.AddResult({ "PlayedMatchId", "TeamA", "TeamB", 2, 0 });
 
 	ASSERT_THROW(data.AddResult({ "NonExistingId", "TeamA", "TeamB", 2, 0}), MatchNotFoundException);
@@ -82,7 +84,7 @@ TEST(BotData_Tests, AddResult_InvalidParameters)
 TEST(BotData_Tests, AddBet_ValidParameters)
 {
 	BotData data;
-	data.AddMatch("TestId", "TeamA", "TeamB", 3);
+	data.AddMatch({"TestId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 
 	EXPECT_EQ(data.GetBets().size(), 0);
 	ASSERT_NO_THROW(data.AddBet("TestId", { 2,0 }, "Bettor"));
@@ -92,8 +94,8 @@ TEST(BotData_Tests, AddBet_ValidParameters)
 TEST(BotData_Tests, AddBet_InvalidParameters)
 {
 	BotData data;
-	data.AddMatch("PlayedMatchId", "TeamA", "TeamB", 3);
-	data.AddMatch("NonPlayedMatchId", "TeamA", "TeamB", 3);
+	data.AddMatch({"PlayedMatchId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
+	data.AddMatch({"NonPlayedMatchId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 	data.AddResult({ "PlayedMatchId", "TeamA", "TeamB", 2, 0 });
 	data.AddBet("NonPlayedMatchId", { 2,1 }, "BettorWithBet");
 
@@ -109,7 +111,7 @@ TEST(BotData_Tests, AddBet_InvalidParameters)
 TEST(BotData_Tests, HasBet_ValidParameters)
 {
 	BotData data;
-	data.AddMatch("TestId", "TeamA", "TeamB", 3);
+	data.AddMatch({"TestId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 
 	EXPECT_FALSE(data.HasBet("TestId", "Bettor"));
 	data.AddBet("TestId", { 2,0 }, "Bettor");
@@ -119,7 +121,7 @@ TEST(BotData_Tests, HasBet_ValidParameters)
 TEST(BotData_Tests, HasBet_InvalidParameters)
 {
 	BotData data;
-	data.AddMatch("TestId", "TeamA", "TeamB", 3);
+	data.AddMatch({"TestId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 
 	ASSERT_THROW(bool res = data.HasBet("NonExistingId", "Bettor"), MatchNotFoundException);
 	ASSERT_THROW(bool res = data.HasBet("TestId", ""), InvalidBettorNameException);
@@ -128,7 +130,7 @@ TEST(BotData_Tests, HasBet_InvalidParameters)
 TEST(BotData_Tests, GetBet_ValidParameters)
 {
 	BotData data;
-	data.AddMatch("TestId", "TeamA", "TeamB", 3);
+	data.AddMatch({"TestId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 	data.AddBet("TestId", { 2,1 }, "Bettor");
 
 	auto dataConst = const_cast<const BotData* const>(&data); // to force a call on const getter version which is the only public version
@@ -138,7 +140,7 @@ TEST(BotData_Tests, GetBet_ValidParameters)
 TEST(BotData_Tests, GetBet_InvalidParameters)
 {
 	BotData data;
-	data.AddMatch("TestId", "TeamA", "TeamB", 3);
+	data.AddMatch({"TestId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 	data.AddBet("TestId", { 2,1 }, "Bettor");
 
 	auto dataConst = const_cast<const BotData* const>(&data); // to force a call on const getter version which is the only public version
@@ -152,7 +154,7 @@ TEST(BotData_Tests, GetBet_InvalidParameters)
 TEST(BotData_Tests, ModifyBet_ValidParameters)
 {
 	BotData data;
-	data.AddMatch("TestId", "TeamA", "TeamB", 3);
+	data.AddMatch({"TestId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 	constexpr MatchScore initialScore{ 2,1 };
 	data.AddBet("TestId", initialScore, "Bettor");
 
@@ -167,11 +169,11 @@ TEST(BotData_Tests, ModifyBet_InvalidParameters)
 {
 	BotData data;
 
-	data.AddMatch("PlayedMatchId", "TeamA", "TeamB", 3);
+	data.AddMatch({"PlayedMatchId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 	data.AddBet("PlayedMatchId", { 2,1 }, "Bettor");
 	data.AddResult({ "PlayedMatchId", "TeamA", "TeamB", 2, 0 });
 
-	data.AddMatch("NonPlayedMatchId", "TeamA", "TeamB", 3);
+	data.AddMatch({"NonPlayedMatchId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 	data.AddBet("NonPlayedMatchId", {2,1}, "Bettor");
 
 	ASSERT_THROW(data.ModifyBet("NonExistingId", { 2,0 }, "Bettor"), MatchNotFoundException);
@@ -183,7 +185,7 @@ TEST(BotData_Tests, ModifyBet_InvalidParameters)
 TEST(BotData_Tests, GetBetsOnMatch_ValidParameters)
 {
 	BotData data;
-	data.AddMatch("TestId", "TeamA", "TeamB", 3);
+	data.AddMatch({"TestId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 
 	EXPECT_EQ(data.GetBetsOnMatch("TestId").size(), 0);
 	data.AddBet("TestId", { 2,0 }, "Bettor");
@@ -195,7 +197,7 @@ TEST(BotData_Tests, GetBetsOnMatch_ValidParameters)
 TEST(BotData_Tests, GetBetsOnMatch_InvalidParameters)
 {
 	BotData data;
-	data.AddMatch("TestId", "TeamA", "TeamB", 3);
+	data.AddMatch({"TestId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 
 	ASSERT_THROW(auto matches = data.GetBetsOnMatch("NonExistingId"), MatchNotFoundException);
 }
@@ -203,7 +205,7 @@ TEST(BotData_Tests, GetBetsOnMatch_InvalidParameters)
 TEST(BotData_Tests, GetIncomingMatches)
 {
 	BotData data;
-	data.AddMatch("TestId", "TeamA", "TeamB", 3);
+	data.AddMatch({"TestId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 
 	EXPECT_EQ(data.GetIncomingMatches().size(), 1);
 	data.AddResult({ "TestId", "TeamA", "TeamB", 2, 0 });
@@ -213,7 +215,7 @@ TEST(BotData_Tests, GetIncomingMatches)
 TEST(BotData_Tests, GetPastMatches)
 {
 	BotData data;
-	data.AddMatch("TestId", "TeamA", "TeamB", 3);
+	data.AddMatch({"TestId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 
 	EXPECT_EQ(data.GetPastMatches().size(), 0);
 	data.AddResult({ "TestId", "TeamA", "TeamB", 2, 0 });
@@ -225,14 +227,14 @@ TEST(BotData_Tests, HasMatch_ValidParameters)
 	BotData data;
 
 	EXPECT_FALSE(data.HasMatch("TestId"));
-	data.AddMatch("TestId", "TeamA", "TeamB", 3);
+	data.AddMatch({"TestId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 	EXPECT_TRUE(data.HasMatch("TestId"));
 }
 
 TEST(BotData_Tests, HasMatch_InvalidParameters)
 {
 	BotData data;
-	data.AddMatch("ExistingId", "TeamA", "TeamB", 3);
+	data.AddMatch({"ExistingId", "TeamA", "TeamB", 3, std::string{ "31-01-2100 18:00" }});
 
 	ASSERT_THROW(bool res = data.HasMatch(std::string{ Match::INVALID_ID }), InvalidMatchIdException);
 	ASSERT_THROW(bool res = data.HasMatch(""), InvalidMatchIdException);

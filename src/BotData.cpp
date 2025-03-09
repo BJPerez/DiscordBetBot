@@ -1,6 +1,7 @@
 #include "BotData.h"
 
 #include "BotDataExceptions.h"
+#include "DateAndTime.h"
 
 namespace
 {
@@ -29,36 +30,42 @@ namespace
 	}
 }
 
-void BotData::AddMatch(std::optional<std::string> matchId, std::string teamAName, std::string teamBName, const unsigned int boSize)
+void BotData::AddMatch(const AddMatchParams& params)
 {
-	if (matchId.has_value() && (matchId.value().empty() || matchId.value() == Match::INVALID_ID))
+	if (params.m_MatchId.has_value() && (params.m_MatchId.value().empty() || params.m_MatchId.value() == Match::INVALID_ID))
 	{
-		throw InvalidMatchIdException(std::move(matchId.value()));
+		throw InvalidMatchIdException(params.m_MatchId.value());
 	}
 
-	if (matchId.has_value() && HasMatch(matchId.value()))
+	if (params.m_MatchId.has_value() && HasMatch(params.m_MatchId.value()))
 	{
-		throw MatchIdUnavailableException(std::move(matchId.value()));
+		throw MatchIdUnavailableException(params.m_MatchId.value());
 	}
 
-	if (teamAName.empty() || teamBName.empty())
+	if (params.m_TeamAName.empty() || params.m_TeamBName.empty())
 	{
-		throw InvalidTeamNameException(std::move(teamAName), std::move(teamBName));
+		throw InvalidTeamNameException(params.m_TeamAName, params.m_TeamBName);
 	}
 
-	if (boSize % 2 != 1)
+	if (params.m_BoSize % 2 != 1)
 	{
-		throw InvalidBoSizeException(boSize);
+		throw InvalidBoSizeException(params.m_BoSize);
 	}
 
-	m_Matches.emplace_back(std::move(matchId), std::move(teamAName), std::move(teamBName), boSize);
+	DateAndTime dateTime{ params.m_TimeAsString };
+	if (!dateTime.IsInFuture())
+	{
+		throw DateTimeInThePastException(dateTime);
+	}
+
+	m_Matches.emplace_back(params.m_MatchId, params.m_TeamAName, params.m_TeamBName, params.m_BoSize, dateTime);
 }
 
 void BotData::AddBet(std::string matchId, const MatchScore& matchResult, std::string bettorName)
 {
 	if (!HasMatch(matchId))
 	{
-		throw MatchNotFoundException(std::move(matchId)); 
+		throw MatchNotFoundException(std::move(matchId));
 	}
 
 	const Match& match = GetMatch(matchId);

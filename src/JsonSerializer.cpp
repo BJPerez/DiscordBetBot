@@ -60,6 +60,7 @@ dpp::json JsonSerializer::ToJson(const Match& match)
 		json["TeamAScore"] = match.GetResult().m_TeamAScore;
 		json["TeamBScore"] = match.GetResult().m_TeamBScore;
 	}
+	json["DateTime"] = match.GetDateAndTime().ToString();
 
 	return json;
 }
@@ -120,6 +121,8 @@ void JsonSerializer::FromJson(const dpp::json& json, Match& outMatch)
 	{
 		outMatch.SetResult({ json["TeamAScore"], json["TeamBScore"] });
 	}
+	const DateAndTime dateTime{ json["DateTime"] };
+	outMatch.SetDateAndTime(dateTime);
 }
 
 void JsonSerializer::FromJson(const dpp::json& json, Bet& outBet)
