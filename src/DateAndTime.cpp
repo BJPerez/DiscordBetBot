@@ -7,8 +7,11 @@
 
 DateAndTime::DateAndTime(const std::string& timeAsString) 
 {
+    m_Time = {}; 
+    m_Time.tm_isdst = -1;
+
     std::istringstream timeAsStream{ timeAsString };
-    timeAsStream >> std::chrono::parse(std::string{ DATE_TIME_FORMAT }, m_Time);
+    timeAsStream >> std::get_time(&m_Time, std::string{ DATE_TIME_FORMAT }.c_str());
     if (timeAsStream.fail())
     {
         throw InvalidDateFormat(timeAsString);
@@ -17,15 +20,18 @@ DateAndTime::DateAndTime(const std::string& timeAsString)
 
 std::string DateAndTime::ToString() const noexcept
 {
-	return std::vformat("{:" + std::string{ DATE_TIME_FORMAT } + '}', std::make_format_args(m_Time));
+    std::stringstream resultAsStream;
+    resultAsStream << std::put_time(&m_Time, std::string{ DATE_TIME_FORMAT }.c_str());
+
+    return resultAsStream.str();
 }
 
 bool DateAndTime::IsInFuture() const noexcept
 {
-    const auto dateInSeconds = std::chrono::current_zone()->to_sys(m_Time);
+    const std::time_t dateInSeconds = std::mktime(const_cast<std::tm*>(&m_Time));
 
-    const auto now = std::chrono::system_clock::now();
-    const auto nowAsSeconds = std::chrono::floor<std::chrono::seconds>(now);
+    const std::chrono::time_point now = std::chrono::system_clock::now();
+    const std::time_t nowAsSeconds = std::chrono::system_clock::to_time_t(now);
 
     return dateInSeconds > nowAsSeconds;
 }
