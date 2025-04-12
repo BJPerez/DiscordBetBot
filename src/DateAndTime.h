@@ -14,7 +14,7 @@ public:
 	[[nodiscard]] bool IsInFuture() const noexcept;
 
 private:
-	static constexpr std::string_view DATE_TIME_FORMAT = "%d-%m-%Y %H:%M";
+	static constexpr std::string_view DATE_TIME_FORMAT = "%Y-%m-%d %H:%M";
 
 	std::tm m_Time;
 };

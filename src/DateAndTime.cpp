@@ -1,6 +1,7 @@
 #include "DateAndTime.h"
 
 #include <chrono>
+#include <iomanip>
 #include <sstream>
 
 #include "BotDataExceptions.h"

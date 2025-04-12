@@ -140,7 +140,7 @@ dpp::slashcommand BetBot::CreateAddMatchCommand() const
 	command.add_option(dpp::command_option(dpp::co_string, "team_b", "The name of the second team.", true));
 	command.add_option(dpp::command_option(dpp::co_integer, "bo_size", "The maximal number of game of this match.", true));
 	command.add_option(dpp::command_option(dpp::co_string, "date_time", 
-		"The date and time of the match with this format: Day-Month-Year Hours:Minutes>", true));
+		"The date and time of the match with this format: Year-Month-Day Hours:Minutes>", true));
 
 	return command;
 }

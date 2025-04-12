@@ -36,7 +36,7 @@ MessageBuilder::Message AddMatchCommand::Execute() const
 	catch (const InvalidDateFormat& exception)
 	{
 		return MessageBuilder::BuildAnswer(GetAnswerChannelId(),
-			"User error: The given Date [" + exception.GetDate() + "] has not the right format [Day-Month-Year Hours:Minutes].");
+			"User error: The given Date [" + exception.GetDate() + "] has not the right format [Year-Month-Day Hours:Minutes].");
 	}
 	catch (const DateTimeInThePastException& exception)
 	{
