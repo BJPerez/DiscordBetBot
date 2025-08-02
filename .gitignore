@@ -430,8 +430,9 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-# Ignore the folder containing builds
+# Ignore the folders containing builds
 out/
+build/
 
 #Ignore specifics files
 CMakeSettings.json
