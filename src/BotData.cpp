@@ -264,3 +264,9 @@ bool BotData::HasMatch(const std::string& matchId) const
 	}
 	return true;
 }
+
+void BotData::ClearData()
+{
+	m_Bets.clear();
+	m_Matches.clear();
+}

@@ -10,6 +10,7 @@
 #include "ShowBettorsResultsCommand.h"
 #include "ShowIncomingMatchesCommand.h"
 #include "ShowResultProposalCommand.h"
+#include "ClearDataCommand.h"
 
 namespace
 {
@@ -157,6 +158,7 @@ void BetBot::CreateCommands()
 				commands.emplace_back(CreateAddMatchCommand());
 				commands.emplace_back(CreateShowMatchesCommand());
 				commands.emplace_back(CreateShowResultsCommand());
+				commands.emplace_back(CreateClearDataCommand());
 
 				m_Cluster.global_bulk_command_create(commands);
 			}
@@ -252,6 +254,12 @@ void BetBot::ExecuteShowResults(const dpp::slashcommand_t& event)
 	event.reply(command.Execute());
 }
 
+void BetBot::ExecuteClearData(const dpp::slashcommand_t& event)
+{
+	const ClearDataCommand command{ m_AnswerChannelId, *this };
+	event.reply(command.Execute());
+}
+
 void BetBot::ExecuteShowBetProposal(const dpp::select_click_t& event)
 {
 	const ShowBetProposalCommand command{ m_AnswerChannelId, *this, event.values[0] };
@@ -301,6 +309,10 @@ void BetBot::SetUpCommandCallbacks()
 			else if (commandName == "show_results")
 			{
 				ExecuteShowResults(event);
+			}
+			else if (commandName == "clear_data")
+			{
+				ExecuteClearData(event);
 			}
 		}
 	);

@@ -16,6 +16,7 @@ public:
 
 	virtual void AddBet(std::string matchId, const MatchScore& matchResult, std::string bettorName) = 0;
 	virtual void ModifyBet(const std::string& matchId, const MatchScore& matchResult, const std::string& bettorName) = 0;
+	virtual void ClearData() = 0;
 
 	struct AddMatchParams
 	{
